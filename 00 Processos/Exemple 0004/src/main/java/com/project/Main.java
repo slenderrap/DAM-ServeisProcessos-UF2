@@ -3,9 +3,6 @@ package com.project;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-
 public class Main {
     public static void main(String[] args) {
         // Primer CompletableFuture: retorna un número després d'una operació asíncrona
