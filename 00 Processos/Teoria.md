@@ -32,7 +32,7 @@ Les màquines executen instruccions de codi les unes rere les altres, aquestes i
 <br/></center>
 <br/>
 
-## Monotasking	 i multitasking
+## Monotasking i multitasking
 
 Els sistemes **monotasking** o de un sol procés, són aquells que només tenen un fil d’execució, és a dir, que només poden executar un programa al mateix temps.
 
@@ -74,16 +74,18 @@ class ThreadDemo extends Thread {
 	}
 }
 
-class RunnableDemo {
+class Main {
 	public static void main (String ... args){
-new ThreadDemo().start();
+        new ThreadDemo().start();
 	
-		new Thread (new Task(), "Thread 1").start();
+		new Thread(new Task(), "Thread 1").start();
 		
-		new Thread (new Task(), "Thread 2").start();
+		new Thread(new Task(), "Thread 2").start();
 	}
 }
 ````
+
+**Nota**: A l´**Exemple 0000** es passa informació personalitzada a les tasques a través del constructor.
 
 ## Task i Executors
 
@@ -137,7 +139,7 @@ Callable<Integer> task = () -> {
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ExecutorTaskExample {
+public class Main {
     public static void main(String[] args) {
         // Crear un executor amb un pool de 3 fils
         ExecutorService executor = Executors.newFixedThreadPool(3);
@@ -158,6 +160,8 @@ public class ExecutorTaskExample {
 }
 ```
 
+**Nota**: A l´**"Exemple 0001"** s'executen 10 tasquen de 3 en tres en paral·lel.
+
 ## Compartir dades
 
 Java proporciona col·leccions dissenyades per ser segures en entorns concurrents, com les implementacions de les interfícies **ConcurrentMap**, **BlockingQueue**, o **ConcurrentLinkedQueue**.
@@ -171,7 +175,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-public class TaskCommunicationExample {
+public class Main {
     public static void main(String[] args) throws InterruptedException {
         ConcurrentHashMap<String, Integer> sharedData = new ConcurrentHashMap<>();
         ExecutorService executor = Executors.newFixedThreadPool(3);
@@ -228,10 +232,12 @@ A l'exemple anterior:
 
 - Les tres tasques (task1, task2, task3) s'executen en paral·lel perquè l'executor té un pool de 3 fils. Això significa que cadascuna de les tasques pot estar executant-se al mateix temps en diferents fils.
 
+**Nota**: A l´**"Exemple 0002"** es fa servir el patró de disseny **TaskStrategy** per definir el codi de cada tasca a executar.
+
 Exemple amb *BlockingQueue*:
 
 ```java
-public class TaskQueueCommunicationExample {
+public class Main {
     private static final int POISON_PILL = -1;
 
     public static void main(String[] args) throws InterruptedException {
@@ -289,6 +295,8 @@ A l'exemple anterior:
 - La tasca 2, consumeix dades de la 'queue', eliminant les que procesa. Ho fa de manera indefinida. Si la cua està buila la tasca es bloqueja amb *take()* fins que hi ha espai a la cua. Aquesta tasca acaba quan rep un POISON_PILL
 
 - Les tasques s'executen simultàniament fins que les tasques finalitzen.
+
+**Nota**: A l´**"Exemple 0003"** s'aplica el patró **TaskStrategy** per definir el codi de cada tasca a executar.
 
 ## Future i CompletableFuture
 
@@ -350,7 +358,7 @@ A l'exemple anterior:
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-public class CompletableFutureChainExample {
+public class Main {
     public static void main(String[] args) {
         // Primer CompletableFuture: retorna un número després d'una operació asíncrona
         CompletableFuture<Integer> future1 = CompletableFuture.supplyAsync(() -> {
