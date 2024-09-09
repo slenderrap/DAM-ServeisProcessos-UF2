@@ -156,6 +156,8 @@ A l'exemple anterior:
 
 - **Alliberament del Semàfor (release)**: Després que el fil hagi acabat d'usar el recurs, allibera el semàfor, permetent que un altre fil pugui accedir al recurs.
 
+**Nota**: L´**"Exemple 0101"** fa servir un semàfor per esperar una tasca de duració indeterminada, que s'executa en paral·lel. Normalment sería una crida a un servidor o servei del que no en sabem el temps de resposta.
+
 ## CyclicBarrier vs Semàfors
 
 **CyclicBarrier** adequats per coordinar punts de sincronització en què un conjunt de fils ha d'arribar al mateix punt abans de continuar.
