@@ -9,14 +9,14 @@
 18/10 Sockets
 25/10 Preparació projecte
 
-30/10 - 20/11 Projecte
+06/11 - 27/11 Projecte 1
 
 22/11 Servidors
 29/11 Servidors
 13/11 Servidors
 10/01 Preparació projecte
 
-15/02 - 05/02 Projecte (22/01 - 12/02)
+22/01 - 12/02 Projecte 2
 
 17/01 IA
 24/01 IA
@@ -27,5 +27,5 @@
 07/03 Seguretat
 14/03 Seguretat
 
-19/03 - 09/04 Projecte
+26/03 - 09/04 Projecte 3
 ```
