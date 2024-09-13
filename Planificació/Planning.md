@@ -7,7 +7,7 @@
 
 11/10 Sockets
 18/10 Sockets
-25/10 Preparació projecte
+25/10 Preparació projecte (TPV comandes Bar)
 
 06/11 - 27/11 Projecte 1
 
