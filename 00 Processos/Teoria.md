@@ -124,9 +124,28 @@ Runnable task = () -> {
 - **Callable**: però pot retornar un resultat (V) i llençar excepcions.
 
 ```java
-Callable<Integer> task = () -> {
-    return 123;
-};
+import java.util.concurrent.Callable;
+
+public class MyCallable implements Callable<Integer> {
+
+    @Override
+    public Integer call() throws Exception {
+        // Aquí pots posar qualsevol lògica que necessitis
+        int resultat = 42; // Valor de prova
+        return resultat;
+    }
+    
+    public static void main(String[] args) throws Exception {
+        // Crear una instància de MyCallable
+        Callable<Integer> callable = new MyCallable();
+
+        // Executar el mètode call i obtenir el resultat
+        Integer resultat = callable.call();
+
+        // Imprimir el resultat
+        System.out.println("Resultat: " + resultat);
+    }
+}
 ```
 
 ### Relació entre Executors i Tasks
