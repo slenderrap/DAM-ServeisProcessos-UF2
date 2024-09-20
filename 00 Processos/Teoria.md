@@ -126,28 +126,20 @@ Runnable task = () -> {
 ```java
 import java.util.concurrent.Callable;
 
-public class MyCallable implements Callable<Integer> {
-
+public class Callable implements Callable<Integer>{
     @Override
     public Integer call() throws Exception {
-        // Aquí pots posar qualsevol lògica que necessitis
-        int resultat = 42; // Valor de prova
+        int resultat = 42; 
         return resultat;
-    }
-    
-    public static void main(String[] args) throws Exception {
-        // Crear una instància de MyCallable
-        Callable<Integer> callable = new MyCallable();
-
-        // Executar el mètode call i obtenir el resultat
-        Integer resultat = callable.call();
-
-        // Imprimir el resultat
-        System.out.println("Resultat: " + resultat);
     }
 }
 ```
 
+```java
+Callable myCallable = new Callable();
+Integer result = myCallable.call();
+System.out.println(result);
+```
 ### Relació entre Executors i Tasks
 
 - **Executors**: Són responsables de gestionar els fils i d'assignar Tasks per a la seva execució. S'encarreguen de crear, gestionar i finalitzar els fils.
