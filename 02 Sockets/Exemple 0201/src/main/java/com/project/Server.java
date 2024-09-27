@@ -20,7 +20,6 @@ import org.java_websocket.exceptions.WebsocketNotConnectedException;
 
 public class Server extends WebSocketServer {
 
-    // Map to keep track of connected clients
     private Map<WebSocket, String> clients;
     private static AtomicInteger clientIdCounter = new AtomicInteger(1);
 
@@ -64,7 +63,6 @@ public class Server extends WebSocketServer {
                 rst.put("origin", clientId);
                 rst.put("message", obj.getString("message"));
 
-                // Broadcast to all clients except the sender
                 broadcastMessage(rst.toString(), conn);
 
             } else if (type.equals("private")) {
@@ -75,7 +73,6 @@ public class Server extends WebSocketServer {
                 rst.put("destination", destination);
                 rst.put("message", obj.getString("message"));
 
-                // Send private message
                 sendPrivateMessage(destination, rst.toString(), conn);
             }
         }
@@ -88,7 +85,7 @@ public class Server extends WebSocketServer {
                 try {
                     conn.send(message);
                 } catch (WebsocketNotConnectedException e) {
-                    System.out.println("Cliente " + entry.getValue() + " ya no está conectado. Removiendo de la lista.");
+                    System.out.println("Client " + entry.getValue() + " not connected.");
                     clients.remove(conn);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -108,10 +105,10 @@ public class Server extends WebSocketServer {
                     // Enviar confirmación al remitente
                     JSONObject confirmation = new JSONObject();
                     confirmation.put("type", "confirmation");
-                    confirmation.put("message", "Mensaje entregado a " + destination);
+                    confirmation.put("message", "Message sent to " + destination);
                     senderConn.send(confirmation.toString());
                 } catch (WebsocketNotConnectedException e) {
-                    System.out.println("Cliente " + destination + " ya no está conectado. Removiendo de la lista.");
+                    System.out.println("Client " + destination + " not connected.");
                     clients.remove(entry.getKey());
                     notifySenderClientUnavailable(senderConn, destination);
                 } catch (Exception e) {
@@ -122,7 +119,7 @@ public class Server extends WebSocketServer {
         }
 
         if (!found) {
-            System.out.println("Cliente destino " + destination + " no encontrado.");
+            System.out.println("Client " + destination + " not found.");
             notifySenderClientUnavailable(senderConn, destination);
         }
     }
@@ -130,7 +127,7 @@ public class Server extends WebSocketServer {
     private void notifySenderClientUnavailable(WebSocket sender, String destination) {
         JSONObject rst = new JSONObject();
         rst.put("type", "error");
-        rst.put("message", "El cliente destino " + destination + " no está disponible.");
+        rst.put("message", "Client " + destination + " not available.");
 
         try {
             sender.send(rst.toString());
@@ -159,7 +156,7 @@ public class Server extends WebSocketServer {
             try {
                 conn.send(rst.toString());
             } catch (WebsocketNotConnectedException e) {
-                System.out.println("Cliente " + clientId + " ya no está conectado. Removiendo de la lista.");
+                System.out.println("Client " + clientId + " not conected.");
                 iterator.remove();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -188,7 +185,7 @@ public class Server extends WebSocketServer {
         // Crear un LineReader per llegir les comandes de la consola
         LineReader reader = LineReaderBuilder.builder().build();
 
-        System.out.println("El servidor està en funcionament. Escriu 'exit' per aturar-lo.");
+        System.out.println("Server running. Type 'exit' to gracefully stop it.");
 
         try {
             while (true) {
@@ -206,7 +203,7 @@ public class Server extends WebSocketServer {
                 line = line.trim();
 
                 if (line.equalsIgnoreCase("exit")) {
-                    System.out.println("Aturant el servidor...");
+                    System.out.println("Stopping server...");
                     try {
                         server.stop(1000); // Atura el servidor amb un temps d'espera de 1 segon
                     } catch (InterruptedException e) {
@@ -214,11 +211,11 @@ public class Server extends WebSocketServer {
                     }
                     break;
                 } else {
-                    System.out.println("Comanda desconeguda. Escriu 'exit' per aturar el servidor.");
+                    System.out.println("Unknown command. Type 'exit' to stop server gracefully.");
                 }
             }
         } finally {
-            System.out.println("Servidor aturat.");
+            System.out.println("Server stopped.");
         }
     }
 }

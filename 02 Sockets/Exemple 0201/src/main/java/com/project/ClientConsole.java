@@ -96,7 +96,7 @@ public class ClientConsole extends WebSocketClient {
     }
 
     public static void main(String[] args) throws URISyntaxException {
-        String serverURI = "ws://localhost:3000"; // Adjust if your server runs on a different host or port
+        String serverURI = "ws://localhost:3000"; 
         ClientConsole client = new ClientConsole(new URI(serverURI));
         client.connect();
 
