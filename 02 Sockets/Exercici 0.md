@@ -51,3 +51,5 @@ Els vaixells són:
 - 1 de 4 espais (Cuirassat)
 - 2 de 3 espais (Creuers)
 - 2 de 2 espais (Submarí)
+
+La lògica de joc la gestiona el servidor, els clients només mostren l'estat del joc i envien els events.
