@@ -27,3 +27,27 @@ El joc ha de tenir tres vistes:
     El jugador que no té el torn veu sobre quina posició té el contrincant el mouse, perquè aquesta canvia visiblement de color.
 
 - La quinta vista mostra el resultat.
+
+Les caselles han de ser botons simples, el canvi de color s'ha de fer amb els estils de JavaFX. Les lletres dels botons són:
+
+- "": Un text buit per un botó amb el que no s'ha interactuat. 
+- "V": Un botó que té un troç de vaixell nostre. Botó verd.
+- "T": Un botó que té un botó que hem encertat de l'adversari. 
+- "A": Un botó que hem intentat endevinar però on l'adversari no hi té res.
+
+- "": Botó de color blanc.
+- "V": Botó de color verd.
+- "T": Botó de color taronja, o vermell quan el vaixell està enfonsat.
+- "A": Botó blau.
+
+Les graelles hauràn de ser:
+
+- Horitzontals de la A a la J
+- Verticals del 0 al 9
+
+Els vaixells són:
+
+- 1 de 5 espais (Porta avions)
+- 1 de 4 espais (Cuirassat)
+- 2 de 3 espais (Creuers)
+- 2 de 2 espais (Submarí)
