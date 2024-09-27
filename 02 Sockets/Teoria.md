@@ -139,7 +139,56 @@ Tot això fa que treballar amb sockets directament sigui una tasca més complica
 
 Si bé els sockets poden proporcionar un gran control sobre la comunicació en xarxa, la seva complexitat i els requisits de gestió poden fer que siguin poc adequats per a moltes aplicacions modernes. En canvi, WebSockets ofereixen un protocol estàndard, més simple i eficient per a la comunicació bidireccional en temps real, amb avantatges significatius en termes d'escalabilitat, facilitat d'ús i optimització d'ample de banda.
 
+### WebSockets, connexió
 
+**Servidor**
+
+S'ha de definir el servidor com a classe heredada de *WebSocketServer*
+```java
+public class Server extends WebSocketServer
+```
+
+Com en tots els Clients/Servidors la connexió e fa a partir d'una IP i un Port
+```java
+    int port = 3000; // Ajusta si el teu servidor s'executa en un port diferent
+    Server server = new Server(new InetSocketAddress(port));
+    server.start();
+```
+
+El servidor es queda a l'espera de rebre connexions i missatges dels clients, això ho fa sobreescribint les funcions:
+
+- **onOpen**: Quan un client obre una nova connexió
+- **onClose**: Quan un client tanca la connexió
+- **onMessage**: Quan un client envia un missatge
+- **onError**: Quan es produeix un error
+
+Hi ha diferents tipus de missatges:
+
+- **privat**: S'envia un missatge a un client específic
+- **broadcast**: S'envia un missatge a tots els clients
+- **bounce**: El missatge es rebota al client que l'ha enviat
+
+**Clients**
+
+Pel què fa als clients, han d'heretar de la classe *WebSocketClient*
+
+```java
+public class ClientCMD extends WebSocketClient
+```
+
+El client ha de dir a quin servidor es vol connectar a través de la IP i port del servidor.
+```java
+    int port = 3000; 
+    Server server = new Server(new InetSocketAddress(port));
+    server.start();
+```
+
+Els clients també han de sobreescriure les funcions:
+
+- **onOpen**: Quan s'aconsegueix connectar amb el servidor
+- **onMessage**: Quan es rep un missatge des del servidor
+- **onClose**: Quan es tanca la connexió amb el servidor
+- **onError**: Quan es produeix un error
 
 Per fer anar l´**"Exemple 0201"** cal obrir diverses consoles, cada una amb les crides:
 

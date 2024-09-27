@@ -178,7 +178,7 @@ public class Server extends WebSocketServer {
     }
 
     public static void main(String[] args) {
-        int port = 3000; // Ajusta si el teu servidor s'executa en un port diferent
+        int port = 3000; 
         Server server = new Server(new InetSocketAddress(port));
         server.start();
 
