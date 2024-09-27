@@ -3,7 +3,7 @@
 20/09 Processos
 
 27/09 Sincronització
-04/10 Sincronització
+04/10 Sockets
 
 11/10 Sockets
 18/10 Sockets
