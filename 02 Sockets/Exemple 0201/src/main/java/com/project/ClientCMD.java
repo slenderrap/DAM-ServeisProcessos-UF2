@@ -15,12 +15,12 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClientConsole extends WebSocketClient {
+public class ClientCMD extends WebSocketClient {
 
     private List<String> clientsList;
     private String clientId;
 
-    public ClientConsole(URI serverUri) {
+    public ClientCMD(URI serverUri) {
         super(serverUri);
         clientsList = new ArrayList<>();
     }
@@ -97,7 +97,7 @@ public class ClientConsole extends WebSocketClient {
 
     public static void main(String[] args) throws URISyntaxException {
         String serverURI = "ws://localhost:3000"; 
-        ClientConsole client = new ClientConsole(new URI(serverURI));
+        ClientCMD client = new ClientCMD(new URI(serverURI));
         client.connect();
 
         // Wait for the connection to be established

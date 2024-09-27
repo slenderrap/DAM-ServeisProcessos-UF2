@@ -100,8 +100,8 @@ Explicació:
 
 Per fer anar l´**"Exemple 0200"** cal obrir dues consoles, cada una amb les crides:
 
-- ./run.sh Client
-- ./run.sh Server
+- ./run.sh com.project.Server
+- ./run.sh com.project.Client
 
 (o l'equivalent .ps1)
 
@@ -141,3 +141,12 @@ Si bé els sockets poden proporcionar un gran control sobre la comunicació en x
 
 
 
+Per fer anar l´**"Exemple 0201"** cal obrir diverses consoles, cada una amb les crides:
+
+- ./run.sh com.project.Server
+- ./run.sh com.project.ClientFX
+- ./run.sh com.project.ClientCMD
+
+(o l'equivalent .ps1)
+
+Es poden obrir diverses finestres de ClientFX o ClientCMD per fer una conversa en grup

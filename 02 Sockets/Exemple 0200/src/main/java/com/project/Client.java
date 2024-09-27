@@ -18,7 +18,9 @@ public class Client {
 
             // Llegir resposta del servidor
             String respostaServidor = input.readLine();
+            System.out.println("\n---------------------------------------------");
             System.out.println("Resposta del servidor: " + respostaServidor);
+            System.out.println("---------------------------------------------\n");
 
             // Tancar connexions
             input.close();

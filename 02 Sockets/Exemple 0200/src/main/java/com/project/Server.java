@@ -8,6 +8,7 @@ public class Server {
         try {
             // Crear socket del servidor en el port 12345
             ServerSocket servidorSocket = new ServerSocket(12345);
+            System.out.println("\n---------------------------------------------");
             System.out.println("Servidor esperant connexions...");
 
             // Acceptar connexió del client
@@ -30,6 +31,7 @@ public class Server {
             output.close();
             socket.close();
             servidorSocket.close();
+            System.out.println("---------------------------------------------\n");
         } catch (IOException e) {
             e.printStackTrace();
         }

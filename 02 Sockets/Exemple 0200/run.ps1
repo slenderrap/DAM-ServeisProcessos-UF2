@@ -1,47 +1,50 @@
 # run.ps1
+function Get-LatestVersion {
+    param (
+        [string]$moduleName
+    )
 
-# Exemple de funcionament: .\run.ps1 Client
-# on 'Client' o 'Server' són els paràmetres que indiquen quina classe volem executar
+    # Find the JAR files and sort them by version while excluding javadoc and sources
+    $jarFiles = Get-ChildItem -Path "$env:USERPROFILE\.m2\repository\org\openjfx" -Recurse -File |
+                Where-Object { $_.Name -like "${moduleName}-*.jar" -and $_.Name -notmatch "(javadoc|sources)" } |
+                Sort-Object Name -Descending
 
-# Set console output to UTF-8
-[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+    # Return the latest version's path
+    if ($jarFiles.Count -gt 0) {
+        return $jarFiles[0].FullName
+    } else {
+        return $null
+    }
+}
 
-# Change to the directory where the script is located
-Set-Location $PSScriptRoot
+$fxBasePath = Get-LatestVersion "javafx-base"
+$fxControlsPath = Get-LatestVersion "javafx-controls"
+$fxFxmlPath = Get-LatestVersion "javafx-fxml"
+$fxGraphicsPath = Get-LatestVersion "javafx-graphics"
 
-# Set MAVEN_OPTS environment variable
-$env:MAVEN_OPTS="--add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED -Dfile.encoding=UTF8"
+$fxPath = "$fxBasePath;$fxControlsPath;$fxFxmlPath;$fxGraphicsPath"
 
-# Verifica si s'ha passat un argument
-if (-not $args[0]) {
-    Write-Host "Error: Has de passar un argument: 'Client' o 'Server'."
+if (-not $fxPath) {
+    Write-Host "No es pot trobar el mòdul JavaFX al repositori Maven local."
     exit 1
 }
 
-# Assigna el perfil i la classe principal segons l'argument passat
-$profile = ""
-$mainClass = ""
+# Opcions comunes per a MAVEN_OPTS
+$env:MAVEN_OPTS = "--add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --module-path $fxPath --add-modules javafx.controls,javafx.fxml,javafx.graphics"
 
-switch ($args[0]) {
-    "Client" {
-        $profile = "runClient"
-        $mainClass = "com.project.Client"
-    }
-    "Server" {
-        $profile = "runServer"
-        $mainClass = "com.project.Server"
-    }
-    default {
-        Write-Host "Error: L'argument ha de ser 'Client' o 'Server'."
-        exit 1
-    }
-}
+# Resta de l'script
 
-Write-Host "Setting MAVEN_OPTS to: $env:MAVEN_OPTS"
-Write-Host "Executing Maven profile: $profile with Main Class: $mainClass"
+# Check for the first argument and set it as the main class
+$mainClass = $args[0]
 
-# Construcció dels arguments d'execució per a Maven
-$execArg = "-Dexec.mainClass=" + $mainClass
+Write-Output "Setting MAVEN_OPTS to: $MAVEN_OPTS"
+Write-Output "Main Class: $mainClass"
 
-# Execució de la comanda Maven
-mvn -q clean test-compile exec:java -P$profile $execArg
+# Split the execArg into an array
+$javafx_platform = "win"
+$execArgs = @("-PrunMain", "-Dexec.mainClass=$mainClass", "-Djavafx.platform=$javafx_platform")
+
+Write-Output "Exec args: $($execArgs -join ' ')"
+
+# Execute mvn command
+mvn clean test-compile exec:java $execArgs
