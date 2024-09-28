@@ -25,8 +25,8 @@ public class ClientFX extends Application {
     @Override
     public void start(Stage stage) throws Exception {
 
-        final int windowWidth = 800;
-        final int windowHeight = 600;
+        final int windowWidth = 400;
+        final int windowHeight = 300;
 
         UtilsViews.parentContainer.setStyle("-fx-font: 14 arial;");
         UtilsViews.addView(getClass(), "ViewSockets", "/assets/viewSockets.fxml");

@@ -190,6 +190,38 @@ Els clients també han de sobreescriure les funcions:
 - **onClose**: Quan es tanca la connexió amb el servidor
 - **onError**: Quan es produeix un error
 
+Es poden obrir diverses finestres de ClientFX o ClientCMD per fer una conversa en grup
+
+**UtilsWS**
+
+Per simplificar el funcionament dels WebSockets la classe *UtilsWS* ajuda a fer la gestió amb el servidor. Per fer-la anar:
+
+```java
+// Crear un client de UtilsWS
+private UtilsWS wsClient = UtilsWS.getSharedInstance(serverUri);
+
+// Definir l'acció quan es rep un missatge remot
+wsClient.onMessage(this::handleMessage);
+
+private void handleMessage(String message) {
+    JSONObject msgObj = new JSONObject(message);
+    String type = msgObj.getString("type");
+
+    switch (type) {
+        // Actuar segons el tipus de missatge rebut
+    }
+}
+
+// Per enviar missatges:
+JSONObject obj = new JSONObject();
+obj.put("type", "private");
+obj.put("destination", destination);
+obj.put("message", message);
+wsClient.safeSend(obj.toString());
+```
+
+**Nota**: Per ajudar amb la gestió dels missatges, s'envien cadenes de text en format JSON a través dels *WebSockets*
+
 Per fer anar l´**"Exemple 0201"** cal obrir diverses consoles, cada una amb les crides:
 
 - ./run.sh com.project.Server
@@ -198,4 +230,7 @@ Per fer anar l´**"Exemple 0201"** cal obrir diverses consoles, cada una amb les
 
 (o l'equivalent .ps1)
 
-Es poden obrir diverses finestres de ClientFX o ClientCMD per fer una conversa en grup
+
+<video width="100%" controls allowfullscreen>
+  <source src="./assets/ex0201.mov" type="video/mp4">
+</video>
