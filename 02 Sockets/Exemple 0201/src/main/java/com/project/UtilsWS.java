@@ -15,7 +15,7 @@ public class UtilsWS  extends WebSocketClient {
     public static UtilsWS sharedInstance = null;
     private Consumer<String> onMessageCallBack = null;
     private String location = "";
-    private static AtomicBoolean exitRequested = new AtomicBoolean(false);
+    private static AtomicBoolean exitRequested = new AtomicBoolean(false); // Thread safe
 
     private UtilsWS (String location, Draft draft) throws URISyntaxException {
         super (new URI(location), draft);
