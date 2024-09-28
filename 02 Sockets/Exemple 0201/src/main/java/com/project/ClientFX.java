@@ -9,7 +9,7 @@ import javafx.stage.Stage;
 
 public class ClientFX extends Application {
 
-    public static UtilsWS socketClient;
+    public static UtilsWS wsClient;
 
     public static int port = 3000;
     public static String protocol = "http";
@@ -47,8 +47,8 @@ public class ClientFX extends Application {
         }
 
         // Iniciar WebSockets
-        socketClient = UtilsWS.getSharedInstance(protocolWS + "://" + host + ":" + port);
-        socketClient.onMessage((response) -> {
+        wsClient = UtilsWS.getSharedInstance(protocolWS + "://" + host + ":" + port);
+        wsClient.onMessage((response) -> {
             
             // JavaFX necessita que els canvis es facin des de el thread principal
             Platform.runLater(()->{ 
@@ -62,7 +62,7 @@ public class ClientFX extends Application {
 
     @Override
     public void stop() { 
-        socketClient.close();
+        wsClient.forceExit();
         System.exit(1); // Kill all executor services
     }
 }

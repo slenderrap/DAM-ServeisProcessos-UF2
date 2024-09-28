@@ -76,11 +76,11 @@ public class CtrlSockets implements Initializable {
             obj.put("destination", destination);
         }
 
-        ClientFX.socketClient.safeSend(obj.toString());
+        ClientFX.wsClient.safeSend(obj.toString());
         System.out.println("Send WebSocket: " + obj.toString());
     }
 
-    // Main socketClient calls this method when receiving a message
+    // Main wsClient calls this method when receiving a message
     public void receiveMessage (JSONObject messageObj) {
         System.out.println("Receive WebSocket: " + messageObj.toString());
         String type = messageObj.getString("type");
