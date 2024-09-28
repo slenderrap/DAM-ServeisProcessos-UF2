@@ -12,7 +12,10 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Arrays;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -20,33 +23,51 @@ import org.java_websocket.exceptions.WebsocketNotConnectedException;
 
 public class Server extends WebSocketServer {
 
+    private static final List<String> CHARACTER_NAMES = Arrays.asList(
+        "Mario", "Luigi", "Peach", "Toad", "Bowser", "Wario", "Zelda", "Link"
+    );
+
     private Map<WebSocket, String> clients;
-    private static AtomicInteger clientIdCounter = new AtomicInteger(1);
+    private List<String> availableNames;
 
     public Server(InetSocketAddress address) {
         super(address);
         clients = new ConcurrentHashMap<>();
+        resetAvailableNames();
+    }
+
+    private void resetAvailableNames() {
+        availableNames = new ArrayList<>(CHARACTER_NAMES);
+        Collections.shuffle(availableNames);
     }
 
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
-        String clientId = "client" + clientIdCounter.getAndIncrement();
-        clients.put(conn, clientId);
-        System.out.println("WebSocket client connected: " + clientId);
+        String clientName = getNextAvailableName();
+        clients.put(conn, clientName);
+        System.out.println("WebSocket client connected: " + clientName);
         sendClientsList();
+    }
+
+    private String getNextAvailableName() {
+        if (availableNames.isEmpty()) {
+            resetAvailableNames();
+        }
+        return availableNames.remove(0);
     }
 
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-        String clientId = clients.get(conn);
+        String clientName = clients.get(conn);
         clients.remove(conn);
-        System.out.println("WebSocket client disconnected: " + clientId);
+        availableNames.add(clientName);
+        System.out.println("WebSocket client disconnected: " + clientName);
         sendClientsList();
     }
 
     @Override
     public void onMessage(WebSocket conn, String message) {
-        String clientId = clients.get(conn);
+        String clientName = clients.get(conn);
         JSONObject obj = new JSONObject(message);
 
         if (obj.has("type")) {
@@ -60,7 +81,7 @@ public class Server extends WebSocketServer {
             } else if (type.equals("broadcast")) {
                 JSONObject rst = new JSONObject();
                 rst.put("type", "broadcast");
-                rst.put("origin", clientId);
+                rst.put("origin", clientName);
                 rst.put("message", obj.getString("message"));
 
                 broadcastMessage(rst.toString(), conn);
@@ -69,7 +90,7 @@ public class Server extends WebSocketServer {
                 String destination = obj.getString("destination");
                 JSONObject rst = new JSONObject();
                 rst.put("type", "private");
-                rst.put("origin", clientId);
+                rst.put("origin", clientName);
                 rst.put("destination", destination);
                 rst.put("message", obj.getString("message"));
 
@@ -87,6 +108,7 @@ public class Server extends WebSocketServer {
                 } catch (WebsocketNotConnectedException e) {
                     System.out.println("Client " + entry.getValue() + " not connected.");
                     clients.remove(conn);
+                    availableNames.add(entry.getValue());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -102,7 +124,6 @@ public class Server extends WebSocketServer {
                 found = true;
                 try {
                     entry.getKey().send(message);
-                    // Enviar confirmación al remitente
                     JSONObject confirmation = new JSONObject();
                     confirmation.put("type", "confirmation");
                     confirmation.put("message", "Message sent to " + destination);
@@ -110,6 +131,7 @@ public class Server extends WebSocketServer {
                 } catch (WebsocketNotConnectedException e) {
                     System.out.println("Client " + destination + " not connected.");
                     clients.remove(entry.getKey());
+                    availableNames.add(destination);
                     notifySenderClientUnavailable(senderConn, destination);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -138,26 +160,27 @@ public class Server extends WebSocketServer {
 
     private void sendClientsList() {
         JSONArray clientList = new JSONArray();
-        for (String clientId : clients.values()) {
-            clientList.put(clientId);
+        for (String clientName : clients.values()) {
+            clientList.put(clientName);
         }
 
         Iterator<Map.Entry<WebSocket, String>> iterator = clients.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<WebSocket, String> entry = iterator.next();
             WebSocket conn = entry.getKey();
-            String clientId = entry.getValue();
+            String clientName = entry.getValue();
 
             JSONObject rst = new JSONObject();
             rst.put("type", "clients");
-            rst.put("id", clientId);
+            rst.put("id", clientName);
             rst.put("list", clientList);
 
             try {
                 conn.send(rst.toString());
             } catch (WebsocketNotConnectedException e) {
-                System.out.println("Client " + clientId + " not conected.");
+                System.out.println("Client " + clientName + " not connected.");
                 iterator.remove();
+                availableNames.add(clientName);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -167,7 +190,6 @@ public class Server extends WebSocketServer {
     @Override
     public void onError(WebSocket conn, Exception ex) {
         ex.printStackTrace();
-        // Handle errors as needed
     }
 
     @Override
@@ -182,7 +204,6 @@ public class Server extends WebSocketServer {
         Server server = new Server(new InetSocketAddress(port));
         server.start();
 
-        // Crear un LineReader per llegir les comandes de la consola
         LineReader reader = LineReaderBuilder.builder().build();
 
         System.out.println("Server running. Type 'exit' to gracefully stop it.");
@@ -193,10 +214,8 @@ public class Server extends WebSocketServer {
                 try {
                     line = reader.readLine("> ");
                 } catch (UserInterruptException e) {
-                    // L'usuari ha pressionat Ctrl+C
                     continue;
                 } catch (EndOfFileException e) {
-                    // L'usuari ha pressionat Ctrl+D
                     break;
                 }
 
@@ -205,7 +224,7 @@ public class Server extends WebSocketServer {
                 if (line.equalsIgnoreCase("exit")) {
                     System.out.println("Stopping server...");
                     try {
-                        server.stop(1000); // Atura el servidor amb un temps d'espera de 1 segon
+                        server.stop(1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

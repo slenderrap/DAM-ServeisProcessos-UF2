@@ -72,10 +72,10 @@ public class ClientCMD {
 
     public void showHelp() {
         System.out.println("\nAvailable commands (press ↩️ after each command):");
-        System.out.println("- listClients↩️ : lists the connected clients");
-        System.out.println("- sendPrivate XXX message↩️ : sends a private message to the client with id XXX");
-        System.out.println("- sendBroadcast message↩️ : sends a message to all clients");
-        System.out.println("- sendBounce message↩️ : sends a message that bounces back to you");
+        System.out.println("- list : lists the connected clients");
+        System.out.println("- private clientX message↩️ : sends a private message to the client with id X");
+        System.out.println("- broadcast message↩️ : sends a message to all clients");
+        System.out.println("- bounce message↩️ : sends a message that bounces back to you");
         System.out.println("- exit↩️ : exits the client");
     }
 
@@ -111,13 +111,13 @@ public class ClientCMD {
 
                 if (line.equalsIgnoreCase("help")) {
                     showHelp();
-                } else if (line.equalsIgnoreCase("listClients")) {
+                } else if (line.equalsIgnoreCase("list")) {
                     listClients();
-                } else if (line.toLowerCase().startsWith("sendprivate")) {
+                } else if (line.toLowerCase().startsWith("private")) {
                     handleSendPrivate(line);
-                } else if (line.toLowerCase().startsWith("sendbroadcast")) {
+                } else if (line.toLowerCase().startsWith("broadcast")) {
                     handleSendBroadcast(line);
-                } else if (line.toLowerCase().startsWith("sendbounce")) {
+                } else if (line.toLowerCase().startsWith("bounce")) {
                     handleSendBounce(line);
                 } else if (line.equalsIgnoreCase("exit")) {
                     System.out.println("Exiting client.");
@@ -133,9 +133,9 @@ public class ClientCMD {
     }
 
     private void handleSendPrivate(String line) {
-        String[] parts = line.split(" ", 3);
+        String[] parts = line.split(" ");
         if (parts.length < 3) {
-            System.out.println("Usage: sendPrivate XXX message");
+            System.out.println("Usage: private clientX message");
             return;
         }
         String destination = parts[1];
@@ -151,7 +151,7 @@ public class ClientCMD {
     private void handleSendBroadcast(String line) {
         String[] parts = line.split(" ", 2);
         if (parts.length < 2) {
-            System.out.println("Usage: sendBroadcast message");
+            System.out.println("Usage: broadcast message");
             return;
         }
         String message = parts[1];
@@ -165,7 +165,7 @@ public class ClientCMD {
     private void handleSendBounce(String line) {
         String[] parts = line.split(" ", 2);
         if (parts.length < 2) {
-            System.out.println("Usage: sendBounce message");
+            System.out.println("Usage: bounce message");
             return;
         }
         String message = parts[1];
