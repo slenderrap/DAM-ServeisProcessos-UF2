@@ -76,6 +76,7 @@ public class ClientCMD {
         System.out.println("- private clientX message↩️ : sends a private message to the client with id X");
         System.out.println("- broadcast message↩️ : sends a message to all clients");
         System.out.println("- bounce message↩️ : sends a message that bounces back to you");
+        System.out.println("- myname : shows your client name");
         System.out.println("- exit↩️ : exits the client");
     }
 
@@ -109,7 +110,9 @@ public class ClientCMD {
 
                 line = line.trim();
 
-                if (line.equalsIgnoreCase("help")) {
+                if (line.isEmpty()) {
+                    continue;
+                } else if (line.equalsIgnoreCase("help")) {
                     showHelp();
                 } else if (line.equalsIgnoreCase("list")) {
                     listClients();
@@ -119,6 +122,8 @@ public class ClientCMD {
                     handleSendBroadcast(line);
                 } else if (line.toLowerCase().startsWith("bounce")) {
                     handleSendBounce(line);
+                } else if (line.equalsIgnoreCase("myname")) {
+                    System.out.println("Your client name is: " + clientId);
                 } else if (line.equalsIgnoreCase("exit")) {
                     System.out.println("Exiting client.");
                     wsClient.forceExit();
@@ -133,7 +138,7 @@ public class ClientCMD {
     }
 
     private void handleSendPrivate(String line) {
-        String[] parts = line.split(" ");
+        String[] parts = line.split(" ", 3);
         if (parts.length < 3) {
             System.out.println("Usage: private clientX message");
             return;
