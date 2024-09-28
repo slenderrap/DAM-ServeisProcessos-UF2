@@ -2,6 +2,7 @@ package com.project;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import org.java_websocket.client.WebSocketClient;
@@ -14,9 +15,9 @@ public class UtilsWS  extends WebSocketClient {
     public static UtilsWS sharedInstance = null;
     private Consumer<String> onMessageCallBack = null;
     private String location = "";
-    private Boolean shouldReconnect = true;
-    private Boolean exitRequested = false;
-
+    private static AtomicBoolean shouldReconnect = new AtomicBoolean(true);
+    private static AtomicBoolean exitRequested = new AtomicBoolean(false);
+    
     private UtilsWS (String location, Draft draft) throws URISyntaxException {
         super (new URI(location), draft);
         this.location = location;
@@ -79,18 +80,19 @@ public class UtilsWS  extends WebSocketClient {
     }
 
     public void reconnect () {
-        if (!shouldReconnect || exitRequested) { return; }
-
+        if (!shouldReconnect.get() || exitRequested.get()) { return; }
+    
         System.out.println("WS reconnecting to: " + this.location);
 
         try {
             TimeUnit.SECONDS.sleep(5);
         } catch (InterruptedException e) {
             System.out.println("WD Error, waiting");
+            Thread.currentThread().interrupt();  // Assegurar que el fil es torna a interrompre correctament
         }
-
-        if (!shouldReconnect || exitRequested) { return; }
-
+    
+        if (!shouldReconnect.get() || exitRequested.get()) { return; }
+        
         Consumer<String> oldCallBack = this.onMessageCallBack;
         String oldLocation = this.location;
         sharedInstance.close();
@@ -98,11 +100,11 @@ public class UtilsWS  extends WebSocketClient {
         getSharedInstance(oldLocation);
         sharedInstance.onMessage(oldCallBack);
     }
-
+    
     public void forceExit () {
         System.out.println("WS Closing ...");
-        shouldReconnect = false;
-        exitRequested = true;
+        shouldReconnect.set(false);
+        exitRequested.set(true);
         try {
             if (!isClosed()) {
                 super.closeBlocking();
@@ -112,4 +114,5 @@ public class UtilsWS  extends WebSocketClient {
             Thread.currentThread().interrupt();
         }
     }
+    
 }
