@@ -15,9 +15,8 @@ public class UtilsWS  extends WebSocketClient {
     public static UtilsWS sharedInstance = null;
     private Consumer<String> onMessageCallBack = null;
     private String location = "";
-    private static AtomicBoolean shouldReconnect = new AtomicBoolean(true);
     private static AtomicBoolean exitRequested = new AtomicBoolean(false);
-    
+
     private UtilsWS (String location, Draft draft) throws URISyntaxException {
         super (new URI(location), draft);
         this.location = location;
@@ -80,7 +79,7 @@ public class UtilsWS  extends WebSocketClient {
     }
 
     public void reconnect () {
-        if (!shouldReconnect.get() || exitRequested.get()) { return; }
+        if (exitRequested.get()) { return; }
     
         System.out.println("WS reconnecting to: " + this.location);
 
@@ -91,7 +90,7 @@ public class UtilsWS  extends WebSocketClient {
             Thread.currentThread().interrupt();  // Assegurar que el fil es torna a interrompre correctament
         }
     
-        if (!shouldReconnect.get() || exitRequested.get()) { return; }
+        if (exitRequested.get()) { return; }
         
         Consumer<String> oldCallBack = this.onMessageCallBack;
         String oldLocation = this.location;
@@ -103,7 +102,6 @@ public class UtilsWS  extends WebSocketClient {
     
     public void forceExit () {
         System.out.println("WS Closing ...");
-        shouldReconnect.set(false);
         exitRequested.set(true);
         try {
             if (!isClosed()) {
