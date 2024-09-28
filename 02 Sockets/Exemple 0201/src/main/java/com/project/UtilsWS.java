@@ -112,5 +112,4 @@ public class UtilsWS  extends WebSocketClient {
             Thread.currentThread().interrupt();
         }
     }
-    
 }
