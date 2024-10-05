@@ -47,8 +47,7 @@ public class ClientFX extends Application {
         }
 
         // Iniciar WebSockets
-        wsClient = UtilsWS.getSharedInstance();
-        wsClient.connectToLocation(protocolWS + "://" + host + ":" + port);
+        wsClient = UtilsWS.getSharedInstance(protocolWS + "://" + host + ":" + port);
         wsClient.onMessage((response) -> {
             
             // JavaFX necessita que els canvis es facin des de el thread principal

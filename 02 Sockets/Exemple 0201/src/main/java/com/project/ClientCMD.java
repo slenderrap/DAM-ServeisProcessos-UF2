@@ -19,8 +19,7 @@ public class ClientCMD {
 
     public ClientCMD(String serverUri) {
         clientsList = new ArrayList<>();
-        wsClient = UtilsWS.getSharedInstance();
-        wsClient.connectToLocation(serverUri);
+        wsClient = UtilsWS.getSharedInstance(serverUri);
         setupwsClient();
     }
 
