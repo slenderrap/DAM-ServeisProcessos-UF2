@@ -1,6 +1,8 @@
 package com.project;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -19,6 +21,7 @@ public class UtilsWS {
     private Consumer<String> onErrorCallBack = null;
     private String location = "";
     private static AtomicBoolean exitRequested = new AtomicBoolean(false);
+    private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     private UtilsWS(String location) {
         this.location = location;
@@ -52,7 +55,7 @@ public class UtilsWS {
                         onCloseCallBack.accept(message);
                     }
                     if (remote) {
-                        reconnect();
+                        scheduleReconnect();
                     }
                 }
 
@@ -64,7 +67,7 @@ public class UtilsWS {
                         onErrorCallBack.accept(message);
                     }
                     if (e.getMessage().contains("Connection refused") || e.getMessage().contains("Connection reset")) {
-                        reconnect();
+                        scheduleReconnect();
                     }
                 }
             };
@@ -73,6 +76,25 @@ public class UtilsWS {
             e.printStackTrace();
             System.out.println("WS Error, " + location + " is not a valid URI");
         }
+    }
+
+    private void scheduleReconnect() {
+        if (!exitRequested.get()) {
+            scheduler.schedule(this::reconnect, 5, TimeUnit.SECONDS);
+        }
+    }
+
+    private void reconnect() {
+        if (exitRequested.get()) {
+            return;
+        }
+
+        System.out.println("WS reconnecting to: " + this.location);
+
+        if (client != null) {
+            client.close();
+        }
+        createNewWebSocketClient();
     }
 
     public static UtilsWS getSharedInstance(String location) {
@@ -104,35 +126,11 @@ public class UtilsWS {
                 client.send(text);
             } else {
                 System.out.println("WS Error: Client is not connected. Attempting to reconnect...");
-                reconnect();
+                scheduleReconnect();
             }
         } catch (Exception e) {
             System.out.println("WS Error sending message: " + e.getMessage());
         }
-    }
-
-    public void reconnect() {
-        if (exitRequested.get()) {
-            return;
-        }
-
-        System.out.println("WS reconnecting to: " + this.location);
-
-        try {
-            TimeUnit.SECONDS.sleep(5);
-        } catch (InterruptedException e) {
-            System.out.println("WS Error, waiting");
-            Thread.currentThread().interrupt();
-        }
-
-        if (exitRequested.get()) {
-            return;
-        }
-
-        if (client != null) {
-            client.close();
-        }
-        createNewWebSocketClient();
     }
 
     public void forceExit() {
@@ -145,6 +143,8 @@ public class UtilsWS {
         } catch (Exception e) {
             System.out.println("WS Interrupted while closing WebSocket connection: " + e.getMessage());
             Thread.currentThread().interrupt();
+        } finally {
+            scheduler.shutdownNow();
         }
     }
 
