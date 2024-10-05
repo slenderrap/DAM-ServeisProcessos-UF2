@@ -6,139 +6,149 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.drafts.Draft;
 import org.java_websocket.drafts.Draft_6455;
 import org.java_websocket.handshake.ServerHandshake;
 
-public class UtilsWS  extends WebSocketClient {
+public class UtilsWS {
 
-    public static UtilsWS sharedInstance = null;
+    private static UtilsWS sharedInstance = null;
+    private WebSocketClient client;
     private Consumer<String> onOpenCallBack = null;
     private Consumer<String> onMessageCallBack = null;
     private Consumer<String> onCloseCallBack = null;
     private Consumer<String> onErrorCallBack = null;
     private String location = "";
-    private static AtomicBoolean exitRequested = new AtomicBoolean(false); // Thread safe
+    private static AtomicBoolean exitRequested = new AtomicBoolean(false);
 
-    private UtilsWS (String location, Draft draft) throws URISyntaxException {
-        super (new URI(location), draft);
+    private UtilsWS(String location) {
         this.location = location;
+        createNewWebSocketClient();
     }
 
-    static public UtilsWS getSharedInstance (String location) {
+    private void createNewWebSocketClient() {
+        try {
+            this.client = new WebSocketClient(new URI(location), new Draft_6455()) {
+                @Override
+                public void onOpen(ServerHandshake handshake) {
+                    String message = "WS connected to: " + getURI();
+                    System.out.println(message);
+                    if (onOpenCallBack != null) {
+                        onOpenCallBack.accept(message);
+                    }
+                }
 
-        if (sharedInstance == null) {
-            try {
-                sharedInstance = new UtilsWS(location, (Draft) new Draft_6455());
-                sharedInstance.connect();
-            } catch (URISyntaxException e) { 
-                e.printStackTrace(); 
-                System.out.println("WS Error, " + location + " is not a valid URI");
-            }
+                @Override
+                public void onMessage(String message) {
+                    if (onMessageCallBack != null) {
+                        onMessageCallBack.accept(message);
+                    }
+                }
+
+                @Override
+                public void onClose(int code, String reason, boolean remote) {
+                    String message = "WS closed connection from: " + getURI() + " with reason: " + reason;
+                    System.out.println(message);
+                    if (onCloseCallBack != null) {
+                        onCloseCallBack.accept(message);
+                    }
+                    if (remote) {
+                        reconnect();
+                    }
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    String message = "WS connection error: " + e.getMessage();
+                    System.out.println(message);
+                    if (onErrorCallBack != null) {
+                        onErrorCallBack.accept(message);
+                    }
+                    if (e.getMessage().contains("Connection refused") || e.getMessage().contains("Connection reset")) {
+                        reconnect();
+                    }
+                }
+            };
+            this.client.connect();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            System.out.println("WS Error, " + location + " is not a valid URI");
         }
+    }
 
+    public static UtilsWS getSharedInstance(String location) {
+        if (sharedInstance == null) {
+            sharedInstance = new UtilsWS(location);
+        }
         return sharedInstance;
     }
 
-    public void onOpen (Consumer<String> callBack) {
+    public void onOpen(Consumer<String> callBack) {
         this.onOpenCallBack = callBack;
     }
 
-    public void onMessage (Consumer<String> callBack) {
+    public void onMessage(Consumer<String> callBack) {
         this.onMessageCallBack = callBack;
     }
 
-    public void onClose (Consumer<String> callBack) {
+    public void onClose(Consumer<String> callBack) {
         this.onCloseCallBack = callBack;
     }
 
-    public void onError (Consumer<String> callBack) {
+    public void onError(Consumer<String> callBack) {
         this.onErrorCallBack = callBack;
-    }
-
-    @Override
-    public void onOpen(ServerHandshake handshake) {
-        String message = "WS connected to: " + getURI();
-        System.out.println(message);
-        if (onOpenCallBack != null) {
-            onOpenCallBack.accept(message);
-        }
-    }
-
-    @Override
-    public void onMessage(String message) {
-        if (onMessageCallBack != null) {
-            onMessageCallBack.accept(message);
-        }
-    }
-
-    @Override
-    public void onClose(int code, String reason, boolean remote) {
-        String message = "WS closed connection from: " + getURI();
-        System.out.println(message);
-        if (onCloseCallBack != null) {
-            onCloseCallBack.accept(message);
-        }
-        if (remote) {
-            reconnect();
-        }
-    }
-
-    @Override
-    public void onError(Exception e) {
-        String message = e.getMessage();
-        System.out.println("WS connection error: " + message);
-        if (onErrorCallBack != null) {
-            onErrorCallBack.accept(message);
-        }
-        if (e.getMessage().contains("Connection refused")) {
-            if (this.isOpen()) { this.close(); }
-        }
-        if (e.getMessage().contains("Connection reset")) {
-            reconnect();
-        }
     }
 
     public void safeSend(String text) {
         try {
-            sharedInstance.send(text);
+            if (client != null && client.isOpen()) {
+                client.send(text);
+            } else {
+                System.out.println("WS Error: Client is not connected. Attempting to reconnect...");
+                reconnect();
+            }
         } catch (Exception e) {
-            System.out.println("WS Error sending message");
+            System.out.println("WS Error sending message: " + e.getMessage());
         }
     }
 
-    public void reconnect () {
-        if (exitRequested.get()) { return; }
-    
+    public void reconnect() {
+        if (exitRequested.get()) {
+            return;
+        }
+
         System.out.println("WS reconnecting to: " + this.location);
 
         try {
             TimeUnit.SECONDS.sleep(5);
         } catch (InterruptedException e) {
-            System.out.println("WD Error, waiting");
-            Thread.currentThread().interrupt();  // Assegurar que el fil es torna a interrompre correctament
+            System.out.println("WS Error, waiting");
+            Thread.currentThread().interrupt();
         }
-    
-        if (exitRequested.get()) { return; }
-        
-        Consumer<String> oldCallBack = this.onMessageCallBack;
-        String oldLocation = this.location;
-        sharedInstance.close();
-        sharedInstance = null;
-        getSharedInstance(oldLocation);
-        sharedInstance.onMessage(oldCallBack);
+
+        if (exitRequested.get()) {
+            return;
+        }
+
+        if (client != null) {
+            client.close();
+        }
+        createNewWebSocketClient();
     }
-    
-    public void forceExit () {
+
+    public void forceExit() {
         System.out.println("WS Closing ...");
         exitRequested.set(true);
         try {
-            if (!isClosed()) {
-                super.closeBlocking();
+            if (client != null && !client.isClosed()) {
+                client.closeBlocking();
             }
         } catch (Exception e) {
-            System.out.println("WS Interrupted while closing WebSocket connection");
+            System.out.println("WS Interrupted while closing WebSocket connection: " + e.getMessage());
             Thread.currentThread().interrupt();
         }
+    }
+
+    public boolean isOpen() {
+        return client != null && client.isOpen();
     }
 }
