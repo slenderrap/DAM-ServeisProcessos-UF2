@@ -8,7 +8,7 @@
 </div>
 <br/>
 
-# Proxmox IETI
+# Proxmox IETI  
 
 ## Accedir al Proxmox per SSH
 
@@ -39,7 +39,7 @@ mvn -v
 
 ## Generar un arxiu .jar per pujar al servidor
 
-Comprovar que **'pom.xml'** té el plugin **'maven-jar-plugin'**
+Comprovar que **'pom.xml'** té el plugin **'maven-shade-plugin'**
 
 ```xml
 <plugin>
@@ -151,7 +151,7 @@ Ha de llistar: target/server-package.jar
 ## Enviar el .jar al servidor
 
 ```bash
-scp -i id_rsa -P 20127 ./server-package.jar apalaci8@ieticloudpro.ieti.cat:~/
+scp -i id_rsa -P 20127 ./server-package.jar nomUsuari@ieticloudpro.ieti.cat:~/
 ```
 
 ## Fer anar el .jar al servidor
