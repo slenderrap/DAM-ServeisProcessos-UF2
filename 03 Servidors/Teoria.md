@@ -61,7 +61,7 @@ Comprovar que **'pom.xml'** té el plugin **'maven-shade-plugin'**
             <configuration>
                 <transformers>
                     <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                        <mainClass>com.project.Server</mainClass> 
+                        <mainClass>com.server.Main</mainClass> 
                     </transformer>
                 </transformers>
                 <finalName>server-package</finalName>
@@ -148,10 +148,10 @@ if ($action -eq "build") {
 ### Generar l'arxiu .jar
 
 ```bash
-./run.sh com.project.Server build
+./run.sh com.server.Main build
 ```
 
-*(O amb .\run.sh com.project.Server build)*
+*(O amb .\run.sh com.server.Main build)*
 
 Ha de llistar: target/server-package.jar
 
