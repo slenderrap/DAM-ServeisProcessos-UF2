@@ -12,28 +12,34 @@
 
 ## Accedir al Proxmox per SSH
 
+```bash
 ssh -i id_rsa -p 20127 nomUsuari@ieticloudpro.ieti.cat
+```
 
 Suposant que 'id_rsa' és l'arxiu que té la clau privada d'accés al Proxmox
 
 ## Desinstal·lar apache
 
+```bash
 sudo systemctl stop apache2
 sudo apt remove apache2
 sudo apt purge apache2
 sudo rm -rf /var/www/html
 sudo apt autoremove
 apache2 -v
+```
 
-- Ha de dir: bash: /usr/sbin/apache2: No such file or directory
+- Ha de dir: *Command 'apache2' not found*
 
 ## Instal·lar Java MVN
 
+```bash
 sudo apt update
 sudo apt install net-tools
 sudo apt install openjdk-21-jre-headless
 sudo apt install maven
 mvn -v
+```
 
 - Ha de dir (semblant): Apache Maven 3.6.3
 
@@ -137,30 +143,97 @@ if ($action -eq "build") {
 }
 ```
 
-Generar l'arxiu .jar
+# Executar el servidor a la màquina Proxmox (procés manual)
+
+### Generar l'arxiu .jar
 
 ```bash
 ./run.sh com.project.Server build
-ls -ltr target/*.jar
 ```
 
 *(O amb .\run.sh com.project.Server build)*
 
 Ha de llistar: target/server-package.jar
 
-## Enviar el .jar al servidor
+### Enviar el .jar al servidor
 
 ```bash
-scp -i id_rsa -P 20127 ./server-package.jar nomUsuari@ieticloudpro.ieti.cat:~/
+scp -i id_rsa -P 20127 ./target/server-package.jar nomUsuari@ieticloudpro.ieti.cat:~/
 ```
 
-## Fer anar el .jar al servidor
+### Activar la redirecció del port 80 cap al 3000
+
+A la consola remota del Proxmox:
 
 ```bash
-ssh -i ...
-sudo ufw enable
-sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 3000
-sudo iptables -t nat -L -v -n
-java -jar server-package.jar
+ssh -i id_rsa -p 20127 nomUsuari@ieticloudpro.ieti.cat
 ```
 
+Un cop dins del servidor remot, activar la redirecció:
+
+```bash
+sudo iptables-save -t nat | grep -q -- "--dport 80" || sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 3000
+sudo iptables -t nat -L -n -v
+```
+
+### Fer anar el servidor en segon plà:
+
+```bash
+nohup java -jar server-package.jar > output.log 2>&1 &
+```
+
+### Aturar el servidor
+
+Per aturar el servidor, cal mirar el seu número de procés:
+
+```bash
+ps aux | grep 'java -jar server-package.jar'
+```
+
+Amb el número de procés, el podem aturar (suposem 4459):
+
+```bash
+kill 4459
+```
+
+### Esborrar la redirecció dels ports
+
+```bash
+sudo iptables -t nat -D PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 3000
+sudo iptables -t nat -L -n -v
+```
+
+# Executar el servidor a la màquina Proxmox (scripts automàtics)
+
+**Nota**: Abans d'executar el servidor al Proxmox, cal asseguar-se que té el port 80 redireccionat cap al 3000
+
+Configurar els arxius:
+
+```text
+proxmoxRun.sh
+proxmoxStop.sh
+```
+
+Amb els vostres paràmetres del proxmox:
+
+* Nom d'usuari per accedir al Proxmox
+* Arxiu amb la clau privada RSA
+* Port al que funciona el servidor
+
+```bash
+DEFAULT_USER="nomUsuari"
+DEFAULT_RSA_PATH="$HOME/Desktop/Proxmox IETI/id_rsa"
+DEFAULT_SERVER_PORT="3000"
+```
+
+Per pujar i arrencar el servidor al Proxmox, executar:
+
+```bash
+proxmoxRun.sh
+```
+
+Per aturar el servidor del Proxmox, executar:
+
+```bash
+proxmoxStop.sh
+```
