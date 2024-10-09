@@ -1,4 +1,5 @@
-package com.project;
+package com.clientFX;
+
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
@@ -76,7 +77,7 @@ public class CtrlSockets implements Initializable {
             obj.put("destination", destination);
         }
 
-        ClientFX.wsClient.safeSend(obj.toString());
+        Main.wsClient.safeSend(obj.toString());
         System.out.println("Send WebSocket: " + obj.toString());
     }
 

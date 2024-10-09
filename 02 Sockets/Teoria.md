@@ -100,8 +100,8 @@ Explicació:
 
 Per fer anar l´**"Exemple 0200"** cal obrir dues consoles, cada una amb les crides:
 
-- ./run.sh com.project.Server
-- ./run.sh com.project.Client
+- ./run.sh com.server.Main
+- ./run.sh com.client.Main
 
 (o l'equivalent .ps1)
 
@@ -224,9 +224,9 @@ wsClient.safeSend(obj.toString());
 
 Per fer anar l´**"Exemple 0201"** cal obrir diverses consoles, cada una amb les crides:
 
-- ./run.sh com.project.Server
-- ./run.sh com.project.ClientFX
-- ./run.sh com.project.ClientCMD
+- ./run.sh com.server.Main
+- ./run.sh com.clientFX.Main
+- ./run.sh com.clientCMD.Main
 
 (o l'equivalent .ps1)
 

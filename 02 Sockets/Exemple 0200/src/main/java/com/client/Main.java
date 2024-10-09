@@ -1,9 +1,9 @@
-package com.project;
+package com.client;
 
 import java.io.*;
 import java.net.*;
 
-public class Client {
+public class Main {
     public static void main(String[] args) {
         try {
             // Connectar al servidor a l'adreça localhost i port 12345

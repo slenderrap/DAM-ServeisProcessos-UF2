@@ -1,4 +1,5 @@
-package com.project;
+package com.clientFX;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.Executors;

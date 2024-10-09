@@ -1,9 +1,9 @@
-package com.project;
+package com.server;
 
 import java.io.*;
 import java.net.*;
 
-public class Server {
+public class Main {
     public static void main(String[] args) {
         try {
             // Crear socket del servidor en el port 12345

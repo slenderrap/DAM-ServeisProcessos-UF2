@@ -1,4 +1,5 @@
-package com.project;
+package com.clientFX;
+
 import org.json.JSONObject;
 
 import javafx.application.Application;
@@ -7,7 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
-public class ClientFX extends Application {
+public class Main extends Application {
 
     public static UtilsWS wsClient;
 

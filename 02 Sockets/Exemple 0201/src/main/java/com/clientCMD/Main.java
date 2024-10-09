@@ -1,4 +1,4 @@
-package com.project;
+package com.clientCMD;
 
 import org.json.JSONObject;
 import org.json.JSONArray;
@@ -11,13 +11,13 @@ import org.jline.reader.EndOfFileException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClientCMD {
+public class Main {
 
     private List<String> clientsList;
     private String clientId;
     private UtilsWS wsClient;
 
-    public ClientCMD(String serverUri) {
+    public Main(String serverUri) {
         clientsList = new ArrayList<>();
         wsClient = UtilsWS.getSharedInstance(serverUri);
         setupwsClient();
@@ -183,7 +183,7 @@ public class ClientCMD {
 
     public static void main(String[] args) {
         String serverURI = "ws://localhost:3000";
-        ClientCMD client = new ClientCMD(serverURI);
+        Main client = new Main(serverURI);
         client.run();
     }
 }

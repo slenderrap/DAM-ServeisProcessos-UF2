@@ -1,4 +1,4 @@
-package com.project;
+package com.server;
 
 import org.java_websocket.server.WebSocketServer;
 import org.jline.reader.EndOfFileException;
@@ -21,7 +21,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.java_websocket.exceptions.WebsocketNotConnectedException;
 
-public class Server extends WebSocketServer {
+public class Main extends WebSocketServer {
 
     private static final List<String> CHARACTER_NAMES = Arrays.asList(
         "Mario", "Luigi", "Peach", "Toad", "Bowser", "Wario", "Zelda", "Link"
@@ -30,7 +30,7 @@ public class Server extends WebSocketServer {
     private Map<WebSocket, String> clients;
     private List<String> availableNames;
 
-    public Server(InetSocketAddress address) {
+    public Main(InetSocketAddress address) {
         super(address);
         clients = new ConcurrentHashMap<>();
         resetAvailableNames();
@@ -201,7 +201,7 @@ public class Server extends WebSocketServer {
 
     public static void main(String[] args) {
         int port = 3000; 
-        Server server = new Server(new InetSocketAddress(port));
+        Main server = new Main(new InetSocketAddress(port));
         server.start();
 
         LineReader reader = LineReaderBuilder.builder().build();

@@ -1,4 +1,5 @@
-package com.project;
+package com.clientFX;
+
 import java.util.ArrayList;
 
 import javafx.animation.Interpolator;
