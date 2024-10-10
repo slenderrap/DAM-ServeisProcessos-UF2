@@ -27,7 +27,7 @@ Write-Host "User: $USER"
 Write-Host "Ruta RSA: $RSA_PATH"
 Write-Host "Server port: $SERVER_PORT"
 
-JAR_NAME="server-package.jar"s
+$JAR_NAME="server-package.jar"
 
 Set-Location ..
 
@@ -37,17 +37,9 @@ if (-Not (Test-Path $RSA_PATH)) {
     exit 1
 }
 
-$sshCommand = @'
-    PID=\$(ps aux | grep 'java -jar $JAR_NAME' | grep -v 'grep' | awk '{print \$2}')
-    if [ -n "\$PID" ]; then
-      # Mata el procés si es troba
-      kill \$PID
-      echo "Procés $JAR_NAME amb PID \$PID aturat."
-    else
-      echo "No s'ha trobat el procés $JAR_NAME."
-    fi
-'@ -replace "`r", ""
-Write-Host $sshCommand
+$sshCommand = "ps aux | grep 'java -jar $JAR_NAME' | grep -v grep | awk '{print `$2}' | xargs -r kill"
+
+
 ssh -i $RSA_PATH -t -p 20127 "$USER@ieticloudpro.ieti.cat" $sshCommand
 
 Set-Location proxmox

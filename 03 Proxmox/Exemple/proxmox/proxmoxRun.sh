@@ -48,7 +48,8 @@ fi
 # SSH al servidor per fer executar el JAR
 ssh -t -p 20127 "$USER@ieticloudpro.ieti.cat" << EOF
     cd "\$HOME/"
-    nohup java -jar $JAR_NAME > output.log 2>&1 &
+    setsid nohup java -jar $JAR_NAME > output.log 2>&1 &
+    sleep 1
     exit
 EOF
 
