@@ -10,7 +10,43 @@
 
 # Proxmox IETI  
 
-## Accedir al Proxmox per SSH
+# Scripts Proxmox automàtics
+
+Aquests scripts ajuden a fer tots els passos d'interacció amb Proxmox de manera senzilla
+
+## Definir la configuració
+
+Editar l'arxiu **./proxmox/config.env** segons la teva configuració
+
+```txt
+DEFAULT_USER="nomUsuari"
+DEFAULT_RSA_PATH="$HOME/.ssh/id_rsa"
+DEFAULT_SERVER_PORT="3000"
+```
+
+Executar els arxius a la carpeta **proxmox**
+
+```bash
+cd proxmox
+./proxmoxRedirect80.sh    # Redirecciona el port 80 cap al SERVER_PORT
+./proxmoxRedirectUndo.sh  # Desfà la redirecció anterior
+
+./proxmoxRun.sh           # Compila el servidor i el puja al servidor remot
+./proxmoxStop.sh          # Atura el servidor remot
+```
+
+També podeu pasar la configuració per paràmetres:
+
+```bash
+cd proxmox
+./proxmoxRedirect80.sh nomUsuari "$HOME/Desktop/Proxmox IETI/id_rsa" 3001
+```
+
+**Nota:** Recordeu a aturar el servidor abans de pujar-lo!
+
+# Accedir al Proxmox per SSH (passos manuals)
+
+Aquests són els passos que realitzen els scripts anteriors per pujar el servidor al proxmox i posar-lo en funcionament
 
 ```bash
 ssh -i id_rsa -p 20127 nomUsuari@ieticloudpro.ieti.cat
@@ -120,7 +156,7 @@ Write-Output "Main Class: $mainClass"
 
 if ($action -eq "build") {
     Write-Output "Generating JAR file with all dependencies..."
-    mvn clean package -Dmaven.test.skip=true
+    mvn clean package -DskipTests=true
     Write-Output "JAR generation completed."
     
     # Comprova si el JAR ha estat creat correctament
@@ -203,37 +239,3 @@ sudo iptables -t nat -D PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 3000
 sudo iptables -t nat -L -n -v
 ```
 
-# Executar el servidor a la màquina Proxmox (scripts automàtics)
-
-**Nota**: Abans d'executar el servidor al Proxmox, cal asseguar-se que té el port 80 redireccionat cap al 3000
-
-Configurar els arxius:
-
-```text
-proxmoxRun.sh
-proxmoxStop.sh
-```
-
-Amb els vostres paràmetres del proxmox:
-
-* Nom d'usuari per accedir al Proxmox
-* Arxiu amb la clau privada RSA
-* Port al que funciona el servidor
-
-```bash
-DEFAULT_USER="nomUsuari"
-DEFAULT_RSA_PATH="$HOME/Desktop/Proxmox IETI/id_rsa"
-DEFAULT_SERVER_PORT="3000"
-```
-
-Per pujar i arrencar el servidor al Proxmox, executar:
-
-```bash
-proxmoxRun.sh
-```
-
-Per aturar el servidor del Proxmox, executar:
-
-```bash
-proxmoxStop.sh
-```
