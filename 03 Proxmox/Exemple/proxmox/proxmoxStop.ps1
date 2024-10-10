@@ -28,7 +28,6 @@ Write-Host "Ruta RSA: $RSA_PATH"
 Write-Host "Server port: $SERVER_PORT"
 
 JAR_NAME="server-package.jar"s
-$JAR_PATH = ".\target\$JAR_NAME"
 
 Set-Location ..
 
@@ -38,30 +37,17 @@ if (-Not (Test-Path $RSA_PATH)) {
     exit 1
 }
 
-if (Test-Path $JAR_PATH) {
-    Remove-Item -Force $JAR_PATH
-}
-.\run.ps1 com.server.Main build
-
-if (-Not (Test-Path $JAR_PATH)) {
-    Write-Host "Error: No s'ha trobat l'arxiu JAR: $JAR_PATH"
-    Set-Location proxmox
-    exit 1
-}
-
-scp -i $RSA_PATH -P 20127 $JAR_PATH "$USER@ieticloudpro.ieti.cat:~/"
-
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "Error durant l'enviament SCP"
-    Set-Location proxmox
-    exit 1
-}
-
 $sshCommand = @'
-cd $HOME
-nohup java -jar $JAR_NAME > output.log 2>&1 &
-exit
+    PID=\$(ps aux | grep 'java -jar $JAR_NAME' | grep -v 'grep' | awk '{print \$2}')
+    if [ -n "\$PID" ]; then
+      # Mata el procés si es troba
+      kill \$PID
+      echo "Procés $JAR_NAME amb PID \$PID aturat."
+    else
+      echo "No s'ha trobat el procés $JAR_NAME."
+    fi
 '@ -replace "`r", ""
+Write-Host $sshCommand
 ssh -i $RSA_PATH -t -p 20127 "$USER@ieticloudpro.ieti.cat" $sshCommand
 
 Set-Location proxmox

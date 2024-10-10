@@ -11,7 +11,7 @@ echo "User: $USER"
 echo "Ruta RSA: $RSA_PATH"
 echo "Server port: $SERVER_PORT"
 
-JAR_NAME="server-package.jar"s
+JAR_NAME="server-package.jar"
 
 cd ..
 

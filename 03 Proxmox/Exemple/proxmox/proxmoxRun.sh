@@ -11,7 +11,8 @@ echo "User: $USER"
 echo "Ruta RSA: $RSA_PATH"
 echo "Server port: $SERVER_PORT"
 
-JAR_PATH="./target/server-package.jar"
+JAR_NAME="server-package.jar"
+JAR_PATH="./target/$JAR_NAME"
 
 cd ..
 
@@ -47,7 +48,7 @@ fi
 # SSH al servidor per fer executar el JAR
 ssh -t -p 20127 "$USER@ieticloudpro.ieti.cat" << EOF
     cd "\$HOME/"
-    nohup java -jar server-package.jar > output.log 2>&1 &
+    nohup java -jar $JAR_NAME > output.log 2>&1 &
     exit
 EOF
 
