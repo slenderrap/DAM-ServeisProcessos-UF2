@@ -1,20 +1,24 @@
 #!/bin/bash
 
-DEFAULT_USER="nomUsuari"
-DEFAULT_RSA_PATH="$HOME/Desktop/Proxmox IETI/id_rsa"
-DEFAULT_SERVER_PORT="3000"
+source ./config.env
 
-USER="${1:-$DEFAULT_USER}"
+# Obtenir configuració dels paràmetres
+USER=${1:-$DEFAULT_USER}
 RSA_PATH=${2:-$DEFAULT_RSA_PATH}
+SERVER_PORT=${3:-$DEFAULT_SERVER_PORT}
 
-# Demanar la contrasenya remota
-read -s -p "Introdueix la contrasenya de sudo per al servidor remot: " SUDO_PASSWORD
-echo ""
+echo "User: $USER"
+echo "Ruta RSA: $RSA_PATH"
+echo "Server port: $SERVER_PORT"
 
 if [[ ! -f "$RSA_PATH" ]]; then
   echo "Error: No s'ha trobat el fitxer de clau privada: $RSA_PATH"
   exit 1
 fi
+
+# Demanar la contrasenya remota
+read -s -p "Introdueix la contrasenya de sudo per al servidor remot: " SUDO_PASSWORD
+echo ""
 
 eval "$(ssh-agent -s)"
 ssh-add "$RSA_PATH"
