@@ -1,11 +1,15 @@
 #!/bin/bash
 
-# Variables per defecte (es poden sobreescriure passant arguments)
-DEFAULT_USER="nomUsuari"
-DEFAULT_RSA_PATH="$HOME/Desktop/Proxmox IETI/id_rsa"
+source ./config.env
 
-USER="${1:-$DEFAULT_USER}"
+# Obtenir configuració dels paràmetres
+USER=${1:-$DEFAULT_USER}
 RSA_PATH=${2:-$DEFAULT_RSA_PATH}
+SERVER_PORT=${3:-$DEFAULT_SERVER_PORT}
+
+echo "User: $USER"
+echo "Ruta RSA: $RSA_PATH"
+echo "Server port: $SERVER_PORT"
 
 JAR_NAME="server-package.jar"s
 
