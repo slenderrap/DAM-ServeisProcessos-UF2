@@ -12,6 +12,7 @@ Get-Content $configFile | ForEach-Object {
         }
 
         $value = $value -replace '/', '\'
+        $value = $value -replace '"', ''
 
         # Configurar la variable en PowerShell
         Set-Variable -Name $key -Value $value
