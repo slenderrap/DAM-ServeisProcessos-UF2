@@ -1,12 +1,19 @@
 package com.clientFX;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class Main extends Application {
 
@@ -16,6 +23,9 @@ public class Main extends Application {
     public static String protocol = "http";
     public static String host = "localhost";
     public static String protocolWS = "ws";
+
+    public static CtrlConfig ctrlConfig;
+    public static CtrlSockets ctrlSockets;
 
     public static void main(String[] args) {
 
@@ -30,7 +40,11 @@ public class Main extends Application {
         final int windowHeight = 300;
 
         UtilsViews.parentContainer.setStyle("-fx-font: 14 arial;");
+        UtilsViews.addView(getClass(), "ViewConfig", "/assets/viewConfig.fxml"); 
         UtilsViews.addView(getClass(), "ViewSockets", "/assets/viewSockets.fxml");
+
+        ctrlConfig = (CtrlConfig) UtilsViews.getController("ViewConfig");
+        ctrlSockets = (CtrlSockets) UtilsViews.getController("ViewSockets");
 
         Scene scene = new Scene(UtilsViews.parentContainer);
         
@@ -46,24 +60,69 @@ public class Main extends Application {
             Image icon = new Image("file:/icons/icon.png");
             stage.getIcons().add(icon);
         }
-
-        // Iniciar WebSockets
-        wsClient = UtilsWS.getSharedInstance(protocolWS + "://" + host + ":" + port);
-        wsClient.onMessage((response) -> {
-            
-            // JavaFX necessita que els canvis es facin des de el thread principal
-            Platform.runLater(()->{ 
-                // Fer aquí els canvis a la interficie
-                JSONObject msgObj = new JSONObject(response);
-                CtrlSockets ctrl = (CtrlSockets) UtilsViews.getController("ViewSockets");
-                ctrl.receiveMessage(msgObj);
-            });
-        });
     }
+
 
     @Override
     public void stop() { 
-        wsClient.forceExit();
+        if (wsClient != null) {
+            wsClient.forceExit();
+        }
         System.exit(1); // Kill all executor services
+    }
+
+    public static void pauseDuring(long milliseconds, Runnable action) {
+        PauseTransition pause = new PauseTransition(Duration.millis(milliseconds));
+        pause.setOnFinished(event -> Platform.runLater(action));
+        pause.play();
+    }
+
+    public static <T> List<T> jsonArrayToList(JSONArray array, Class<T> clazz) {
+        List<T> list = new ArrayList<>();
+        for (int i = 0; i < array.length(); i++) {
+            T value = clazz.cast(array.get(i));
+            list.add(value);
+        }
+        return list;
+    }
+
+    public static void connectToServer() {
+
+        ctrlConfig.txtMessage.setTextFill(Color.BLACK);
+        ctrlConfig.txtMessage.setText("Connecting ...");
+    
+        pauseDuring(1500, () -> { // Give time to show connecting message ...
+
+            String protocol = ctrlConfig.txtProtocol.getText();
+            String host = ctrlConfig.txtHost.getText();
+            String port = ctrlConfig.txtPort.getText();
+            wsClient = UtilsWS.getSharedInstance(protocol + "://" + host + ":" + port);
+    
+            wsClient.onMessage((response) -> { Platform.runLater(() -> { wsMessage(response); }); });
+            wsClient.onError((response) -> { Platform.runLater(() -> { wsError(response); }); });
+        });
+    }
+   
+    private static void wsMessage(String response) {
+        Platform.runLater(()->{ 
+            // Fer aquí els canvis a la interficie
+            if (UtilsViews.getActiveView() != "ViewSockets") {
+                UtilsViews.setViewAnimating("ViewSockets");
+            }
+            JSONObject msgObj = new JSONObject(response);
+            ctrlSockets.receiveMessage(msgObj);
+        });
+    }
+
+    private static void wsError(String response) {
+
+        String connectionRefused = "Connection refused";
+        if (response.indexOf(connectionRefused) != -1) {
+            ctrlConfig.txtMessage.setTextFill(Color.RED);
+            ctrlConfig.txtMessage.setText(connectionRefused);
+            pauseDuring(1500, () -> {
+                ctrlConfig.txtMessage.setText("");
+            });
+        }
     }
 }

@@ -183,6 +183,10 @@ public class Main {
 
     public static void main(String[] args) {
         String serverURI = "ws://localhost:3000";
+
+        // Per connectar al Proxmox:
+        // serverURI = "wss://nomUsuari.ieti.site:443";
+
         Main client = new Main(serverURI);
         client.run();
     }
