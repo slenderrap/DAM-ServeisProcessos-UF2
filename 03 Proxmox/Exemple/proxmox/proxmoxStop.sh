@@ -14,6 +14,7 @@ cd ..
 # Comprovem que els arxius existeixen
 if [[ ! -f "$RSA_PATH" ]]; then
   echo "Error: No s'ha trobat el fitxer de clau privada: $RSA_PATH"
+  cd proxmox
   exit 1
 fi
 

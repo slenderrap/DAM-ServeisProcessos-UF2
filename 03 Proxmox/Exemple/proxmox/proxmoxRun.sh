@@ -16,6 +16,7 @@ cd ..
 # Comprovem que els arxius existeixen
 if [[ ! -f "$RSA_PATH" ]]; then
     echo "Error: No s'ha trobat el fitxer de clau privada: $RSA_PATH"
+    cd proxmox
     exit 1
 fi
 
@@ -25,6 +26,7 @@ rm -f JAR_PATH
 
 if [[ ! -f "$JAR_PATH" ]]; then
     echo "Error: No s'ha trobat l'arxiu JAR: $JAR_PATH"
+    cd proxmox
     exit 1
 fi
 
@@ -36,6 +38,7 @@ ssh-add "$RSA_PATH"
 scp -P 20127 "$JAR_PATH" "$USER@ieticloudpro.ieti.cat:~/"
 if [[ $? -ne 0 ]]; then
     echo "Error durant l'enviament SCP"
+    cd proxmox
     exit 1
 fi
 
