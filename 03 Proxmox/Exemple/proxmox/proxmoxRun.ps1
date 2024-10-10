@@ -27,7 +27,7 @@ Write-Host "User: $USER"
 Write-Host "Ruta RSA: $RSA_PATH"
 Write-Host "Server port: $SERVER_PORT"
 
-JAR_NAME="server-package.jar"s
+$JAR_NAME="server-package.jar"
 $JAR_PATH = ".\target\$JAR_NAME"
 
 Set-Location ..
@@ -57,11 +57,12 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-$sshCommand = @'
+$sshCommand = @"
 cd $HOME
-nohup java -jar $JAR_NAME > output.log 2>&1 &
+setsid nohup java -jar $($JAR_NAME) > output.log 2>&1 &
+sleep 1
 exit
-'@ -replace "`r", ""
+"@ -replace "`r", ""
 ssh -i $RSA_PATH -t -p 20127 "$USER@ieticloudpro.ieti.cat" $sshCommand
 
 Set-Location proxmox
