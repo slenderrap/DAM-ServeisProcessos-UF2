@@ -9,6 +9,8 @@ RSA_PATH=${2:-$DEFAULT_RSA_PATH}
 
 JAR_NAME="server-package.jar"s
 
+cd ..
+
 # Comprovem que els arxius existeixen
 if [[ ! -f "$RSA_PATH" ]]; then
   echo "Error: No s'ha trobat el fitxer de clau privada: $RSA_PATH"
@@ -21,15 +23,17 @@ ssh-add "$RSA_PATH"
 
 # SSH al servidor per trobar i matar el procés del JAR
 ssh -t -p 20127 "$USER@ieticloudpro.ieti.cat" << EOF
-  PID=\$(ps aux | grep 'java -jar $JAR_NAME' | grep -v 'grep' | awk '{print \$2}')
-  if [ -n "\$PID" ]; then
-    # Mata el procés si es troba
-    kill \$PID
-    echo "Procés $JAR_NAME amb PID \$PID aturat."
-  else
-    echo "No s'ha trobat el procés $JAR_NAME."
-  fi
+    PID=\$(ps aux | grep 'java -jar $JAR_NAME' | grep -v 'grep' | awk '{print \$2}')
+    if [ -n "\$PID" ]; then
+      # Mata el procés si es troba
+      kill \$PID
+      echo "Procés $JAR_NAME amb PID \$PID aturat."
+    else
+      echo "No s'ha trobat el procés $JAR_NAME."
+    fi
 EOF
 
 # Finalitzar l'agent SSH
 ssh-agent -k
+
+cd proxmox
