@@ -25,7 +25,7 @@ ssh-add "$RSA_PATH"
 
 # SSH al servidor i executar la comanda amb sudo, passant la contrasenya
 ssh -t -p 20127 "$USER@ieticloudpro.ieti.cat" << EOF
-    echo "$SUDO_PASSWORD" | sudo -S iptables-save -t nat | grep -q -- "--dport 80" || echo "$SUDO_PASSWORD" | sudo -S iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port $DEFAULT_SERVER_PORT
+    echo "$SUDO_PASSWORD" | sudo -S iptables-save -t nat | grep -q -- "--dport 80" || echo "$SUDO_PASSWORD" | sudo -S iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port $SERVER_PORT
 EOF
 
 ssh-agent -k
