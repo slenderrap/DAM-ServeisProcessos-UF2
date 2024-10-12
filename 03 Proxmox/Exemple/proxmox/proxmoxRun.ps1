@@ -57,12 +57,25 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-$sshCommand = @"
+$sshCommandTemplate = @'
 cd $HOME
-setsid nohup java -jar $($JAR_NAME) > output.log 2>&1 &
+PID=$(ps aux | grep 'java -jar JAR_PLACEHOLDER' | grep -v 'grep' | awk '{print $2}')
+if [ -n "$PID" ]; then
+    kill $PID
+    echo "Antic proces JAR_PLACEHOLDER amb PID $PID aturat."
+else
+    echo "No s\'ha trobat el proces JAR_PLACEHOLDER."
+fi
 sleep 1
+setsid nohup java -jar JAR_PLACEHOLDER > output.log 2>&1 &
+sleep 1
+PID=$(ps aux | grep 'java -jar JAR_PLACEHOLDER' | grep -v 'grep' | awk '{print $2}')
+echo "Nou proces JAR_PLACEHOLDER amb PID $PID arrencat."
 exit
-"@ -replace "`r", ""
+'@ -replace "`r", ""
+
+$sshCommand = $sshCommandTemplate -replace "JAR_PLACEHOLDER", $JAR_NAME
+
 ssh -i $RSA_PATH -t -p 20127 "$USER@ieticloudpro.ieti.cat" $sshCommand
 
 Set-Location proxmox
