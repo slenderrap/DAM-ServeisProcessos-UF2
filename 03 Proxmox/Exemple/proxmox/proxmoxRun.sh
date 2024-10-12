@@ -45,7 +45,7 @@ if [[ $? -ne 0 ]]; then
     exit 1
 fi
 
-# SSH al servidor per aturar l'antic procés i començar el nou
+# SSH al servidor per aturar l'antic procés i executar el nou
 ssh -t -p 20127 "$USER@ieticloudpro.ieti.cat" << EOF
     cd "\$HOME/"
     PID=\$(ps aux | grep 'java -jar $JAR_NAME' | grep -v 'grep' | awk '{print \$2}')
