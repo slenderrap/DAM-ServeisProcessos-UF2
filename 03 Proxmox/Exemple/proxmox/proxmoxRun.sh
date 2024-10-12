@@ -45,11 +45,22 @@ if [[ $? -ne 0 ]]; then
     exit 1
 fi
 
-# SSH al servidor per fer executar el JAR
+# SSH al servidor per aturar l'antic procés i començar el nou
 ssh -t -p 20127 "$USER@ieticloudpro.ieti.cat" << EOF
     cd "\$HOME/"
+    PID=\$(ps aux | grep 'java -jar $JAR_NAME' | grep -v 'grep' | awk '{print \$2}')
+    if [ -n "\$PID" ]; then
+      # Mata el procés si es troba
+      kill \$PID
+      echo "Antic procés $JAR_NAME amb PID \$PID aturat."
+    else
+      echo "No s'ha trobat el procés $JAR_NAME."
+    fi
+    sleep 1
     setsid nohup java -jar $JAR_NAME > output.log 2>&1 &
     sleep 1
+    PID=\$(ps aux | grep 'java -jar $JAR_NAME' | grep -v 'grep' | awk '{print \$2}')
+    echo "Nou procés $JAR_NAME amb PID \$PID arrencat."
     exit
 EOF
 
