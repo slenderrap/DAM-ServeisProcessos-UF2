@@ -45,6 +45,18 @@ mvn -v
 
 - Ha de dir (semblant): Apache Maven 3.6.3
 
+# Ports dels serveis
+
+En **local** la connexió amb el servidor es fa directament pel port del servidor.
+
+En **remot** la connexió és:
+
+- L'aplicació es connecta a través del port segur **443** a l'entrada del Proxmox
+- El proxmox redirecciona el port 443 cap al port **80** a l'entrada de la màquina remota
+- A la màquina remota cal de fer una redirecció del port 80 cap al port del servidor *"3000"*
+
+    **Client 443 > Entrada proxmox 80 > Servidor *"3000"***
+
 # Gestió amb scripts automàtics
 
 Aquests scripts ajuden a fer tots els passos d'interacció amb Proxmox de manera senzilla
@@ -76,16 +88,6 @@ També podeu pasar la configuració per paràmetres:
 cd proxmox
 ./proxmoxRedirect80.sh nomUsuari "$HOME/Desktop/Proxmox IETI/id_rsa" 3001
 ```
-
-# Ports dels serveis
-
-En **local** la connexió amb el servidor es fa directament pel port del servidor.
-
-En **remot** la connexió és:
-
-- L'aplicació es connecta a través del port segur **443** a l'entrada del Proxmox
-- El proxmox redirecciona el port 443 cap al port **80** a l'entrada de la màquina personal
-- Vosaltres heu de fer una redirecció del port 80 cap al **port del servidor** Java
 
 # Gestió de manera manual
 
