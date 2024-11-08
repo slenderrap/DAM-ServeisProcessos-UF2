@@ -49,13 +49,17 @@ mvn -v
 
 En **local** la connexió amb el servidor es fa directament pel port del servidor.
 
+**Client *"3000"* > Servidor *"3000"***
+
+<br>
+
 En **remot** la connexió és:
+
+**Client 443 > Entrada proxmox 80 > Servidor *"3000"***
 
 - L'aplicació es connecta a través del port segur **443** a l'entrada del Proxmox
 - El proxmox redirecciona el port 443 cap al port **80** a l'entrada de la màquina remota
 - A la màquina remota cal de fer una redirecció del port 80 cap al port del servidor *"3000"*
-
-    **Client 443 > Entrada proxmox 80 > Servidor *"3000"***
 
 # Gestió amb scripts automàtics
 
