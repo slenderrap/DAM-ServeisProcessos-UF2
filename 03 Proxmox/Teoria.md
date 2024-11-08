@@ -77,7 +77,15 @@ cd proxmox
 ./proxmoxRedirect80.sh nomUsuari "$HOME/Desktop/Proxmox IETI/id_rsa" 3001
 ```
 
-**Nota:** Recordeu a aturar el servidor abans de pujar-lo!
+# Ports dels serveis
+
+En **local** la connexió amb el servidor es fa directament pel port del servidor.
+
+En **remot** la connexió és:
+
+- L'aplicació es connecta a través del port segur **443** a l'entrada del Proxmox
+- El proxmox redirecciona el port 443 cap al port **80** a l'entrada de la màquina personal
+- Vosaltres heu de fer una redirecció del port 80 cap al **port del servidor** Java
 
 # Gestió de manera manual
 
