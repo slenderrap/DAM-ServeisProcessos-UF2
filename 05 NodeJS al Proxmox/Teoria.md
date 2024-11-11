@@ -20,11 +20,18 @@ sudo n latest
 
 ## Carpeta Proxmox
 
-Pujar el servidor:
+Redireccionar el port 80 i pujar el servidor:
 ```bash
 cd proxmox
+./proxmoxRedirect80.sh
 ./proxmoxRun.sh
 ```
 
 Validar que funciona, navegar a [https://nomUsuari.ieti.site/](https://nomUsuari.ieti.site/)
 
+Aturar el servidor i desfer la redirecció del port 80:
+```bash
+cd proxmox
+./proxmoxStop.sh
+./proxmoxRedirectUndo.sh
+```
