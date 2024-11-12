@@ -38,6 +38,8 @@ if [[ $? -ne 0 ]]; then
     exit 1
 fi
 
+rm -f "$ZIP_NAME"
+
 # SSH al servidor per aturar l'antic procés i executar el nou
 ssh -t -p 20127 "$USER@ieticloudpro.ieti.cat" << EOF
     cd "\$HOME/nodejs_server"
@@ -45,6 +47,7 @@ ssh -t -p 20127 "$USER@ieticloudpro.ieti.cat" << EOF
     find . -mindepth 1 -path "./node_modules" -prune -o -exec rm -rf {} +
     cd ..
     unzip $ZIP_NAME -d nodejs_server
+    rm -f $ZIP_NAME
     cd nodejs_server
     npm install
     node --run pm2start
