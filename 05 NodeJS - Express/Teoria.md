@@ -51,6 +51,9 @@ const express = require('express')
 const app = express()
 const port = 3000
 
+// Continguts estàtics (carpeta public)
+app.use(express.static('public'))
+
 // Configurar direcció ‘/’ 
 app.get('/', getHello)
     async function getHello (req, res) {
@@ -60,10 +63,10 @@ app.get('/', getHello)
 // Activar el servidor
 const httpServer = app.listen(port, appListen)
 function appListen () {
-    console.log(`Example app listening on: http://localhost:${port}`)
+    console.log(`Example app listening on: http://0.0.0.0:${port}`)
 }
 
-// Aturar el servidor correctament
+// Aturar el servidor correctament 
 process.on('SIGTERM', shutDown);
 process.on('SIGINT', shutDown);
 function shutDown() {
@@ -148,6 +151,26 @@ Anar amb el navegador a [http://0.0.0.0:3000](http://0.0.0.0:3000)
 S'ha de veure una pàgina web amb **"Hello World"**
 
 Anar amb el navegador a [http://localhost:3000/web.html](http://localhost:3000/web.html)
+
+S'ha de veure una pàgina web amb
+**"Hello Web HTML"**
+
+## Validar el servidor remot (cmd)
+
+Amb el servidor funcionant, per comprovar que s'hi poden fer consultes:
+```bash
+curl https://apalaci8.ieti.site/
+```
+
+## Validar el servidor remot (navegador)
+
+Amb el servidor funcionant, per comprovar que s'hi poden fer consultes. 
+
+Anar amb el navegador a [https://apalaci8.ieti.site/](https://apalaci8.ieti.site/)
+
+S'ha de veure una pàgina web amb **"Hello World"**
+
+Anar amb el navegador a [https://apalaci8.ieti.site/web.html](https://apalaci8.ieti.site/web.html)
 
 S'ha de veure una pàgina web amb
 **"Hello Web HTML"**
