@@ -21,7 +21,7 @@
     * **console.error** per mostrar missatges d’error.
 - Les cadenes de text poden tenir variables si estàn entre caràcters ` (accent obert)
 ```javascript
-nom="Maria"
+nom = "Maria"
 console.log(`Hola ${nom}`) // Output: Hola Maria
 ```
 
