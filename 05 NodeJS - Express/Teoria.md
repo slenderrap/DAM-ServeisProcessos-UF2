@@ -8,9 +8,7 @@
 </div>
 <br/>
 
-# Node.js
-
-**[Node.js](https://nodejs.org/en)** és un entorn basat en JavaScript que permet  crear programes de xarxa altament escalables, com per exemple servidors web.
+# Express
 
 **[Express](https://expressjs.com/)** és un framework que permet crear aplicaions web i APIs sobre **Node.js**
 
@@ -18,46 +16,18 @@
 <br/></center>
 <br/>
 
-## Instal·lació
-
-Per instral·lar Node.js amb [gestors de paquets](https://nodejs.org/en/download/package-manager):
-
-A Linux:
-```bash
-sudo apt install npm
-sudo npm cache clean -f
-sudo npm install -g n
-sudo n latest
-```
-
-A MacOX:
-```bash
-sudo brew install node
-sudo npm cache clean -f
-sudo npm install -g n
-sudo n latest
-```
-A Windows:
-```bash
-winget install Schniz.fnm
-fnm env --use-on-cd | Out-String | Invoke-Expression
-fnm use --install-if-missing 22
-fnm install latest
-fnm use latest
-```
-
-## Nou projecte
+## Nou projecte amb Express
 
 Per crear un nou projecte:
 ```bash
-mkdir exemple
-cd exemple
+mkdir exemple2
+cd exemple2
 npm init -y
 ```
 
 Un cop creat el projecte apareix l'arxiu **"package.json"** que defineix la configruació del projecte.
 
-Per afegir llibreries al projecte:
+Per afegir llibreries (dependències) al projecte:
 ```bash
 npm install express
 npm install pm2
@@ -66,7 +36,10 @@ npm install pm2
 - **Express** és el framework que simplifica crear APIs amb Node.js
 - **[PM2](https://pm2.keymetrics.io/)** permet vigilar el funcionament del servidor en entorns de producció.
 
-# Crear el servidor
+# Dins del projecte, crear el servidor
+
+Enlloc de fer servir **index.js**, farem un arxiu **./server/app.js** que tindrà el codi principal del servidor:
+
 ```bash
 mkdir server
 touch ./server/app.js
@@ -133,6 +106,29 @@ node --run pm2stop
 ```
 
 **Nota**: Amb la configuració de *package.json* i la llibreria *pm2*, quan el servidor s'atura o es penja, es renicia automàticament.
+
+**Important**: Per simplificar la gestió amb proxmox, a la carpeta **./proxmox** hi ha scripts que empaqueten el codi i l'envien al servidor remot.
+
+## Instal·lar dependències (d'un projecte existent)
+
+Un projecte que ja té les llibreries (dependències) definides al **package.json**, pot instal·lar-les fàcilment amb:
+
+```bash
+npm install
+```
+
+**Nota**: Les llibreries s'instal·len a la carpeta **node_modules**
+
+Per afegir llibreries (dependències) a un projecte només cal fer:
+```bash
+npm install express
+```
+
+I automàticament s'afegeix a l'arxiu **.package.json** com a llibreria necessària (dependència)
+
+Hi ha moltes llibreries disponibles, a [npm.com](https://www.npmjs.com/)
+
+**Nota**: Cal recordar que les llibreries (dependències) són arxius binaris, aquests arxius depenen de cada sistema i processador. Per aquest motiu no cal copiar la carpeta *node_modules*, el més pràctic és copiar el projecte sense aquesta carpeta (que ocupa molt espai), i a l'equip on es vol fer anar el projecte fer un *npm install*
 
 ## Validar el servidor local (cmd)
 

@@ -8,6 +8,52 @@
 </div>
 <br/>
 
+# Node.js
+
+**[Node.js](https://nodejs.org/en)** és un entorn basat en JavaScript que permet  crear programes de xarxa altament escalables, com per exemple servidors web.
+
+## Instal·lació
+
+Per instral·lar Node.js amb [gestors de paquets](https://nodejs.org/en/download/package-manager):
+
+A Linux:
+```bash
+sudo apt install npm
+sudo npm cache clean -f
+sudo npm install -g n
+sudo n latest
+```
+
+A MacOX:
+```bash
+sudo brew install node
+sudo npm cache clean -f
+sudo npm install -g n
+sudo n latest
+```
+A Windows:
+```bash
+winget install Schniz.fnm
+fnm env --use-on-cd | Out-String | Invoke-Expression
+fnm use --install-if-missing 22
+fnm install latest
+fnm use latest
+```
+
+## Nou projecte
+
+Per crear un nou projecte:
+```bash
+mkdir "Exemple 0"
+cd "Exemple 0"
+npm init -y
+touch index.js
+```
+
+Un cop creat el projecte apareix l'arxiu **"package.json"** que defineix la configuració del projecte.
+
+**Nota**: En aquesta configuració, l'arxiu inicial és: **"index.jg"**, però cal crear-lo manualment (amb touch per exemple).
+
 # Javascript
 
 ## Codi
@@ -15,10 +61,12 @@
 - En JavaScript no cal posar “;” al final de cada línia
 - “;” serveix per separar instruccions en una mateixa línia
 - Els comentaris són amb // per una línia i /* */ per blocs de text
-- Per escriure informació per consola es fa servir **console.log(text)**
+- Per escriure informació per consola es fa servir:
+
     * **console.log** per mostrar informació general.
     * **console.warn** per mostrar advertències.
     * **console.error** per mostrar missatges d’error.
+
 - Les cadenes de text poden tenir variables si estàn entre caràcters ` (accent obert)
 ```javascript
 nom = "Maria"
@@ -299,5 +347,65 @@ async function readData() {
     console.error("Error en llegir les dades:", error);
   }
 }
+```
+
+## Exemple 0
+
+En aquest exemple es pot veure com s'escriu i es llegeix un arxiu *.json* a partir d'un objecte JavaScript.
+
+Per fer anar el codi:
+```bash
+node index.js 
+```
+
+**Important**: es pot guardar atributs d'objectes literals en format .json, però no funcions.
+
+```javascript
+const fs = require('fs').promises;
+
+// Funció per escriure un objecte en un arxiu .json
+async function writeData(obj, file_path) {
+    try {
+        // Transformar l'objecte a text tipus .json
+        const txtData = JSON.stringify(obj, null, 2);
+
+        await fs.writeFile(file_path, txtData, 'utf-8');
+        console.log("Dades escrites a data.json");
+    } catch (error) {
+        console.error("Error en escriure les dades:", error);
+    }
+}
+
+// Funció per llegir un arxiu .json cap a un objecte
+async function readData(file_path) {
+    try {
+        const txtData = await fs.readFile(file_path, 'utf-8');
+
+        // Transformar el text a objecte
+        const data = JSON.parse(txtData);
+        return data
+    } catch (error) {
+        console.error("Error en llegir les dades:", error);
+    }
+}
+
+async function main() {
+
+    const person = {
+        name: "Maria",
+        age: 25,
+        city: "Barcelona"
+    };
+
+    path = "./maria.json"
+
+    await writeData(person, path)
+
+    json_data = await readData(path)
+
+    console.log(json_data)
+}
+
+main()
 ```
 
