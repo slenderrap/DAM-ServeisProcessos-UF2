@@ -327,7 +327,7 @@ async function main() {
 
     const nom = await rl.question("Com et dius? ")
     console.log(`Hola ${nom}!`)
-    rl.close()
+    rl.close() // Tancar la lectura 'readline'
 }
 
 main()
@@ -426,6 +426,8 @@ async function main() {
     await writeData(person, path)
     const json_data = await readData(path)
     console.log(json_data)
+
+    rl.close() // Tancar la lectura 'readline'
 }
 
 main()

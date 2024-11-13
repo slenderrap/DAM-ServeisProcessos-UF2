@@ -1,16 +1,5 @@
 const fs = require('fs').promises
-const readline = require('readline')
-
-async function prompt(question) {
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-    });
-    return new Promise(resolve => rl.question(question, answer => {
-        rl.close()
-        resolve(answer)
-    }));
-}
+const readline = require('readline').promises
 
 // Funció per escriure un objecte en un arxiu .json
 async function writeData(obj, file_path) {
@@ -35,7 +24,12 @@ async function readData(file_path) {
 }
 
 async function main() {
-    const path = await prompt("Nom de l'arxiu a generar? ")
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    })
+
+    const path = await rl.question("Nom de l'arxiu a generar? ")
 
     const person = {
         name: "Maria",
@@ -46,6 +40,8 @@ async function main() {
     await writeData(person, path)
     const json_data = await readData(path)
     console.log(json_data)
+
+    rl.close() // Tancar la lectura 'readline'
 }
 
 main()
