@@ -174,3 +174,43 @@ Anar amb el navegador a [https://apalaci8.ieti.site/web.html](https://apalaci8.i
 
 S'ha de veure una pàgina web amb
 **"Hello Web HTML"**
+
+## Continguts estàtics (servir arxius públic)
+
+Els continguts estàtics són aquells que no canvien, solen ser els arxius de la carpeta **"./public"** i s'entreguen al client tal i com són.
+
+Per exemple la URL [https://apalaci8.ieti.site/web.html](https://apalaci8.ieti.site/web.html)
+
+El servidor d'exemple configura la carpeta **"./public"** com la que conté arxius estàtics, normalment es posa aquest nom per deixar clar que tot el què estigui allà dins està accessible lliurement des de Internet.
+
+```javascript
+// Continguts estàtics (carpeta public)
+app.use(express.static('public'))
+```
+
+## Arrencar i aturar el servidor
+
+Tots els processos i configuracions que cal fer abans d'arrencar el servidor, s'han de fer abans de **app.listen**, ja que aquesta línia posa en funcionament el servidor:
+
+```javascript
+// Activar el servidor
+const httpServer = app.listen(port, appListen)
+function appListen () {
+    console.log(`Example app listening on: http://0.0.0.0:${port}`)
+}
+```
+
+Quan s'atura el servidor també es pot necessitar executar codi de finalització, per exemple tancar la connexió amb una base de dades o guardar una configuració. Això cal fer-ho al principi de la funció **shutDown**
+
+```javascript
+// Aturar el servidor correctament 
+process.on('SIGTERM', shutDown);
+process.on('SIGINT', shutDown);
+function shutDown() {
+    // Executar aquí el codi previ al tancament de servidor
+
+    console.log('Received kill signal, shutting down gracefully');
+    httpServer.close()
+    process.exit(0);
+}
+```
