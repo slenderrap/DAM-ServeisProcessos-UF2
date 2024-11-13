@@ -310,6 +310,35 @@ processFile();
 
 **Nota**: En el cas anterior, el codi de després de la crida *processFile()* s'executa encara que la funció no hagi acabat, perquè està esperant rebre les dades de *readFile()*
 
+## Escriptura per linia de comandes
+
+Per obtenir dades a través de la línia de comandes, cal la llibreria "readline"
+
+Les dades es llegeixen a través d'una interfície i no sabem quan estaràn disponibles, per això fem una funció que retorna una **promesa** i es resol amb el valor correcte quan l'usuari acaba d'escriure.
+
+```javascript
+const readline = require('readline');
+
+function prompt(question) {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+    // La funció '.question' acaba al fer un salt de linia
+    return new Promise(resolve => rl.question(question, answer => {
+        rl.close();
+        resolve(answer);
+    }));
+}
+
+async function main() {
+    const nom = await prompt("Com et dius? ");
+    console.log(`Hola ${nom}!`);
+}
+
+main();
+```
+
 ## Objectes i arxius JSON
 
 JavaScript té completament integrat el format JSON. Això permet transformar objectes cap a JSON i a l'inrevés:
@@ -361,48 +390,53 @@ node index.js
 **Important**: es pot guardar atributs d'objectes literals en format .json, però no funcions.
 
 ```javascript
-const fs = require('fs').promises;
+const fs = require('fs').promises
+const readline = require('readline')
+
+async function prompt(question) {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+    return new Promise(resolve => rl.question(question, answer => {
+        rl.close()
+        resolve(answer)
+    }));
+}
 
 // Funció per escriure un objecte en un arxiu .json
 async function writeData(obj, file_path) {
     try {
-        // Transformar l'objecte a text tipus .json
-        const txtData = JSON.stringify(obj, null, 2);
-
-        await fs.writeFile(file_path, txtData, 'utf-8');
-        console.log("Dades escrites a data.json");
+        const txtData = JSON.stringify(obj, null, 2)
+        await fs.writeFile(file_path, txtData, 'utf-8')
+        console.log(`Dades escrites a ${file_path}`)
     } catch (error) {
-        console.error("Error en escriure les dades:", error);
+        console.error("Error en escriure les dades:", error)
     }
 }
 
 // Funció per llegir un arxiu .json cap a un objecte
 async function readData(file_path) {
     try {
-        const txtData = await fs.readFile(file_path, 'utf-8');
-
-        // Transformar el text a objecte
-        const data = JSON.parse(txtData);
+        const txtData = await fs.readFile(file_path, 'utf-8')
+        const data = JSON.parse(txtData)
         return data
     } catch (error) {
-        console.error("Error en llegir les dades:", error);
+        console.error("Error en llegir les dades:", error)
     }
 }
 
 async function main() {
+    const path = await prompt("Nom de l'arxiu a generar? ")
 
     const person = {
         name: "Maria",
         age: 25,
         city: "Barcelona"
-    };
-
-    path = "./maria.json"
+    }
 
     await writeData(person, path)
-
-    json_data = await readData(path)
-
+    const json_data = await readData(path)
     console.log(json_data)
 }
 
