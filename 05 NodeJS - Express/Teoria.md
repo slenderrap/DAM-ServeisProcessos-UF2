@@ -79,7 +79,6 @@ function shutDown() {
 A l'arxiu **"./package.json"** posar l'apartat **scripts** així:
 ```json
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node --watch --watch-path ./server ./server/app.js",
     "pm2start": "pm2 start ./server/app.js",
     "pm2list": "pm2 list",

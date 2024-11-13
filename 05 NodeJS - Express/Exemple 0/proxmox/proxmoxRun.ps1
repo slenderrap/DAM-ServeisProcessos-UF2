@@ -1,4 +1,4 @@
-# Llegir les línies de l'arxiu config.env
+# Read variables from config.env
 $configFile = "config.env"
 Get-Content $configFile | ForEach-Object {
     $line = $_
@@ -14,11 +14,12 @@ Get-Content $configFile | ForEach-Object {
         $value = $value -replace '/', '\'
         $value = $value -replace '"', ''
 
-        # Configurar la variable en PowerShell
+        # Set the variable in PowerShell
         Set-Variable -Name $key -Value $value
     }
 }
 
+# Get parameters with defaults from config.env
 $USER = if ($args.Count -ge 1) { $args[0] } else { $DEFAULT_USER }
 $RSA_PATH = if ($args.Count -ge 2) { $args[1] } else { $DEFAULT_RSA_PATH }
 $SERVER_PORT = if ($args.Count -ge 3) { $args[2] } else { $DEFAULT_SERVER_PORT }
@@ -27,55 +28,65 @@ Write-Host "User: $USER"
 Write-Host "Ruta RSA: $RSA_PATH"
 Write-Host "Server port: $SERVER_PORT"
 
-$JAR_NAME="server-package.jar"
-$JAR_PATH = ".\target\$JAR_NAME"
+$ZIP_NAME = "server-package.zip"
 
-Set-Location ..
+# Define function to ensure we return to proxmox folder on failure
+function Exit-Script {
+    Write-Host "Returning to proxmox folder..."
+    Set-Location proxmox
+    exit 1
+}
 
+# Change directory to parent
+Set-Location .. 
+
+# Check if RSA_PATH exists, exit if not
 if (-Not (Test-Path $RSA_PATH)) {
     Write-Host "Error: No s'ha trobat el fitxer de clau privada: $RSA_PATH"
-    Set-Location proxmox
-    exit 1
+    Exit-Script
 }
 
-if (Test-Path $JAR_PATH) {
-    Remove-Item -Force $JAR_PATH
-}
-.\run.ps1 com.server.Main build
-
-if (-Not (Test-Path $JAR_PATH)) {
-    Write-Host "Error: No s'ha trobat l'arxiu JAR: $JAR_PATH"
-    Set-Location proxmox
-    exit 1
+# Remove any existing ZIP_NAME file
+if (Test-Path $ZIP_NAME) {
+    Remove-Item -Force $ZIP_NAME
 }
 
-scp -i $RSA_PATH -P 20127 $JAR_PATH "$USER@ieticloudpro.ieti.cat:~/"
+# Create ZIP archive excluding 'proxmox', 'node_modules', and '.gitignore'
+try {
+    Get-ChildItem -Path . -Exclude "proxmox", "node_modules", ".gitignore" | Compress-Archive -DestinationPath $ZIP_NAME -Force
+} catch {
+    Write-Host "Error during compression"
+    Exit-Script
+}
 
+# Use scp to send the zip file to the server
+scp -o HostKeyAlgorithms=+ssh-rsa -i $RSA_PATH -P 20127 $ZIP_NAME "$USER@ieticloudpro.ieti.cat:~/"
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Error durant l'enviament SCP"
-    Set-Location proxmox
-    exit 1
+    Exit-Script
 }
 
+# Remove local zip file
+Remove-Item -Force $ZIP_NAME
+
+# Build the SSH command to execute on the server
 $sshCommandTemplate = @'
-cd $HOME
-PID=$(ps aux | grep 'java -jar JAR_PLACEHOLDER' | grep -v 'grep' | awk '{print $2}')
-if [ -n "$PID" ]; then
-    kill $PID
-    echo "Antic proces JAR_PLACEHOLDER amb PID $PID aturat."
-else
-    echo "No s\'ha trobat el proces JAR_PLACEHOLDER."
-fi
-sleep 1
-setsid nohup java -jar JAR_PLACEHOLDER > output.log 2>&1 &
-sleep 1
-PID=$(ps aux | grep 'java -jar JAR_PLACEHOLDER' | grep -v 'grep' | awk '{print $2}')
-echo "Nou proces JAR_PLACEHOLDER amb PID $PID arrencat."
+cd "$HOME/nodejs_server"
+node --run pm2stop
+find . -mindepth 1 -path "./node_modules" -prune -o -exec rm -rf {} \;
+cd ..
+unzip ZIP_PLACEHOLDER -d nodejs_server
+rm -f ZIP_PLACEHOLDER
+cd nodejs_server
+npm install
+node --run pm2start
 exit
 '@ -replace "`r", ""
 
-$sshCommand = $sshCommandTemplate -replace "JAR_PLACEHOLDER", $JAR_NAME
+$sshCommand = $sshCommandTemplate -replace "ZIP_PLACEHOLDER", $ZIP_NAME
 
-ssh -i $RSA_PATH -t -p 20127 "$USER@ieticloudpro.ieti.cat" $sshCommand
+# SSH into the server and execute the commands
+ssh -o HostKeyAlgorithms=+ssh-rsa -i $RSA_PATH -t -p 20127 "$USER@ieticloudpro.ieti.cat" $sshCommand
 
+# Change directory back to proxmox
 Set-Location proxmox
