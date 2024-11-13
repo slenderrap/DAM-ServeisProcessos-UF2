@@ -210,7 +210,7 @@ console.log(doubled) // Output: [2, 4, 6, 8, 10]
 let numbers = [1, 2, 3, 4, 5]
 let doubledEvens = numbers
   .filter(num => num % 2 === 0) // Filtra els parells
-  .map(num => num * 2);         // Duplica els parells
+  .map(num => num * 2)          // Duplica els parells
 console.log(doubledEvens)       // Output: [4, 8]
 ```
 
@@ -220,21 +220,21 @@ Les funcions accepten paràmetres sense definir el tipus. Opcionalment es poden 
 
 ```javascript
 function suma(a, b) {
-  return a + b;
+  return a + b
 }
-let resultat = suma(3, 4);
-console.log(resultat); // Output: 7
+let resultat = suma(3, 4)
+console.log(resultat)  // Output: 7
 ```
 
 JavaScript permet definir paràmetres opcionals, que assignen un valor per defecte:
 
 ```javascript
 function saluda(nom = "amic") {
-  console.log("Hola, " + nom + "!");
+  console.log("Hola, " + nom + "!")
 }
 
-saluda("Maria"); // Output: Hola, Maria!
-saluda();        // Ouput: Hola, amic!
+saluda("Maria")  // Output: Hola, Maria!
+saluda()         // Ouput: Hola, amic!
 ```
 
 ## Classes
@@ -250,7 +250,7 @@ class Rectangle {
        return this.width * this.height
    }
 }
-var rect = new Rectangle(100, 50);
+var rect = new Rectangle(100, 50)
 ```
 
 - El constructor es diu **“constructor”**
@@ -296,16 +296,16 @@ Quan una funció es defineix com **async**, podem utilitzar la paraula clau **aw
 ```javascript
 async function processFile() {
   try {
-    let data = await readFile(); 
+    let data = await readFile()
         // Espera que la promesa es completi
-    console.log(data);
+    console.log(data)
         // Output: "Dades de l'arxiu"
   } catch (error) {
-    console.error(error); 
+    console.error(error);
   }
 }
 
-processFile();
+processFile()
 ```
 
 **Nota**: En el cas anterior, el codi de després de la crida *processFile()* s'executa encara que la funció no hagi acabat, perquè està esperant rebre les dades de *readFile()*
@@ -317,26 +317,20 @@ Per obtenir dades a través de la línia de comandes, cal la llibreria "readline
 Les dades es llegeixen a través d'una interfície i no sabem quan estaràn disponibles, per això fem una funció que retorna una **promesa** i es resol amb el valor correcte quan l'usuari acaba d'escriure.
 
 ```javascript
-const readline = require('readline');
+const readline = require('readline').promises
 
-function prompt(question) {
+async function main() {
     const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout
-    });
-    // La funció '.question' acaba al fer un salt de linia
-    return new Promise(resolve => rl.question(question, answer => {
-        rl.close();
-        resolve(answer);
-    }));
+    })
+
+    const nom = await rl.question("Com et dius? ")
+    console.log(`Hola ${nom}!`)
+    rl.close()
 }
 
-async function main() {
-    const nom = await prompt("Com et dius? ");
-    console.log(`Hola ${nom}!`);
-}
-
-main();
+main()
 ```
 
 ## Objectes i arxius JSON
@@ -345,35 +339,35 @@ JavaScript té completament integrat el format JSON. Això permet transformar ob
 
 **Escriure** un objecte a un fitxer *.json*:
 ```javascript
-const fs = require('fs').promises;
+const fs = require('fs').promises
 
 async function writeData() {
   const data = {
     name: "Maria",
     age: 25,
     city: "Barcelona"
-  };
+  }
 
   try {
-    const jsonData = JSON.stringify(data, null, 2);
-    await fs.writeFile('data.json', jsonData, 'utf-8');
-    console.log("Dades escrites a data.json");
+    const jsonData = JSON.stringify(data, null, 2)
+    await fs.writeFile('data.json', jsonData, 'utf-8')
+    console.log("Dades escrites a data.json")
   } catch (error) {
-    console.error("Error en escriure les dades:", error);
+    console.error("Error en escriure les dades:", error)
   }
 }
 ```
 
 **Llegir** un arxiu *.json* cap a un objecte:
 ```javascript
-const fs = require('fs').promises;
+const fs = require('fs').promises
 async function readData() {
   try {
-    const jsonData = await fs.readFile('data.json', 'utf-8');
-    const data = JSON.parse(jsonData);
-    console.log("Dades llegides del fitxer:", data);
+    const jsonData = await fs.readFile('data.json', 'utf-8')
+    const data = JSON.parse(jsonData)
+    console.log("Dades llegides del fitxer:", data)
   } catch (error) {
-    console.error("Error en llegir les dades:", error);
+    console.error("Error en llegir les dades:", error)
   }
 }
 ```
@@ -391,18 +385,7 @@ node index.js
 
 ```javascript
 const fs = require('fs').promises
-const readline = require('readline')
-
-async function prompt(question) {
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-    });
-    return new Promise(resolve => rl.question(question, answer => {
-        rl.close()
-        resolve(answer)
-    }));
-}
+const readline = require('readline').promises
 
 // Funció per escriure un objecte en un arxiu .json
 async function writeData(obj, file_path) {
@@ -427,7 +410,12 @@ async function readData(file_path) {
 }
 
 async function main() {
-    const path = await prompt("Nom de l'arxiu a generar? ")
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    })
+
+    const path = await rl.question("Nom de l'arxiu a generar? ")
 
     const person = {
         name: "Maria",
