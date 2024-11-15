@@ -1,10 +1,28 @@
 #!/bin/bash
 
+# Function for cleanup
+cleanup() {
+    local exit_code=$?
+    echo "Performing cleanup..."
+    [[ -n "$TEMP_KEY" ]] && rm -f "$TEMP_KEY"
+    [[ -n "$ZIP_NAME" ]] && rm -f "../$ZIP_NAME"
+    ssh-agent -k 2>/dev/null
+    cd "$ORIGINAL_DIR" 2>/dev/null
+    exit $exit_code
+}
+
+# Set up trap for cleanup on script exit
+trap cleanup EXIT
+
+# Store original directory
+ORIGINAL_DIR=$(pwd)
+
 source ./config.env
 
 USER=${1:-$DEFAULT_USER}
-RSA_PATH=${2:-$DEFAULT_RSA_PATH}
+RSA_PATH=${2:-"$DEFAULT_RSA_PATH"}
 SERVER_PORT=${3:-$DEFAULT_SERVER_PORT}
+RSA_PATH="${RSA_PATH%$'\r'}" 
 
 echo "User: $USER"
 echo "Ruta RSA: $RSA_PATH"
@@ -16,20 +34,23 @@ cd ..
 
 if [[ ! -f "$RSA_PATH" ]]; then
     echo "Error: No s'ha trobat el fitxer de clau privada: $RSA_PATH"
-    cd proxmox
     exit 1
 fi
+
+# Create temporary key with secure permissions
+TEMP_KEY=$(mktemp)
+cp "${RSA_PATH}" "$TEMP_KEY"
+chmod 600 "$TEMP_KEY"
 
 rm -f "$ZIP_NAME"
 zip -r "$ZIP_NAME" . -x "proxmox/*" "node_modules/*" ".gitignore"
 
 eval "$(ssh-agent -s)"
-ssh-add "$RSA_PATH"
+ssh-add "$TEMP_KEY"
 
 scp -P 20127 "$ZIP_NAME" "$USER@ieticloudpro.ieti.cat:~/"
 if [[ $? -ne 0 ]]; then
     echo "Error durant l'enviament SCP"
-    cd proxmox
     exit 1
 fi
 
@@ -89,6 +110,3 @@ ssh -t -p 20127 "$USER@ieticloudpro.ieti.cat" << EOF
     echo "Reiniciant el servidor amb Node.js..."
     node --run pm2start || echo "Error en reiniciar el servidor amb Node.js."
 EOF
-
-ssh-agent -k
-cd proxmox

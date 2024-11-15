@@ -6,6 +6,7 @@ source ./config.env
 USER=${1:-$DEFAULT_USER}
 RSA_PATH=${2:-$DEFAULT_RSA_PATH}
 SERVER_PORT=${3:-$DEFAULT_SERVER_PORT}
+RSA_PATH="${RSA_PATH%$'\r'}"  # Eliminar possibles retorns de carro
 
 echo "User: $USER"
 echo "Ruta RSA: $RSA_PATH"
@@ -15,16 +16,21 @@ cd ..
 
 # Comprovem que els arxius existeixen
 if [[ ! -f "$RSA_PATH" ]]; then
-  echo "Error: No s'ha trobat el fitxer de clau privada: $RSA_PATH"
-  cd proxmox
-  exit 1
+    echo "Error: No s'ha trobat el fitxer de clau privada: $RSA_PATH"
+    cd proxmox
+    exit 1
 fi
 
-# Iniciar ssh-agent i carregar la clau RSA
-eval "$(ssh-agent -s)"
-ssh-add "$RSA_PATH"
+# Crear clau temporal amb permisos segurs
+TEMP_KEY=$(mktemp)
+cp "${RSA_PATH}" "$TEMP_KEY"
+chmod 600 "$TEMP_KEY"
 
-# SSH al servidor per aturar el procés i alliberar el port
+# Iniciar ssh-agent i carregar la clau RSA temporal
+eval "$(ssh-agent -s)"
+ssh-add "$TEMP_KEY"
+
+# SSH al servidor per gestionar el port i els processos
 ssh -t -p 20127 "$USER@ieticloudpro.ieti.cat" << EOF
     cd "\$HOME/nodejs_server"
 
@@ -57,7 +63,8 @@ ssh -t -p 20127 "$USER@ieticloudpro.ieti.cat" << EOF
     exit
 EOF
 
-# Finalitzar l'agent SSH
+# Finalitzar l'agent SSH i eliminar la clau temporal
 ssh-agent -k
+rm -f "$TEMP_KEY"
 
 cd proxmox
