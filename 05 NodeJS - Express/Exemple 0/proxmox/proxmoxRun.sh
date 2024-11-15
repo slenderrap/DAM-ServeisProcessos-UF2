@@ -22,7 +22,7 @@ if [[ ! -f "$RSA_PATH" ]]; then
     exit 1
 fi
 
-# Generar '.jar'
+# Generar el .zip excloent directoris innecessaris
 rm -f "$ZIP_NAME"
 zip -r "$ZIP_NAME" . -x "proxmox/*" "node_modules/*" ".gitignore"
 
@@ -43,14 +43,49 @@ rm -f "$ZIP_NAME"
 # SSH al servidor per aturar l'antic procés i executar el nou
 ssh -t -p 20127 "$USER@ieticloudpro.ieti.cat" << EOF
     cd "\$HOME/nodejs_server"
-    node --run pm2stop
-    find . -mindepth 1 -path "./node_modules" -prune -o -exec rm -rf {} +
+
+    # Intentar aturar el servidor gracefully
+    echo "Aturant el servidor de manera graceful..."
+    if pm2 stop all; then
+        echo "Servidor aturat correctament."
+    else
+        echo "Error en aturar el servidor. Intentant forçar..."
+        pkill -f "node" || echo "No s'ha trobat cap procés de Node.js en execució."
+    fi
+
+    # Comprovar si el port està alliberat
+    echo "Comprovant si el port $SERVER_PORT està alliberat..."
+    MAX_RETRIES=10
+    RETRIES=0
+    while netstat -an | grep -q ":$SERVER_PORT.*LISTEN"; do
+        echo "Esperant que el port $SERVER_PORT es desalliberi..."
+        sleep 1
+        RETRIES=\$((RETRIES + 1))
+        if [[ \$RETRIES -ge \$MAX_RETRIES ]]; then
+            echo "Error: El port $SERVER_PORT no es desallibera."
+            exit 1
+        fi
+    done
+
+    echo "Port $SERVER_PORT desalliberat."
+
+    # Netejar el directori excepte node_modules
+    echo "Netejant el directori del servidor..."
+    find . -mindepth 1 -not -name "node_modules" -exec rm -rf {} +
+
+    # Descomprimir el nou paquet i instal·lar dependències
     cd ..
     unzip $ZIP_NAME -d nodejs_server
     rm -f $ZIP_NAME
     cd nodejs_server
+
+    echo "Instal·lant dependències..."
     npm install
-    node --run pm2start
+
+    # Reiniciar el servidor amb PM2
+    echo "Reiniciant el servidor amb PM2..."
+    pm2 start all
+    echo "Servidor reiniciat correctament."
     exit
 EOF
 

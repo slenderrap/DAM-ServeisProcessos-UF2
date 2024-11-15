@@ -72,18 +72,63 @@ Remove-Item -Force $ZIP_NAME
 # Build the SSH command to execute on the server
 $sshCommandTemplate = @'
 cd "$HOME/nodejs_server"
-node --run pm2stop
-find . -mindepth 1 -path "./node_modules" -prune -o -exec rm -rf {} \;
+
+# Attempt to stop the server gracefully
+echo "Aturant el servidor amb PM2..."
+if pm2 stop all; then
+    echo "Servidor aturat correctament."
+else
+    echo "Error en aturar el servidor. Intentant forçar..."
+    pkill -f "node" || echo "No s'ha trobat cap procés de Node.js en execució."
+fi
+
+# Wait for the server port to be freed
+echo "Comprovant si el port PORT_PLACEHOLDER està alliberat..."
+MAX_RETRIES=10
+RETRIES=0
+while netstat -an | grep -q ":PORT_PLACEHOLDER.*LISTEN"; do
+    echo "Esperant que el port PORT_PLACEHOLDER es desalliberi..."
+    sleep 1
+    RETRIES=$((RETRIES + 1))
+    if [ $RETRIES -ge $MAX_RETRIES ]; then
+        echo "Error: El port PORT_PLACEHOLDER no es desallibera."
+        exit 1
+    fi
+done
+echo "Port PORT_PLACEHOLDER desalliberat."
+
+# Clean the directory except for node_modules
+echo "Netejant el directori..."
+find . -mindepth 1 -not -name "node_modules" -exec rm -rf {} +
+
+# Extract the new ZIP file and install dependencies
 cd ..
 unzip ZIP_PLACEHOLDER -d nodejs_server
 rm -f ZIP_PLACEHOLDER
 cd nodejs_server
-npm install
-node --run pm2start
-exit
-'@ -replace "`r", ""
+echo "Instal·lant dependències..."
+if npm install; then
+    echo "Dependències instal·lades correctament."
+else
+    echo "Error durant la instal·lació de dependències."
+    exit 1
+fi
 
-$sshCommand = $sshCommandTemplate -replace "ZIP_PLACEHOLDER", $ZIP_NAME
+# Restart the server
+echo "Reiniciant el servidor amb PM2..."
+if pm2 start all; then
+    echo "Servidor reiniciat correctament."
+else
+    echo "Error en reiniciar el servidor."
+    exit 1
+fi
+exit
+'@
+
+# Replace placeholders with actual values
+$sshCommand = $sshCommandTemplate `
+    -replace "ZIP_PLACEHOLDER", $ZIP_NAME `
+    -replace "PORT_PLACEHOLDER", $SERVER_PORT
 
 # SSH into the server and execute the commands
 ssh -o HostKeyAlgorithms=+ssh-rsa -i $RSA_PATH -t -p 20127 "$USER@ieticloudpro.ieti.cat" $sshCommand

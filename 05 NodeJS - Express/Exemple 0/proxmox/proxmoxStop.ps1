@@ -44,8 +44,39 @@ if (-Not (Test-Path $RSA_PATH)) {
     Exit-Script
 }
 
-# SSH into the server to stop the server process
-ssh -i $RSA_PATH -t -p 20127 "$USER@ieticloudpro.ieti.cat" 'cd "$HOME/nodejs_server"; node --run pm2stop; exit'
+# SSH command template with placeholder for the port
+$sshCommandTemplate = @"
+cd "\$HOME/nodejs_server"
+echo "Aturant el servidor amb PM2..."
+if pm2 stop all; then
+    echo "Servidor aturat correctament."
+else
+    echo "Error en aturar el servidor. Intentant forçar..."
+    pkill -f "node" || echo "No s'ha trobat cap procés de Node.js en execució."
+fi
+
+echo "Comprovant si el port PORT_PLACEHOLDER està alliberat..."
+MAX_RETRIES=10
+RETRIES=0
+while netstat -an | grep -q ":PORT_PLACEHOLDER.*LISTEN"; do
+    echo "Esperant que el port PORT_PLACEHOLDER es desalliberi..."
+    sleep 1
+    RETRIES=\$((RETRIES + 1))
+    if [ \$RETRIES -ge \$MAX_RETRIES ]; then
+        echo "Error: El port PORT_PLACEHOLDER no es desallibera."
+        exit 1
+    fi
+done
+echo "Port PORT_PLACEHOLDER desalliberat."
+exit
+"@
+
+# Replace the placeholder with the actual server port
+$sshCommand = $sshCommandTemplate -replace "PORT_PLACEHOLDER", $SERVER_PORT
+
+# SSH into the server and execute the commands
+ssh -i $RSA_PATH -t -p 20127 "$USER@ieticloudpro.ieti.cat" $sshCommand
+
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Error: SSH connection failed or command did not execute successfully."
     Exit-Script

@@ -24,10 +24,34 @@ fi
 eval "$(ssh-agent -s)"
 ssh-add "$RSA_PATH"
 
-# SSH al servidor per trobar i matar el procés del servidor
+# SSH al servidor per aturar el procés i alliberar el port
 ssh -t -p 20127 "$USER@ieticloudpro.ieti.cat" << EOF
     cd "\$HOME/nodejs_server"
-    node --run pm2stop
+
+    # Intentar aturar el servidor amb PM2
+    echo "Aturant el servidor amb PM2..."
+    if pm2 stop all; then
+        echo "Servidor aturat correctament."
+    else
+        echo "Error en aturar el servidor. Intentant forçar..."
+        pkill -f "node" || echo "No s'ha trobat cap procés de Node.js en execució."
+    fi
+
+    # Comprovar si el port està alliberat
+    echo "Comprovant si el port $SERVER_PORT està alliberat..."
+    MAX_RETRIES=10
+    RETRIES=0
+    while netstat -an | grep -q ":$SERVER_PORT.*LISTEN"; do
+        echo "Esperant que el port $SERVER_PORT es desalliberi..."
+        sleep 1
+        RETRIES=\$((RETRIES + 1))
+        if [[ \$RETRIES -ge \$MAX_RETRIES ]]; then
+            echo "Error: El port $SERVER_PORT no es desallibera."
+            exit 1
+        fi
+    done
+
+    echo "Port $SERVER_PORT desalliberat."
     exit
 EOF
 
