@@ -75,8 +75,3 @@ ssh -t -p 20127 "$USER@ieticloudpro.ieti.cat" << EOF
     done
     echo "Port $SERVER_PORT desalliberat."
 EOF
-
-# Finalitzar l'agent SSH
-ssh-agent -k
-
-cd proxmox
