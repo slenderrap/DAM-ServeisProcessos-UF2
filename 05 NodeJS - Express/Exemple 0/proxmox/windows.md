@@ -8,7 +8,6 @@ A l'arxiu de configuració el camí a la clau privada RSA serà d'aquest estil (
 ```bash
 DEFAULT_RSA_PATH="/mnt/c/Users/optim/Desktop/Proxmox IETI/id_rsa"
 ```
-
 Quan editeu els arxius des de Windows, els haureu d'arreglar perquè funcionin amb WSL, feu-ho amb:
 ```bash
 chmod +x *.sh && chmod +x ../*.sh && dos2unix * && dos2unix ../*
@@ -16,5 +15,5 @@ chmod +x *.sh && chmod +x ../*.sh && dos2unix * && dos2unix ../*
 
 Us caldrà instal·lar:
 ```bash
-sudo ap
-
+sudo apt install zip unzip dos2unix openjdk-21-jre-headless maven net-tools
+```
