@@ -154,10 +154,27 @@ Anar amb el navegador a [http://localhost:3000/web.html](http://localhost:3000/w
 S'ha de veure una pàgina web amb
 **"Hello Web HTML"**
 
+## Proxmox remot
+
+Connectar al proxmox remot:
+```bash
+ssh -i id_rsa -p 20127 nomUsuari@ieticloudpro.ieti.cat
+```
+
+Cal instal·lar NodeJS al proxmox remot, i també 'unzip':
+```bash
+sudo apt install npm
+sudo npm cache clean -f
+sudo npm install -g n
+sudo n latest
+```
+
 ## Validar el servidor remot (cmd)
 
 Amb el servidor funcionant, per comprovar que s'hi poden fer consultes:
 ```bash
+cd proxmox
+./proxmoxRun.ps1
 curl https://apalaci8.ieti.site/
 ```
 

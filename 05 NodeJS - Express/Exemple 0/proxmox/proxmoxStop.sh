@@ -28,14 +28,16 @@ ssh-add "$RSA_PATH"
 ssh -t -p 20127 "$USER@ieticloudpro.ieti.cat" << EOF
     cd "\$HOME/nodejs_server"
 
-    # Intentar aturar el servidor amb PM2
-    echo "Aturant el servidor amb PM2..."
-    if pm2 stop all; then
-        echo "Servidor aturat correctament."
-    else
-        echo "Error en aturar el servidor. Intentant forçar..."
-        pkill -f "node" || echo "No s'ha trobat cap procés de Node.js en execució."
+    echo "Configurant el PATH per a Node.js..."
+    export PATH="\$HOME/.npm-global/bin:/usr/local/bin:\$PATH"
+
+    # Intentar aturar el servidor amb Node.js
+    echo "Aturant el servidor amb Node.js..."
+    if command -v node &>/dev/null; then
+        node --run pm2stop || echo "Error en aturar el servidor. Intentant forçar..."
     fi
+
+    pkill -f "node" || echo "No s'ha trobat cap procés de Node.js en execució."
 
     # Comprovar si el port està alliberat
     echo "Comprovant si el port $SERVER_PORT està alliberat..."

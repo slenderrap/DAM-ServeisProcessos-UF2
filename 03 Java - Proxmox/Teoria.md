@@ -37,7 +37,7 @@ apache2 -v
 
 ```bash
 sudo apt update
-sudo apt install net-tools
+sudo apt install net-tools unzip
 sudo apt install openjdk-21-jre-headless
 sudo apt install maven
 mvn -v

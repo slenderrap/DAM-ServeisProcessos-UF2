@@ -18,7 +18,7 @@ Per instral·lar Node.js amb [gestors de paquets](https://nodejs.org/en/download
 
 A Linux:
 ```bash
-sudo apt install npm
+sudo apt install npm unzip
 sudo npm cache clean -f
 sudo npm install -g n
 sudo n latest

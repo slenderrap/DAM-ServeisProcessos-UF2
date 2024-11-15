@@ -47,13 +47,16 @@ if (-Not (Test-Path $RSA_PATH)) {
 # SSH command template with placeholder for the port
 $sshCommandTemplate = @"
 cd "\$HOME/nodejs_server"
-echo "Aturant el servidor amb PM2..."
-if pm2 stop all; then
-    echo "Servidor aturat correctament."
-else
-    echo "Error en aturar el servidor. Intentant forçar..."
-    pkill -f "node" || echo "No s'ha trobat cap procés de Node.js en execució."
+
+echo "Configurant el PATH per a Node.js..."
+export PATH="\$HOME/.npm-global/bin:/usr/local/bin:\$PATH"
+
+echo "Aturant el servidor amb Node.js..."
+if command -v node &>/dev/null; then
+    node --run pm2stop || echo "Error en aturar el servidor. Intentant forçar..."
 fi
+
+pkill -f "node" || echo "No s'ha trobat cap procés de Node.js en execució."
 
 echo "Comprovant si el port PORT_PLACEHOLDER està alliberat..."
 MAX_RETRIES=10

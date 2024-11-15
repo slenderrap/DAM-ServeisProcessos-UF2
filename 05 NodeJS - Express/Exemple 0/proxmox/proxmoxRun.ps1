@@ -71,16 +71,20 @@ Remove-Item -Force $ZIP_NAME
 
 # Build the SSH command to execute on the server
 $sshCommandTemplate = @'
+mkdir -p "\$HOME/nodejs_server"
 cd "$HOME/nodejs_server"
 
+# Configure PATH for Node.js
+echo "Configurant el PATH per a Node.js..."
+export PATH="\$HOME/.npm-global/bin:/usr/local/bin:\$PATH"
+
 # Attempt to stop the server gracefully
-echo "Aturant el servidor amb PM2..."
-if pm2 stop all; then
-    echo "Servidor aturat correctament."
-else
-    echo "Error en aturar el servidor. Intentant forçar..."
-    pkill -f "node" || echo "No s'ha trobat cap procés de Node.js en execució."
+echo "Aturant el servidor amb Node.js..."
+if command -v node &>/dev/null; then
+    node --run pm2stop || echo "Error en aturar el servidor. Intentant forçar..."
 fi
+
+pkill -f "node" || echo "No s'ha trobat cap procés de Node.js en execució."
 
 # Wait for the server port to be freed
 echo "Comprovant si el port PORT_PLACEHOLDER està alliberat..."
@@ -115,8 +119,8 @@ else
 fi
 
 # Restart the server
-echo "Reiniciant el servidor amb PM2..."
-if pm2 start all; then
+echo "Reiniciant el servidor amb Node.js..."
+if node --run pm2start; then
     echo "Servidor reiniciat correctament."
 else
     echo "Error en reiniciar el servidor."
