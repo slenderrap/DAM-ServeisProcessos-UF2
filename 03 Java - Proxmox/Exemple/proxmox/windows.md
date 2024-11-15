@@ -30,7 +30,7 @@ dos2unix * && dos2unix ../*
 
 A la carpeta del projecte Maven caldrà instal·lar:
 ```bash
-mvn clean install
 sudo apt install git zip unzip dos2unix openjdk-21-jre-headless maven net-tools
+mvn clean install
 ```
 
