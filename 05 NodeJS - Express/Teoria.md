@@ -175,18 +175,18 @@ Amb el servidor funcionant, per comprovar que s'hi poden fer consultes:
 ```bash
 cd proxmox
 ./proxmoxRun.ps1
-curl https://apalaci8.ieti.site/
+curl https://nomUsuari.ieti.site/
 ```
 
 ## Validar el servidor remot (navegador)
 
 Amb el servidor funcionant, per comprovar que s'hi poden fer consultes. 
 
-Anar amb el navegador a [https://apalaci8.ieti.site/](https://apalaci8.ieti.site/)
+Anar amb el navegador a [https://nomUsuari.ieti.site/](https://nomUsuari.ieti.site/)
 
 S'ha de veure una pàgina web amb **"Hello World"**
 
-Anar amb el navegador a [https://apalaci8.ieti.site/web.html](https://apalaci8.ieti.site/web.html)
+Anar amb el navegador a [https://nomUsuari.ieti.site/web.html](https://nomUsuari.ieti.site/web.html)
 
 S'ha de veure una pàgina web amb
 **"Hello Web HTML"**
@@ -195,7 +195,7 @@ S'ha de veure una pàgina web amb
 
 Els continguts estàtics són aquells que no canvien, solen ser els arxius de la carpeta **"./public"** i s'entreguen al client tal i com són.
 
-Per exemple la URL [https://apalaci8.ieti.site/web.html](https://apalaci8.ieti.site/web.html)
+Per exemple la URL [https://nomUsuari.ieti.site/web.html](https://nomUsuari.ieti.site/web.html)
 
 El servidor d'exemple configura la carpeta **"./public"** com la que conté arxius estàtics, normalment es posa aquest nom per deixar clar que tot el què estigui allà dins està accessible lliurement des de Internet.
 
