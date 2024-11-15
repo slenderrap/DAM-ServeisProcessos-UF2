@@ -57,4 +57,4 @@ L'usuari té les següents comandes textuals:
 La partida s'acaba quan:
 
 - L'usuari **acaba els punts**, que surt el missatge: "Has perdut, ja no tens més passes"
-- L'usuari **arriba a la casella 8,8**, que surt el missatge: "Has guanyat arribant al destí"
+- L'usuari **arriba a la casella 8,8**, que surt el missatge: "Has guanyat, has trobat el tresor"
