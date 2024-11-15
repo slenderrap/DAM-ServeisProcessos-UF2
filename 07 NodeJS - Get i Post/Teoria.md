@@ -142,7 +142,8 @@ Exemple:
 curl -X POST http://localhost:3000/upload \
 -H "Content-Type: multipart/form-data" \
 -F "json={\"key1\":\"value1\",\"key2\":\"value2\"}" \
--F "file=@/path/to/your/file.txt"
+-F "files=@/path/to/your/file1.txt" \
+-F "files=@/path/to/your/file2.txt"
 */
 const express = require('express')
 const multer = require('multer')
@@ -154,6 +155,9 @@ if (!fs.existsSync('uploads')) {
     fs.mkdirSync('uploads')
 }
 
+// Tipus MIME acceptats
+const allowedMimeTypes = ['text/plain', 'image/jpeg', 'image/png', 'application/pdf']
+
 // Configurar multer per guardar arxius a la carpeta "uploads"
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -163,25 +167,41 @@ const storage = multer.diskStorage({
         cb(null, Date.now() + '-' + file.originalname) // Prefixar amb un timestamp per evitar col·lisions
     }
 })
-const upload = multer({ storage: storage })
 
-app.post('/upload', upload.single('file'), (req, res) => {
-    // Obtenir l'objecte JSON
-    const jsonData = JSON.parse(req.body.json)
+// Configuració de multer amb límit de mida i validació
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 50 * 1024 * 1024 }, // Límit de 50 MB per fitxer
+    fileFilter: (req, file, cb) => {
+        if (allowedMimeTypes.includes(file.mimetype)) {
+            cb(null, true) // Acceptar el fitxer
+        } else {
+            cb(new Error('Tipus de fitxer no permès'), false) // Rebutjar el fitxer
+        }
+    }
+})
 
-    // Obtenir l'arxiu
-    const file = req.file
+app.post('/upload', upload.array('files', 10), (req, res) => {
+    try {
+        // Obtenir l'objecte JSON
+        const jsonData = JSON.parse(req.body.json)
 
-    res.json({
-        message: 'Dades rebudes',
-        jsonData: jsonData,
-        fileInfo: {
+        // Obtenir els arxius
+        const files = req.files.map(file => ({
             originalName: file.originalname,
             mimeType: file.mimetype,
             size: file.size,
             path: file.path
-        }
-    })
+        }))
+
+        res.json({
+            message: 'Dades rebudes',
+            jsonData: jsonData,
+            files: files
+        })
+    } catch (error) {
+        res.status(400).json({ error: 'Error processant la petició', details: error.message })
+    }
 })
 
 app.listen(3000, () => {
