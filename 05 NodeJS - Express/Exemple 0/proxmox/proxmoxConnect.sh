@@ -20,7 +20,7 @@ cp "${RSA_PATH}" "$TEMP_KEY"
 chmod 600 "$TEMP_KEY"
 
 # Establish SSH connection
-ssh -i "$RSA_PATH" -p 20127 "$USER@ieticloudpro.ieti.cat"  
+ssh -i "$TEMP_KEY" -p 20127 "$USER@ieticloudpro.ieti.cat"  
 
 # Clean up
 rm "$TEMP_KEY"
