@@ -14,9 +14,13 @@ if [[ ! -f "${RSA_PATH}" ]]; then
   exit 1
 fi
 
-
-chmod 600 "$RSA_PATH"
+# Use /tmp directory and create a unique filename
+TEMP_KEY="/tmp/private_rsa_$$"  
+cp "${RSA_PATH}" "$TEMP_KEY"
+chmod 600 "$TEMP_KEY"
 
 # Establish SSH connection
 ssh -i "$RSA_PATH" -p 20127 "$USER@ieticloudpro.ieti.cat"  
 
+# Clean up
+rm "$TEMP_KEY"
