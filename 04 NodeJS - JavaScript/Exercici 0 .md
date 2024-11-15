@@ -10,9 +10,11 @@
 
 # Exercici 0
 
-Per practicar JavaScript i orientació a objectes, l'objectiu d'aquest exercici és fer un joc de línia de comandes en Node.js anomenat **"BuscaTresors"**.
+L'objectiu d'aquest exercici és fer un joc de línia de comandes amb NodeJS, per practicar JavaScript i orientació a objectes.
 
-## Requisits
+Programa un dels següents jocs.
+
+## Busca tresors
 
 Es genera un tauler bidimensional (matriu) de 8x8.
 
@@ -33,4 +35,26 @@ La partida s'acaba quan:
 - L'usuari **acaba les tirades**, que surt el missatge: "Has perdut, queden z tresors"
 - L'usuari **destapa tots els tresors**, que surt el missatge: "Has guanyat amb només y tirades"
 
+## Floor is lava
 
+Es genera un tauler bidimensional (matriu) de 8x8.
+
+S'amaguen 16 caselles de lava en diverses coordenades aleatòries del tauler. Excepte la 0,0 on hi ha l'usuari "T" i la 8x8 on hi ha el destí "*".
+
+L'usuari té les següents comandes textuals:
+
+* **ajuda**: mostra les següents opcions
+* **carregar partida "nom_arxiu.json"**: carrega una partida guardada
+* **guardar partida "nom_guardar.json"**: guarda la partida actual
+* **caminar "direcció"**: on *"direcció"* pot ser "amunt", "avall", "dreta", "esquerra". 
+
+  - Si s'intenta sortir del tauler, es veu el missatge: "Has perdut, has caigut per un penyasegat"
+  - Si es cau en una casella de lava "l", es destapa i es veu el missatge: "Has trepitjat lava, perds un punt"
+  - Si es va a una casella lliure, es veu el missatge: "Vas per bon camí, tens lava a x caselles de distància"
+
+* **puntuació**: mostra la puntuació actual que correspòn a la distància des de la sortida i les passes actuals. Originalment l'usuari té 32 passes, que es gasten cada vegada que trepitja lava. 
+
+La partida s'acaba quan:
+
+- L'usuari **acaba els punts**, que surt el missatge: "Has perdut, ja no tens més passes"
+- L'usuari **arriba a la casella 8,8**, que surt el missatge: "Has guanyat arribant al destí"
