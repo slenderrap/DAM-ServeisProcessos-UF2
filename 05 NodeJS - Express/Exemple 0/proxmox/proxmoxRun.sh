@@ -1,17 +1,14 @@
 #!/bin/bash
 
-# Function for cleanup
+# Function for cleanup on script exit
 cleanup() {
     local exit_code=$?
     echo "Performing cleanup..."
-    [[ -n "$TEMP_KEY" ]] && rm -f "$TEMP_KEY"
     [[ -n "$ZIP_NAME" ]] && rm -f "../$ZIP_NAME"
     ssh-agent -k 2>/dev/null
     cd "$ORIGINAL_DIR" 2>/dev/null
     exit $exit_code
 }
-
-# Set up trap for cleanup on script exit
 trap cleanup EXIT
 
 # Store original directory
@@ -37,16 +34,11 @@ if [[ ! -f "$RSA_PATH" ]]; then
     exit 1
 fi
 
-# Create temporary key with secure permissions
-TEMP_KEY=$(mktemp)
-cp "${RSA_PATH}" "$TEMP_KEY"
-chmod 600 "$TEMP_KEY"
-
 rm -f "$ZIP_NAME"
 zip -r "$ZIP_NAME" . -x "proxmox/*" "node_modules/*" ".gitignore"
 
 eval "$(ssh-agent -s)"
-ssh-add "$TEMP_KEY"
+ssh-add "${RSA_PATH}"
 
 scp -P 20127 "$ZIP_NAME" "$USER@ieticloudpro.ieti.cat:~/"
 if [[ $? -ne 0 ]]; then

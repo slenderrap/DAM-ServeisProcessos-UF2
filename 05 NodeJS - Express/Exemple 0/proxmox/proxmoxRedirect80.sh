@@ -17,18 +17,13 @@ if [[ ! -f "${RSA_PATH}" ]]; then
   exit 1
 fi
 
-# Create temporary key with secure permissions
-TEMP_KEY=$(mktemp)
-cp "${RSA_PATH}" "$TEMP_KEY"
-chmod 600 "$TEMP_KEY"
-
 # Ask for the remote password
 read -s -p "Introdueix la contrasenya de sudo per al servidor remot: " SUDO_PASSWORD
 echo ""
 
 # Start SSH agent
 eval "$(ssh-agent -s)"
-ssh-add "$TEMP_KEY"
+ssh-add "${RSA_PATH}"
 
 # SSH to server and execute command with sudo, passing the password
 ssh -t -p 20127 "$USER@ieticloudpro.ieti.cat" << EOF
@@ -37,4 +32,3 @@ EOF
 
 # Cleanup
 ssh-agent -k
-rm "$TEMP_KEY"

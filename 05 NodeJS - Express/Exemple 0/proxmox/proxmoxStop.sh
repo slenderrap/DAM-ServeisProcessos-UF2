@@ -1,5 +1,16 @@
 #!/bin/bash
 
+# Function for cleanup on script exit
+cleanup() {
+    local exit_code=$?
+    echo "Performing cleanup..."
+    [[ -n "$ZIP_NAME" ]] && rm -f "../$ZIP_NAME"
+    ssh-agent -k 2>/dev/null
+    cd "$ORIGINAL_DIR" 2>/dev/null
+    exit $exit_code
+}
+trap cleanup EXIT
+
 source ./config.env
 
 # Obtenir configuració dels paràmetres
@@ -17,18 +28,12 @@ cd ..
 # Comprovem que els arxius existeixen
 if [[ ! -f "$RSA_PATH" ]]; then
     echo "Error: No s'ha trobat el fitxer de clau privada: $RSA_PATH"
-    cd proxmox
     exit 1
 fi
 
-# Crear clau temporal amb permisos segurs
-TEMP_KEY=$(mktemp)
-cp "${RSA_PATH}" "$TEMP_KEY"
-chmod 600 "$TEMP_KEY"
-
 # Iniciar ssh-agent i carregar la clau RSA temporal
 eval "$(ssh-agent -s)"
-ssh-add "$TEMP_KEY"
+ssh-add "${RSA_PATH}"
 
 # SSH al servidor per gestionar el port i els processos
 ssh -t -p 20127 "$USER@ieticloudpro.ieti.cat" << EOF
@@ -62,9 +67,3 @@ ssh -t -p 20127 "$USER@ieticloudpro.ieti.cat" << EOF
     echo "Port $SERVER_PORT desalliberat."
     exit
 EOF
-
-# Finalitzar l'agent SSH i eliminar la clau temporal
-ssh-agent -k
-rm -f "$TEMP_KEY"
-
-cd proxmox

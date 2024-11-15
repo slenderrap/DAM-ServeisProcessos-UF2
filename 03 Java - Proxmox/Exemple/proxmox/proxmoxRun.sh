@@ -1,17 +1,14 @@
 #!/bin/bash
 
-# Function for cleanup
+# Function for cleanup on script exit
 cleanup() {
     local exit_code=$?
     echo "Performing cleanup..."
-    [[ -n "$TEMP_KEY" ]] && rm -f "$TEMP_KEY"
     [[ -n "$JAR_PATH" ]] && rm -f "$JAR_PATH"
     ssh-agent -k 2>/dev/null
     cd "$ORIGINAL_DIR" 2>/dev/null
     exit $exit_code
 }
-
-# Set up trap for cleanup on script exit
 trap cleanup EXIT
 
 # Store original directory
@@ -25,7 +22,7 @@ SERVER_PORT=${3:-$DEFAULT_SERVER_PORT}
 RSA_PATH="${RSA_PATH%$'\r'}"
 
 echo "User: $USER"
-echo "Ruta RSA: $RSA_PATH"
+echo "Ruta RSA: ${RSA_PATH}"
 echo "Server port: $SERVER_PORT"
 
 JAR_NAME="server-package.jar"
@@ -33,15 +30,10 @@ JAR_PATH="./target/$JAR_NAME"
 
 cd ..
 
-if [[ ! -f "$RSA_PATH" ]]; then
-    echo "Error: No s'ha trobat el fitxer de clau privada: $RSA_PATH"
+if [[ ! -f "${RSA_PATH}" ]]; then
+    echo "Error: No s'ha trobat el fitxer de clau privada: ${RSA_PATH}"
     exit 1
 fi
-
-# Create temporary key with secure permissions
-TEMP_KEY=$(mktemp)
-cp "${RSA_PATH}" "$TEMP_KEY"
-chmod 600 "$TEMP_KEY"
 
 echo "Generant el fitxer JAR..."
 rm -f "$JAR_PATH"
@@ -53,7 +45,7 @@ if [[ ! -f "$JAR_PATH" ]]; then
 fi
 
 eval "$(ssh-agent -s)"
-ssh-add "$TEMP_KEY"
+ssh-add "${RSA_PATH}"
 
 echo "Enviant $JAR_PATH al servidor..."
 scp -P 20127 "$JAR_PATH" "$USER@ieticloudpro.ieti.cat:~/"
