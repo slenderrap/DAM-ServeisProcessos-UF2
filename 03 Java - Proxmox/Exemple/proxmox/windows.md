@@ -8,7 +8,7 @@ Es pot instal·lar la última versió d'un terminal Ubuntu des de la botiga d'ap
 
 ## Clau RSA
 
-A l'arxiu de configuració el camí a la clau privada RSA serà d'aquest estil (ruta a partir de /mnt/c/...):
+A l'arxiu de configuració el camí a la clau privada RSA serà d'aquest estil:
 ```bash
 DEFAULT_RSA_PATH="/root/.ssh/id_rsa"
 ```
