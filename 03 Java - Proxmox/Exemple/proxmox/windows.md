@@ -14,8 +14,9 @@ Quan editeu els arxius des de Windows, els haureu d'arreglar perquè funcionin a
 chmod +x *.sh && chmod +x ../*.sh && dos2unix * && dos2unix ../*
 ```
 
-Us caldrà instal·lar:
+A la carpeta del projecte Maven caldrà instal·lar:
 ```bash
-sudo apt install zip unzip dos2unix openjdk-21-jre-headless maven net-tools
+mvn clean install
+sudo apt install git zip unzip dos2unix openjdk-21-jre-headless maven net-tools
 ```
 

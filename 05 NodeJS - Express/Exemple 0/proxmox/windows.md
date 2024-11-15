@@ -15,5 +15,5 @@ chmod +x *.sh && chmod +x ../*.sh && dos2unix * && dos2unix ../*
 
 Us caldrà instal·lar:
 ```bash
-sudo apt install zip unzip dos2unix openjdk-21-jre-headless maven net-tools
+sudo apt install git zip unzip dos2unix net-tools
 ```
