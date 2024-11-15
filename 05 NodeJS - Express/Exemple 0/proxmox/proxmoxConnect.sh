@@ -14,7 +14,7 @@ if [[ ! -f "${RSA_PATH}" ]]; then
   exit 1
 fi
 
-# Use /tmp directory and create a unique filename
+# Use /tmp directory and create a unique filename -
 TEMP_KEY="/tmp/private_rsa_$$"  
 cp "${RSA_PATH}" "$TEMP_KEY"
 chmod 600 "$TEMP_KEY"
