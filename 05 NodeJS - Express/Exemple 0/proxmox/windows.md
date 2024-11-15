@@ -1,7 +1,5 @@
 # Fer anar els scripts des de Windows
 
-# Fer anar els scripts des de Windows
-
 ## WSL
 
 Cal tenir instal·lat Windows Subsystem for Linux, és a dir un terminal Ubuntu a Windows. 
