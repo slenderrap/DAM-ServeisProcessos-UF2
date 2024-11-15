@@ -12,7 +12,8 @@ DEFAULT_RSA_PATH="/mnt/c/Users/optim/Desktop/Proxmox IETI/id_rsa"
 
 Quan editeu els arxius des de Windows, els haureu d'arreglar perquè funcionin amb WSL, feu servir l'script:
 ```bash
-./windowsFixFilesForWSL.sh
+chmod +x *.sh
+dos2unix *
 ```
 
 Us caldrà instal·lar:
