@@ -46,6 +46,21 @@ Normalment les crides web no demanen dades personalitzades que poden canviar l'e
 
 **NodeJS**
 
+Les crides a arxius públics es fan a través de GET, on la URL correspon a la ubicació de l'arxiu dins la carpeta **"public""**:
+```javascript
+// http://localhost:3000/web.html serveix l'arxi './public/web.html'
+app.use(express.static('public'))
+```
+
+Per altres crides 'get', es defineix la direcció a través de *app.get*:
+```javascript
+// "/api" és la direcció URL que s'està configurant
+// (req, res) => {} és la funció que s'executa quan es fa una petició a "/api"
+app.get('/api', async (req, res) => {
+    // Definir aquí què fa el servidor quan es crida a "/api"
+})
+```
+
 En els següent exemples:
 
 - **req** és la petició rebuda del client al servidor, que inclou la informació de la crida *get*
@@ -56,7 +71,7 @@ Exemples de crida *Get*:
 
 ```javascript
 // http://localhost:3000/api?param1=value1&param2=value2
-app.get('/api', (req, res) => {
+app.get('/api', async (req, res) => {
     // Obtenir el valor de "param1"
     const param1 = req.query.param1 
 
@@ -74,7 +89,7 @@ app.get('/api', (req, res) => {
 Exemple de paràmetres *Get* dinàmics:
 
 ```javascript
-app.get('/users/:userId/posts/:postId', (req, res) => {
+app.get('/users/:userId/posts/:postId', async (req, res) => {
     // Obtenir l'ID de l'usuari
     const userId = req.params.userId 
 
@@ -112,7 +127,7 @@ curl -X POST http://localhost:3000/api \
 -H "Content-Type: application/json" \
 -d '{"param1": "value1", "param2": "value2"}'
 */
-app.post('/api', (req, res) => {
+app.post('/api', async (req, res) => {
     // Obtenir valors del cos de la petició
     const { param1, param2 } = req.body
 
@@ -161,17 +176,20 @@ const allowedMimeTypes = ['text/plain', 'image/jpeg', 'image/png', 'application/
 // Configurar multer per guardar arxius a la carpeta "uploads"
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads') // Carpeta on es guarden els fitxers
+        // Carpeta on es guarden els fitxers
+        cb(null, 'uploads') 
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + '-' + file.originalname) // Prefixar amb un timestamp per evitar col·lisions
+        // Prefixar amb un timestamp per evitar col·lisions
+        cb(null, Date.now() + '-' + file.originalname) 
     }
 })
 
 // Configuració de multer amb límit de mida i validació
 const upload = multer({
+    // Límit de 50 MB per fitxer
     storage: storage,
-    limits: { fileSize: 50 * 1024 * 1024 }, // Límit de 50 MB per fitxer
+    limits: { fileSize: 50 * 1024 * 1024 }, 
     fileFilter: (req, file, cb) => {
         if (allowedMimeTypes.includes(file.mimetype)) {
             cb(null, true) // Acceptar el fitxer
@@ -181,7 +199,7 @@ const upload = multer({
     }
 })
 
-app.post('/upload', upload.array('files', 10), (req, res) => {
+app.post('/upload', upload.array('files', 10), async (req, res) => {
     try {
         // Obtenir l'objecte JSON
         const jsonData = JSON.parse(req.body.json)
@@ -208,3 +226,53 @@ app.listen(3000, () => {
     console.log('Servidor escoltant al port 3000')
 })
 ```
+
+## Exemple
+
+L'exemple mostra com configurar diversos tipus de crides *GET/POST* amb **NodeJS**.
+
+Normalment les crides es fan des de les aplicacions o des de servidors, però quan les estàs configurant necessites fer proves ràpides, que es poden fer amb *Postman*.
+
+**Descarrega i instal·la [Postman](https://www.postman.com/downloads/)** de la web oficial.
+
+Posa en funcionament el servidor d'exemple en **mode desenvolupament**:
+```bash
+cd "Exemple 0"
+node --run dev
+```
+
+El codi del servidor està a:
+```bash
+./server/app.js
+```
+
+A) Fes servir *Postman*, per demanar l'arxiu "web.html" de la carpeta *"public"*:
+
+<center><img src="./assets/exemple00.png" style="max-width: 90%; max-height: 400px;" alt="">
+<br/></center>
+<br/>
+
+La resposta ha de ser *"Hello Web HTML"*
+
+La configuració dels arxius estàtics a *"./server/app.js"*:
+```javascript
+// Continguts estàtics (carpeta public)
+app.use(express.static('public'))
+```
+
+B) Fes servir *Postman*, per demanar els continguts per defecte del servidor.
+
+<center><img src="./assets/exemple01.png" style="max-width: 90%; max-height: 400px;" alt="">
+<br/></center>
+<br/>
+
+La resposta ha de ser *"Hello World /"*
+
+La configuració de la web per defecte a *"./server/app.js"*:
+```javascript
+// Configurar direcció ‘/’ 
+app.get('/', async (req, res) => {
+    res.send(`Hello World /`)
+})
+```
+
