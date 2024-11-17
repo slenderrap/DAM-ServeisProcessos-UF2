@@ -25,6 +25,7 @@ L'usuari té les següents comandes textuals:
 * **ajuda**: mostra les següents opcions
 * **carregar partida "nom_arxiu.json"**: carrega una partida guardada
 * **guardar partida "nom_guardar.json"**: guarda la partida actual
+* **activar/desactivar trampa**: a la dreta del tauler, mostra o amaga un segon tauler amb les caselles destapades
 * **destapar x,y**: on x,y són números, mostra el contingut de la casella x,y **i diu a quina distància està el tresor més proper**
 * **puntuació**: mostra la puntuació actual i les tirades restants. Originalment l'usuari té 32 tirades, que es gasten cada vegada que NO encerta un tresor (és a dir trobar un tresor no gasta tirada). 
   
@@ -46,6 +47,7 @@ L'usuari té les següents comandes textuals:
 * **ajuda**: mostra les següents opcions
 * **carregar partida "nom_arxiu.json"**: carrega una partida guardada
 * **guardar partida "nom_guardar.json"**: guarda la partida actual
+* **activar/desactivar trampa**: a la dreta del tauler, mostra o amaga un segon tauler amb les caselles destapades
 * **caminar "direcció"**: on *"direcció"* pot ser "amunt", "avall", "dreta", "esquerra". 
 
   - Si s'intenta sortir del tauler, es veu el missatge: "Has perdut, has caigut per un penyasegat"
