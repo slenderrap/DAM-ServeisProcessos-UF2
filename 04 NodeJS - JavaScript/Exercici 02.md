@@ -8,7 +8,7 @@
 </div>
 <br/>
 
-# Exercici 0
+# Exercici 02
 
 L'objectiu d'aquest exercici és fer un joc de línia de comandes amb NodeJS, per practicar JavaScript i orientació a objectes.
 
