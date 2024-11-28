@@ -16,35 +16,57 @@ Programa un dels següents jocs.
 
 ## Busca tresors
 
-Es genera un tauler bidimensional (matriu) de 8x8.
+Es genera un tauler bidimensional (matriu) de 8x6.
+
+```text
+ 01234567
+A········
+B········
+C········
+D········
+E········
+F········
+Escull una comanda: 
+```
 
 S’amaguen 16 tresors en diverses coordenades aleatòries del tauler.
 
 L'usuari té les següents comandes textuals:
 
-* **ajuda**: mostra les següents opcions
+- **ajuda**: paraules *help* o *ajuda*, mostren la llista de comandes
 * **carregar partida "nom_arxiu.json"**: carrega una partida guardada
 * **guardar partida "nom_guardar.json"**: guarda la partida actual
 * **activar/desactivar trampa**: a la dreta del tauler, mostra o amaga un segon tauler amb les caselles destapades
-* **destapar x,y**: on x,y són números, mostra el contingut de la casella x,y **i diu a quina distància està el tresor més proper**
+* **destapar x,y**: on x,y són una casella (ex: B3) **i diu a quina distància està el tresor més proper**
 * **puntuació**: mostra la puntuació actual i les tirades restants. Originalment l'usuari té 32 tirades, que es gasten cada vegada que NO encerta un tresor (és a dir trobar un tresor no gasta tirada). 
   
-  La puntuació és la quantitat de tresors que ha trobat del total, per exemple: z/32
+La puntuació és la quantitat de tresors que ha trobat del total, per exemple: Z/32
 
 La partida s'acaba quan:
 
-- L'usuari **acaba les tirades**, que surt el missatge: "Has perdut, queden z tresors"
-- L'usuari **destapa tots els tresors**, que surt el missatge: "Has guanyat amb només y tirades"
+- L'usuari **acaba les tirades**, que surt el missatge: "Has perdut, queden Z tresors"
+- L'usuari **destapa tots els tresors**, que surt el missatge: "Has guanyat amb només Y tirades"
 
 ## Floor is lava
 
-Es genera un tauler bidimensional (matriu) de 8x8.
+Es genera un tauler bidimensional (matriu) de 8x6.
 
-S'amaguen 16 caselles de lava en diverses coordenades aleatòries del tauler. Excepte la 0,0 on hi ha l'usuari "T" i la 8x8 on hi ha el destí "*".
+```text
+ 01234567
+A········
+B········
+C········
+D········
+E········
+F········
+Escull una comanda: 
+```
+
+S'amaguen 16 caselles de lava en diverses coordenades aleatòries del tauler. Excepte la *A0* on hi ha l'usuari "T" i la *F7* on hi ha el destí "*".
 
 L'usuari té les següents comandes textuals:
 
-* **ajuda**: mostra les següents opcions
+- **ajuda**: paraules *help* o *ajuda*, mostren la llista de comandes
 * **carregar partida "nom_arxiu.json"**: carrega una partida guardada
 * **guardar partida "nom_guardar.json"**: guarda la partida actual
 * **activar/desactivar trampa**: a la dreta del tauler, mostra o amaga un segon tauler amb les caselles destapades
@@ -59,4 +81,4 @@ L'usuari té les següents comandes textuals:
 La partida s'acaba quan:
 
 - L'usuari **acaba els punts**, que surt el missatge: "Has perdut, ja no tens més passes"
-- L'usuari **arriba a la casella 8,8**, que surt el missatge: "Has guanyat, has trobat el tresor"
+- L'usuari **arriba a la casella F7**, que surt el missatge: "Has guanyat, has trobat el tresor"
