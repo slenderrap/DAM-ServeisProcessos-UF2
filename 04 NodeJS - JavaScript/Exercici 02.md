@@ -26,7 +26,7 @@ C········
 D········
 E········
 F········
-Escull una comanda: 
+Escriu una comanda: 
 ```
 
 S’amaguen 16 tresors en diverses coordenades aleatòries del tauler.
@@ -59,7 +59,7 @@ C········
 D········
 E········
 F········
-Escull una comanda: 
+Escriu una comanda: 
 ```
 
 S'amaguen 16 caselles de lava en diverses coordenades aleatòries del tauler. Excepte la *A0* on hi ha l'usuari "T" i la *F7* on hi ha el destí "*".
