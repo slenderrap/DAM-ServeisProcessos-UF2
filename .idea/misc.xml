@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/02 Java - Sockets/Exemple 0200/pom.xml" />
+        <option value="$PROJECT_DIR$/02 Java - Sockets/Exemple 0201/pom.xml" />
+        <option value="$PROJECT_DIR$/03 Java - Proxmox/Exemple/pom.xml" />
+        <option value="$PROJECT_DIR$/00 Java - Processos/Exemple 0000/pom.xml" />
+        <option value="$PROJECT_DIR$/00 Java - Processos/Exemple 0001/pom.xml" />
+        <option value="$PROJECT_DIR$/00 Java - Processos/Exemple 0002/pom.xml" />
+        <option value="$PROJECT_DIR$/00 Java - Processos/Exemple 0003/pom.xml" />
+        <option value="$PROJECT_DIR$/00 Java - Processos/Exemple 0004/pom.xml" />
+        <option value="$PROJECT_DIR$/01 Java - Sincronització/Exemple 0100/pom.xml" />
+        <option value="$PROJECT_DIR$/01 Java - Sincronització/Exemple 0101/pom.xml" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_21" default="true" project-jdk-name="21" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+</project>
