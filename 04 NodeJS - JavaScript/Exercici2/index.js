@@ -1,6 +1,9 @@
 const fs = require('fs').promises
 const readline = require('readline').promises
-const {Tresor,Casella} = require('./Tresor')
+const { error } = require('console');
+const {Tresor,Casella} = require('./Tresor');
+const { publicDecrypt, randomInt } = require('crypto');
+const { json } = require('stream/consumers');
 
 async function imprimirTablero(matriu,trampa){
     var fila = ""
@@ -55,39 +58,130 @@ async function opcions(opcionsComanda) {
     let comanda = ""
     while (!opcionsComanda.includes(comanda)){
         comanda = (await rl.question("Escriu una comanda: ")).toLowerCase()
-        console.log(comanda[comanda.length-1])
-
         if (comanda.startsWith("destapar")){
+            rl.close()
             return comanda
         }
-        else if (!opcionsComanda.includes(comanda)){
-           
+        else if (!opcionsComanda.includes(comanda)){           
             console.log("Comanda desconeguda")
         }
     }
 
-    console.log(`La comanda es: ${comanda}`)
     
     rl.close()
     return comanda
+}
+
+async function guardarPartida(matriu, tirada,lletres){
+    //volem guardar les tirades que hem fet, caselles descobertes i la posicio i estat dels tresors
+    const partida={
+        "tirades": tirada, "tresors":[], "caselles":[]
+    }
+    for (var fila=0;fila<lletres.length;fila++){
+        for (var columna=0;columna<matriu[fila].length;columna++){
+            if (matriu[fila][columna] instanceof Tresor){
+                partida.tresors.push({
+                    "posicioX":lletres[fila],
+                    "posicioY":columna,
+                    "estat":matriu[fila][columna].descoberta
+                })
+            }else if(matriu[fila][columna].descoberta){
+                partida.caselles.push({
+                    "posicioX":lletres[fila],
+                    "posicioY":columna
+                })
+            }
+        }
+    }
+    try{
+        const jsonData = JSON.stringify(partida,null,2)
+        await fs.writeFile('partida.json',jsonData,'utf-8')
+        console.log("La partida s'ha guardat correctament")
+    }catch(error){
+        console.error("S'ha produit un error al guardar la partida: ",error)
+    }
+}
+
+async function carregarPartida(files) {
+    let matriu = Array(6).fill().map(() => Array(8).fill(null));
+    console.log("Llegint dades")
+    const jsonData= await fs.readFile("partida.json","utf-8")
+    const partida = JSON.parse(jsonData)
+    tirada = partida.tirades
+    tresorsTrobats=0
+
+    console.log("Introduint tresors")
+    for(const tresor of partida.tresors){
+        matriu[files.indexOf(tresor.posicioX)][tresor.posicioY] = new Tresor(tresor.posicioX,tresor.posicioY,tresor.estat)
+        if (tresor.estat){
+            tresorsTrobats++
+        }
+        
+    };
+    console.log("tresors introduits")
+
+    console.log("introduint caselles obertes")
+    for(const casella of partida.caselles){
+        matriu[files.indexOf(casella.posicioX)][casella.posicioY] = new Casella(casella.posicioX,casella.posicioY,true)
+    }
+    console.log("caselles obertes introduides")
+
+    console.log("Introduint caselles sense obrir")
+    for (var fila=0;fila<files.length;fila++){
+        for (var columna=0;columna<8;columna++){
+            if (matriu[fila][columna]===null){
+                matriu[fila][columna] = new Casella(files[fila],columna)
+            }
+        }
+    }
+    console.log("Caselles tancades introduides")
+
+    puntuacio=tresorsTrobats/16
+    console.log("dades llegides")
+    
+
+    console.log("Carregant partida...")
+    return [matriu,tirada,tresorsTrobats,puntuacio]
+}
+
+async function tresorProper(matriu,fila,columna) {
+    tresorsPropers=0
+    //farem un try catch per a que si es surt del es dimensions no peti el programa
+    for (var i=-1;i<2;i++){
+        for (var j=-1;j<2 ;j++){
+            try {
+                
+                if (matriu[fila+i][columna+j] instanceof Tresor){
+                    tresorsPropers++
+                }
+            } catch (error) {
+                continue
+            }
+
+        }
+    }
+    console.log(`Tens ${tresorsPropers} tresors propers.`)
+
 }
 
 async function main() {
     let trampa = false
     //tresor será ! i no tresor _
     //Fem una matriu 8x6 primer indiquem les files i depres les columnes, per ultim indiquem el valor base de totes les caselles
-    let opcionsComanda = ["ajuda","help","carregar partida","guardar partida","activar trampa","desactivar trampa","destapar XY","puntuacio"]
+    //16 tresors 32 tirades puntuacio Z(tresors trobats) /32*
+    let opcionsComanda = ["ajuda","help","carregar partida","guardar partida","activar trampa","desactivar trampa","destapar XY","puntuacio","exit"]
     let matriu = Array(6).fill().map(() => Array(8).fill(null));
 
     var files="abcdef"
     
-    for (let i = 0; i<16; i++){
+    var tresors=0
+    while (tresors<16){
         let columna = Math.floor(Math.random() *8)
         let fila = Math.floor(Math.random() *6)
         if (matriu[fila][columna]===null){
             matriu[fila][columna] = new Tresor(files[fila],columna)
-        }else{
-            continue
+            tresors++
+            //console.log(`nº tresor = ${tresors}, posicio x: ${fila}, posicio y: ${columna}`)
         }
     }
     for (let fila = 0; fila<6; fila++){
@@ -97,22 +191,35 @@ async function main() {
             }
         }
     }
-
-    while (true){
+    victoria=false
+    comanda=""
+    tirada =0;
+    tresorsTrobats =0;
+    puntuacio=0;
+    while (comanda!=="exit" && tirada!==32 && tresorsTrobats!=16){
     
         await imprimirTablero(matriu,trampa);
         comanda = await opcions(opcionsComanda)
         if (comanda.startsWith("destapar")){
-            if (comanda.length==11){
+            if (comanda.length===11){
                 columna = parseInt(comanda[comanda.length-1])
-                console.log(typeof columna)
                 if (typeof columna ==="number"){
                     if(0<=columna && columna<=7){
-                        console.log(`La columna es ${columna}`)
                         fila = comanda[comanda.length-2]
-                        console.log(`La fila es ${fila}`)
                         if (files.includes(fila)){
                             matriu[files.indexOf(fila)][columna].destapar()
+                            if (matriu[files.indexOf(fila)][columna].toString()==="_"){
+                                tirada++
+                                //tresor mes proper
+                                tresorProper(matriu,files.indexOf(fila),columna)
+
+                            }else{
+                                tresorsTrobats++
+                                puntuacio = tresorsTrobats/16
+                                if (tresorsTrobats===16){
+                                    victoria=true
+                                }
+                            }
                         }else{
                            console.log("La fila ha de ser entre A i F")
                         }
@@ -136,28 +243,50 @@ async function main() {
                     console.log("*".repeat(20)+"\n")  
                     break
                 case "carregar partida":
-                    console.log("abrir json")
+                    const [matriu2,tirada2,tresorsTrobats2,puntuacio2]=await carregarPartida(files)
+                    matriu=matriu2
+                    tirada=tirada2
+                    tresorsTrobats=tresorsTrobats2
+                    puntuacio=puntuacio2 
                     break
                 case "guardar partida":
-                    console.log("guardar json")
+                    
+                    console.log("Guardant partida...")
+                    await guardarPartida(matriu,tirada,files)
                     break
                 case "activar trampa":
                     trampa=true
-                    console.log("mostrar tablero x2")
                     break
                 case "desactivar trampa":
-                    trampa=false
-                    console.log("tablero x1")
+                    trampa=false                   
                     break
                 case "puntuacio":
-                    console.log("")
+                    console.log(`La teva puntuacio actual es: ${tresorsTrobats}/16 = ${puntuacio}\nEt queden ${32-tirada} tirades restants`)
                     break
             }
         }    
+        console.log("\n")
 
 
     
     }
+    if (victoria){
+        if (tirada===0){
+            console.log(`Felicitats, has guanyat amb cap tirada fallada!`)    
+        }else{
+
+        }
+        console.log(`Felicitats, has guanyat amb nomes ${tirada} tirades fallades!`)
+    }else{
+        console.log(`Quina llastima, has perdut! La teva puntuacio era de ${tresorsTrobats}/16 = ${puntuacio}`)
+    }
+    
 }
 
 main()
+    .then(()=>{
+        console.log("Fi del programa")
+    })
+    .catch((error)=>{
+        console.log("Ha ocurrido un error: ",error)
+    })
