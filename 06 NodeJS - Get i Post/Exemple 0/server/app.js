@@ -16,9 +16,12 @@ app.get('/api', async (req, res) => {
 })
 
 // Configurar direcció ‘/api’ 
+
 app.post('/api', async (req, res) => {
-    res.send(`Hello World post`)
+    res.send({message: 'Dades rebudes'})
 })
+
+
 
 // Activar el servidor
 const httpServer = app.listen(port, appListen)
