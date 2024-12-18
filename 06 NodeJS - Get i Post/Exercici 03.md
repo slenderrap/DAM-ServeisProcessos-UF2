@@ -8,7 +8,7 @@
 </div>
 <br/>
 
-# Exercici 03
+# Exercici 03, DB temàtica
 
 Fes un servidor NodeJS que respongui a peticions per a l'aplicació de l'**"Exercici 04"** de *Desenvolupament d'interfícies*.
 
