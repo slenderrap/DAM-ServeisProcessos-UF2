@@ -1,10 +1,12 @@
 class GameLayer {
+  final String name;
   final String spriteSheetFile;
   final int spriteWidth;
   final int spriteHeight;
   final List<List<int>> spriteMatrix;
 
   GameLayer({
+    required this.name,
     required this.spriteSheetFile,
     required this.spriteWidth,
     required this.spriteHeight,
@@ -14,6 +16,7 @@ class GameLayer {
   // Constructor de fàbrica per crear una instància des d'un Map (JSON)
   factory GameLayer.fromJson(Map<String, dynamic> json) {
     return GameLayer(
+      name: json['name'] as String,
       spriteSheetFile: json['spriteSheetFile'] as String,
       spriteWidth: json['spriteWidth'] as int,
       spriteHeight: json['spriteHeight'] as int,
@@ -26,6 +29,7 @@ class GameLayer {
   // Convertir l'objecte a JSON
   Map<String, dynamic> toJson() {
     return {
+      'name': name,
       'spriteSheetFile': spriteSheetFile,
       'spriteWidth': spriteWidth,
       'spriteHeight': spriteHeight,
@@ -35,6 +39,6 @@ class GameLayer {
 
   @override
   String toString() {
-    return 'GameLayer(spriteSheetFile: $spriteSheetFile, spriteWidth: $spriteWidth, spriteHeight: $spriteHeight, spriteMatrix: $spriteMatrix)';
+    return 'GameLayer(name: $name, spriteSheetFile: $spriteSheetFile, spriteWidth: $spriteWidth, spriteHeight: $spriteHeight, spriteMatrix: $spriteMatrix)';
   }
 }

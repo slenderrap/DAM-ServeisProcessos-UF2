@@ -2,15 +2,117 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'package:exemple0700/game_level.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 import 'constants.dart';
 import 'drawable.dart';
+import 'game_data.dart';
 
 class AppData extends ChangeNotifier {
-  GameLevel? _gameLevel;
+  GameData gameData = GameData(name: "", levels: []);
+  String filePath = "";
+  int selectedLevel = -1;
+
+  void update() {
+    notifyListeners();
+  }
+
+  Future<void> loadGame() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+
+      if (result == null || result.files.single.path == null) {
+        return; // No es va seleccionar cap fitxer
+      }
+
+      String tmpPath = result.files.single.path!;
+      final file = File(tmpPath);
+
+      if (!await file.exists()) {
+        throw Exception("File not found: $tmpPath");
+      }
+
+      filePath = tmpPath;
+
+      final content = await file.readAsString();
+      final jsonData = jsonDecode(content);
+      gameData = GameData.fromJson(jsonData);
+
+      notifyListeners();
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error loading game file: $e");
+      }
+    }
+  }
+
+  Future<void> saveGame() async {
+    try {
+      if (filePath == "") {
+        String? outputFilePath = await FilePicker.platform.saveFile(
+          dialogTitle: 'Choose location to save game file',
+          fileName: "${gameData.name.replaceAll(" ", "_")}.json",
+          type: FileType.custom,
+          allowedExtensions: ['json'],
+        );
+
+        if (outputFilePath == null) {
+          if (kDebugMode) {
+            print("File name not selected, can't save.");
+          }
+          return;
+        }
+
+        filePath = outputFilePath;
+      }
+
+      if (kDebugMode) {
+        print("Saving at: $filePath");
+      }
+
+      final file = File(filePath);
+      final jsonData = jsonEncode(gameData.toJson());
+
+      // Convertim el JSON en format llegible amb 2 espais d'identació
+      final prettyJson =
+          const JsonEncoder.withIndent('  ').convert(jsonDecode(jsonData));
+
+      await file.writeAsString(prettyJson);
+
+      if (kDebugMode) {
+        print("Game saved successfully to \"$filePath\"");
+      }
+
+      // Opcional: Actualitzar el fileName per a futures guardades
+      gameData = GameData(
+        name: gameData.name,
+        levels: gameData.levels,
+      );
+      notifyListeners();
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error saving game file: $e");
+      }
+    }
+  }
+
+  Future<String?> pickSpriteSheetFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['png', 'jpg', 'jpeg'],
+    );
+
+    if (result != null && result.files.single.path != null) {
+      return result.files.single.path!;
+    }
+    return null;
+  }
 
   String _responseText = "";
   bool _isLoading = false;
@@ -19,7 +121,6 @@ class AppData extends ChangeNotifier {
   IOClient? _ioClient;
   HttpClient? _httpClient;
   StreamSubscription<String>? _streamSubscription;
-
   final List<Drawable> drawables = [];
 
   String get responseText =>

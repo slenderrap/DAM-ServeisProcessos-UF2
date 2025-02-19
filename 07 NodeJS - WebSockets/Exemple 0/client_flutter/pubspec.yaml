@@ -38,6 +38,7 @@ dependencies:
   provider: any
   http: any
   desktop_window: ^0.4.2
+  file_picker: ^9.0.0
 
 dev_dependencies:
   flutter_test:

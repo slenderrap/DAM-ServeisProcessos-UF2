@@ -2,8 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'app_data.dart';
 import 'canvas_painter.dart';
+import 'layout_game.dart';
+import 'layout_items.dart';
 import 'layout_layers.dart';
-import 'layout_level.dart';
+import 'layout_levels.dart';
 import 'layout_media.dart';
 import 'layout_zones.dart';
 
@@ -18,12 +20,19 @@ class Layout extends StatefulWidget {
 
 class _LayoutState extends State<Layout> {
   late String _selectedSegment;
-  List<String> segments = ['level', 'layers', 'zones', 'media'];
+  List<String> segments = [
+    'game',
+    'levels',
+    'layers',
+    'zones',
+    'items',
+    'media'
+  ];
 
   @override
   void initState() {
     super.initState();
-    _selectedSegment = 'level';
+    _selectedSegment = 'game';
   }
 
   void _onTabSelected(String value) {
@@ -48,12 +57,16 @@ class _LayoutState extends State<Layout> {
 
   Widget _getSelectedLayout() {
     switch (_selectedSegment) {
-      case 'level':
-        return const LayoutLevel();
+      case 'game':
+        return const LayoutGame();
+      case 'levels':
+        return const LayoutLevels();
       case 'layers':
         return const LayoutLayers();
       case 'zones':
         return const LayoutZones();
+      case 'items':
+        return const LayoutItems();
       case 'media':
         return const LayoutMedia();
       default:
@@ -64,12 +77,9 @@ class _LayoutState extends State<Layout> {
   @override
   Widget build(BuildContext context) {
     final appData = Provider.of<AppData>(context);
-    final ScrollController scrollController = ScrollController();
 
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text(widget.title),
-      ),
+      navigationBar: null,
       child: SafeArea(
         child: Stack(
           children: [
@@ -88,39 +98,26 @@ class _LayoutState extends State<Layout> {
                   ),
                 ),
                 ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 350),
-                  child: Expanded(
-                    flex: 1,
-                    child: CupertinoScrollbar(
-                      controller: scrollController,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const SizedBox(height: 16),
-                          CupertinoSegmentedControl<String>(
-                            onValueChanged: _onTabSelected,
-                            groupValue: _selectedSegment,
-                            children: _buildSegmentedChildren(),
-                          ),
-                          const SizedBox(
-                              height:
-                                  16), // Espai després del segmented control
-                          Expanded(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: CupertinoScrollbar(
-                                controller: scrollController,
-                                child: SingleChildScrollView(
-                                  controller: scrollController,
-                                  child: _getSelectedLayout(),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                  constraints:
+                      const BoxConstraints(maxWidth: 350, minWidth: 350),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 16),
+                      CupertinoSegmentedControl<String>(
+                        onValueChanged: _onTabSelected,
+                        groupValue: _selectedSegment,
+                        children: _buildSegmentedChildren(),
                       ),
-                    ),
+                      const SizedBox(
+                          height: 8), // Espai després del segmented control
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: _getSelectedLayout(),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],

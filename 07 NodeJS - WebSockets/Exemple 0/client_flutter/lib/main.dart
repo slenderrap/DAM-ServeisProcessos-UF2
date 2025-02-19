@@ -40,7 +40,7 @@ void main() async {
     double offsetY = (screenHeight - height) / 2;
     await windowManager.setPosition(Offset(offsetX, offsetY));
 
-    await windowManager.setTitle('App');
+    await windowManager.setTitle('Level Builder');
 
     await windowManager.waitUntilReadyToShow();
     await windowManager.show();
