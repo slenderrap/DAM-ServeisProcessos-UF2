@@ -52,7 +52,7 @@ touch index.js
 
 Un cop creat el projecte apareix l'arxiu **"package.json"** que defineix la configuració del projecte.
 
-**Nota**: En aquesta configuració, l'arxiu inicial és: **"index.jg"**, però cal crear-lo manualment (amb touch per exemple).
+**Nota**: En aquesta configuració, l'arxiu inicial és: **"index.js"**, però cal crear-lo manualment (amb touch per exemple).
 
 # Javascript
 
