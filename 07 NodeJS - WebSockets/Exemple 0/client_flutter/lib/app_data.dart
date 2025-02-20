@@ -17,6 +17,8 @@ class AppData extends ChangeNotifier {
   String fileName = "";
   int selectedLevel = -1;
   int selectedLayer = -1;
+  int selectedZone = -1;
+  int selectedSprite = -1;
 
   void update() {
     notifyListeners();

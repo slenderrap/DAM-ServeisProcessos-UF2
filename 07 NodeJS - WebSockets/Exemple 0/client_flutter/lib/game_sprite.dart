@@ -1,28 +1,28 @@
-class GameItem {
+class GameSprite {
   final String type;
   final int x;
   final int y;
-  final int width;
-  final int height;
+  final int spriteWidth;
+  final int spriteHeight;
   final String imageFile;
 
-  GameItem({
+  GameSprite({
     required this.type,
     required this.x,
     required this.y,
-    required this.width,
-    required this.height,
+    required this.spriteWidth,
+    required this.spriteHeight,
     required this.imageFile,
   });
 
   // Constructor de fàbrica per crear una instància des d'un Map (JSON)
-  factory GameItem.fromJson(Map<String, dynamic> json) {
-    return GameItem(
+  factory GameSprite.fromJson(Map<String, dynamic> json) {
+    return GameSprite(
       type: json['type'] as String,
       x: json['x'] as int,
       y: json['y'] as int,
-      width: json['width'] as int,
-      height: json['height'] as int,
+      spriteWidth: json['width'] as int,
+      spriteHeight: json['height'] as int,
       imageFile: json['imageFile'] as String,
     );
   }
@@ -33,14 +33,14 @@ class GameItem {
       'type': type,
       'x': x,
       'y': y,
-      'width': width,
-      'height': height,
+      'width': spriteWidth,
+      'height': spriteHeight,
       'imageFile': imageFile,
     };
   }
 
   @override
   String toString() {
-    return 'GameItem(type: $type, x: $x, y: $y, width: $width, height: $height, imageFile: $imageFile)';
+    return 'GameItem(type: $type, x: $x, y: $y, width: $spriteWidth, height: $spriteHeight, imageFile: $imageFile)';
   }
 }

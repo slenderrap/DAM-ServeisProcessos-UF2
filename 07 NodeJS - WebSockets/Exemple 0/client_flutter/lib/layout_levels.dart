@@ -1,4 +1,3 @@
-import 'package:exemple0700/app.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -54,7 +53,7 @@ class LayoutLevelsState extends State<LayoutLevels> {
       description: descriptionController.text,
       layers: [],
       zones: [],
-      items: [],
+      sprites: [],
     );
 
     appData.gameData.levels.add(newLevel);
@@ -70,7 +69,7 @@ class LayoutLevelsState extends State<LayoutLevels> {
         description: descriptionController.text,
         layers: appData.gameData.levels[appData.selectedLevel].layers,
         zones: appData.gameData.levels[appData.selectedLevel].zones,
-        items: appData.gameData.levels[appData.selectedLevel].items,
+        sprites: appData.gameData.levels[appData.selectedLevel].sprites,
       );
       appData.update();
     }
@@ -87,6 +86,9 @@ class LayoutLevelsState extends State<LayoutLevels> {
 
   void _selectLevel(AppData appData, int index, bool isSelected) {
     appData.selectedLevel = isSelected ? -1 : index;
+    appData.selectedLayer = -1;
+    appData.selectedZone = -1;
+    appData.selectedSprite = -1;
     _updateForm(appData);
     appData.update();
   }

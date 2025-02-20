@@ -1,20 +1,20 @@
 import 'game_layer.dart';
 import 'game_zone.dart';
-import 'game_item.dart';
+import 'game_sprite.dart';
 
 class GameLevel {
   final String name;
   final String description;
   final List<GameLayer> layers;
   final List<GameZone> zones;
-  final List<GameItem> items;
+  final List<GameSprite> sprites;
 
   GameLevel({
     required this.name,
     required this.description,
     required this.layers,
     required this.zones,
-    required this.items,
+    required this.sprites,
   });
 
   // Constructor de fàbrica per crear una instància des d'un Map (JSON)
@@ -28,8 +28,8 @@ class GameLevel {
       zones: (json['zones'] as List<dynamic>)
           .map((zone) => GameZone.fromJson(zone))
           .toList(),
-      items: (json['items'] as List<dynamic>)
-          .map((item) => GameItem.fromJson(item))
+      sprites: (json['sprites'] as List<dynamic>)
+          .map((item) => GameSprite.fromJson(item))
           .toList(),
     );
   }
@@ -41,12 +41,12 @@ class GameLevel {
       'description': description,
       'layers': layers.map((layer) => layer.toJson()).toList(),
       'zones': zones.map((zone) => zone.toJson()).toList(),
-      'items': items.map((item) => item.toJson()).toList(),
+      'sprites': sprites.map((item) => item.toJson()).toList(),
     };
   }
 
   @override
   String toString() {
-    return 'GameLevel(name: $name, description: $description, layers: $layers, zones: $zones, items: $items)';
+    return 'GameLevel(name: $name, description: $description, layers: $layers, zones: $zones, sprites: $sprites)';
   }
 }
