@@ -50,7 +50,7 @@ class TitledTextfieldState extends State<TitledTextfield> {
           padding: const EdgeInsets.only(bottom: 4.0),
           child: Text(
             widget.title,
-            style: const TextStyle(fontSize: 12),
+            style: const TextStyle(fontSize: 14),
           ),
         ),
         CupertinoTextField(
@@ -61,8 +61,8 @@ class TitledTextfieldState extends State<TitledTextfield> {
           maxLines: widget.maxLines,
           maxLength: widget.maxLength,
           onChanged: widget.onChanged,
-          //style: widget.textStyle,
-          //placeholderStyle: widget.placeholderStyle,
+          style: widget.textStyle ?? const TextStyle(fontSize: 14),
+          placeholderStyle: widget.placeholderStyle,
           padding: widget.padding ??
               const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
           //decoration: widget.decoration,
