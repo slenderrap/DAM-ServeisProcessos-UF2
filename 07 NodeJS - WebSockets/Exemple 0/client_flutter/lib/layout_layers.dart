@@ -82,7 +82,7 @@ class LayoutLayersState extends State<LayoutLayers> {
   }
 
   Future<void> _pickTilesSheet(AppData appData) async {
-    tilesSheetFile = await appData.pickTilesSheetFile();
+    tilesSheetFile = await appData.pickImageFile();
     appData.update();
   }
 

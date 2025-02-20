@@ -103,7 +103,7 @@ class AppData extends ChangeNotifier {
     }
   }
 
-  Future<String> pickTilesSheetFile() async {
+  Future<String> pickImageFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       initialDirectory: filePath != "" ? filePath : null,

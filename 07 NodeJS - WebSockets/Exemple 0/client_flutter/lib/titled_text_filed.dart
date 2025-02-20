@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class TitledTextfield extends StatefulWidget {
   final String title;
@@ -62,7 +63,8 @@ class TitledTextfieldState extends State<TitledTextfield> {
           maxLength: widget.maxLength,
           onChanged: widget.onChanged,
           style: widget.textStyle ?? const TextStyle(fontSize: 14),
-          placeholderStyle: widget.placeholderStyle,
+          placeholderStyle: widget.placeholderStyle ??
+              const TextStyle(fontSize: 12, color: Colors.grey),
           padding: widget.padding ??
               const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
           //decoration: widget.decoration,
