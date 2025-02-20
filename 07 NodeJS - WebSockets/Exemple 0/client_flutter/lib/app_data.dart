@@ -1,14 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/io_client.dart';
-import 'constants.dart';
-import 'drawable.dart';
 import 'game_data.dart';
 
 class AppData extends ChangeNotifier {
@@ -83,11 +77,11 @@ class AppData extends ChangeNotifier {
       final jsonData = jsonEncode(gameData.toJson());
       final prettyJson =
           const JsonEncoder.withIndent('  ').convert(jsonDecode(jsonData));
-      print("a");
+
       final numberArrayRegex = RegExp(r'\[\s*((?:-?\d+\s*,\s*)*-?\d+\s*)\]');
       final output = prettyJson.replaceAllMapped(numberArrayRegex, (match) {
         final numbers = match.group(1)!;
-        return '[' + numbers.replaceAll(RegExp(r'\s+'), ' ').trim() + ']';
+        return '[${numbers.replaceAll(RegExp(r'\s+'), ' ').trim()}]';
       });
       await file.writeAsString(output);
 
@@ -116,7 +110,7 @@ class AppData extends ChangeNotifier {
       return result.files.single.path!.replaceAll("$filePath/", "");
     }
   }
-
+/*
   String _responseText = "";
   bool _isLoading = false;
   bool _isInitial = true;
@@ -355,5 +349,5 @@ class AppData extends ChangeNotifier {
           print("Unknown function call: ${fixedJson['name']}");
         }
     }
-  }
+  }*/
 }

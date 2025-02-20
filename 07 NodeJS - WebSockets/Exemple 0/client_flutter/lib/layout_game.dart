@@ -66,7 +66,6 @@ class LayoutGameState extends State<LayoutGame> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 8),
                     TitledTextfield(
                       title: 'Game name',
                       controller: nameController,

@@ -99,9 +99,7 @@ class _LayoutState extends State<Layout> {
                   child: Container(
                     color: CupertinoColors.systemGrey5,
                     child: CustomPaint(
-                      painter: CanvasPainter(
-                        drawables: appData.drawables,
-                      ),
+                      painter: CanvasPainter(),
                       child: Container(),
                     ),
                   ),
@@ -112,7 +110,6 @@ class _LayoutState extends State<Layout> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // Espai després del segmented control
                       Expanded(
                         child: _getSelectedLayout(),
                       ),
