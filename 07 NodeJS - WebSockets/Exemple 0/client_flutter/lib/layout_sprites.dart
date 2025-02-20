@@ -277,7 +277,7 @@ class LayoutSpritesState extends State<LayoutSprites> {
             children: [
               Expanded(
                 child: TitledTextfield(
-                  title: 'X position',
+                  title: 'Start X (px)',
                   controller: xController,
                   placeholder: '0',
                   keyboardType: TextInputType.number,
@@ -287,7 +287,7 @@ class LayoutSpritesState extends State<LayoutSprites> {
               const SizedBox(width: 8),
               Expanded(
                 child: TitledTextfield(
-                  title: 'Y position',
+                  title: 'Start Y (px)',
                   controller: yController,
                   placeholder: '0',
                   keyboardType: TextInputType.number,
@@ -304,7 +304,7 @@ class LayoutSpritesState extends State<LayoutSprites> {
             children: [
               Expanded(
                 child: TitledTextfield(
-                  title: 'Width',
+                  title: 'Sprite Width (px)',
                   controller: widthController,
                   placeholder: '32',
                   keyboardType: TextInputType.number,
@@ -314,7 +314,7 @@ class LayoutSpritesState extends State<LayoutSprites> {
               const SizedBox(width: 8),
               Expanded(
                 child: TitledTextfield(
-                  title: 'Height',
+                  title: 'Sprite Height (px)',
                   controller: heightController,
                   placeholder: '32',
                   keyboardType: TextInputType.number,
