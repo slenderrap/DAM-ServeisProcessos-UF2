@@ -24,6 +24,10 @@ class LayoutLevelsState extends State<LayoutLevels> {
     super.initState();
     nameController = TextEditingController();
     descriptionController = TextEditingController();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final appData = Provider.of<AppData>(context, listen: false);
+      _updateForm(appData);
+    });
   }
 
   @override

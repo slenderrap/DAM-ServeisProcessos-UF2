@@ -81,8 +81,13 @@ class AppData extends ChangeNotifier {
       final jsonData = jsonEncode(gameData.toJson());
       final prettyJson =
           const JsonEncoder.withIndent('  ').convert(jsonDecode(jsonData));
-
-      await file.writeAsString(prettyJson);
+      print("a");
+      final numberArrayRegex = RegExp(r'\[\s*((?:-?\d+\s*,\s*)*-?\d+\s*)\]');
+      final output = prettyJson.replaceAllMapped(numberArrayRegex, (match) {
+        final numbers = match.group(1)!;
+        return '[' + numbers.replaceAll(RegExp(r'\s+'), ' ').trim() + ']';
+      });
+      await file.writeAsString(output);
 
       if (kDebugMode) {
         print("Game saved successfully to \"$filePath/$fileName\"");

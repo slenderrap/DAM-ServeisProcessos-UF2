@@ -17,9 +17,12 @@ class LayoutLayersState extends State<LayoutLayers> {
   late TextEditingController nameController;
   late TextEditingController xController;
   late TextEditingController yController;
+  late TextEditingController depthController;
   String tilesSheetFile = "";
   late TextEditingController tileWidthController;
   late TextEditingController tileHeightController;
+  late TextEditingController tilemapWidthController;
+  late TextEditingController tilemapHeightController;
   final ScrollController scrollController = ScrollController();
 
   @override
@@ -28,8 +31,15 @@ class LayoutLayersState extends State<LayoutLayers> {
     nameController = TextEditingController();
     xController = TextEditingController();
     yController = TextEditingController();
+    depthController = TextEditingController();
     tileWidthController = TextEditingController();
     tileHeightController = TextEditingController();
+    tilemapWidthController = TextEditingController();
+    tilemapHeightController = TextEditingController();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final appData = Provider.of<AppData>(context, listen: false);
+      _updateForm(appData);
+    });
   }
 
   @override
@@ -37,8 +47,11 @@ class LayoutLayersState extends State<LayoutLayers> {
     nameController.dispose();
     xController.dispose();
     yController.dispose();
+    depthController.dispose();
     tileWidthController.dispose();
     tileHeightController.dispose();
+    tilemapWidthController.dispose();
+    tilemapHeightController.dispose();
     super.dispose();
   }
 
@@ -49,16 +62,22 @@ class LayoutLayersState extends State<LayoutLayers> {
       nameController.text = selectedLayer.name;
       xController.text = selectedLayer.x.toString();
       yController.text = selectedLayer.y.toString();
+      depthController.text = selectedLayer.depth.toString();
       tilesSheetFile = selectedLayer.tilesSheetFile;
       tileWidthController.text = selectedLayer.tilesWidth.toString();
       tileHeightController.text = selectedLayer.tilesHeight.toString();
+      tilemapWidthController.text = selectedLayer.tileMap[0].length.toString();
+      tilemapHeightController.text = selectedLayer.tileMap.length.toString();
     } else {
       nameController.clear();
       xController.clear();
       yController.clear();
+      depthController.clear();
       tilesSheetFile = "";
       tileWidthController.clear();
       tileHeightController.clear();
+      tilemapWidthController.clear();
+      tilemapHeightController.clear();
     }
   }
 
@@ -70,14 +89,19 @@ class LayoutLayersState extends State<LayoutLayers> {
   void _addLayer(AppData appData) {
     if (appData.selectedLevel == -1) return;
 
+    int tileMapWidth = int.tryParse(tilemapWidthController.text) ?? 32;
+    int tileMapHeight = int.tryParse(tilemapHeightController.text) ?? 32;
+
     final newLayer = GameLayer(
       name: nameController.text,
       x: int.tryParse(xController.text) ?? 0,
       y: int.tryParse(yController.text) ?? 0,
+      depth: int.tryParse(depthController.text) ?? 0,
       tilesSheetFile: tilesSheetFile,
       tilesWidth: int.tryParse(tileWidthController.text) ?? 32,
       tilesHeight: int.tryParse(tileHeightController.text) ?? 32,
-      tileMap: [],
+      tileMap:
+          List.generate(tileMapHeight, (_) => List.filled(tileMapWidth, -1)),
     );
 
     appData.gameData.levels[appData.selectedLevel].layers.add(newLayer);
@@ -90,15 +114,34 @@ class LayoutLayersState extends State<LayoutLayers> {
   void _updateLayer(AppData appData) {
     if (appData.selectedLevel != -1 && appData.selectedLayer != -1) {
       final layers = appData.gameData.levels[appData.selectedLevel].layers;
+      final GameLayer oldLayer = layers[appData.selectedLayer];
+
+      // Obtenir les noves dimensions
+      int newWidth = int.tryParse(tilemapWidthController.text) ?? 16;
+      int newHeight = int.tryParse(tilemapHeightController.text) ?? 32;
+
+      // Mantenir les dades antigues i ajustar la mida
+      List<List<int>> newTileMap = List.generate(newHeight, (y) {
+        return List.generate(newWidth, (x) {
+          if (y < oldLayer.tileMap.length && x < oldLayer.tileMap[0].length) {
+            return oldLayer.tileMap[y][x];
+          }
+          return -1;
+        });
+      });
+
+      // Crear el nou GameLayer amb la mida ajustada
       layers[appData.selectedLayer] = GameLayer(
         name: nameController.text,
         x: int.tryParse(xController.text) ?? 0,
         y: int.tryParse(yController.text) ?? 0,
+        depth: int.tryParse(depthController.text) ?? 0,
         tilesSheetFile: tilesSheetFile,
-        tilesWidth: int.tryParse(tileWidthController.text) ?? 32,
-        tilesHeight: int.tryParse(tileHeightController.text) ?? 32,
-        tileMap: layers[appData.selectedLayer].tileMap,
+        tilesWidth: newWidth,
+        tilesHeight: newHeight,
+        tileMap: newTileMap,
       );
+
       appData.update();
     }
   }
@@ -167,9 +210,12 @@ class LayoutLayersState extends State<LayoutLayers> {
     final bool isFormFilled = nameController.text.isNotEmpty &&
         xController.text.isNotEmpty &&
         yController.text.isNotEmpty &&
+        depthController.text.isNotEmpty &&
         tilesSheetFile != "" &&
         tileWidthController.text.isNotEmpty &&
-        tileHeightController.text.isNotEmpty;
+        tileHeightController.text.isNotEmpty &&
+        tilemapWidthController.text.isNotEmpty &&
+        tilemapHeightController.text.isNotEmpty;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -207,6 +253,10 @@ class LayoutLayersState extends State<LayoutLayers> {
                             _onReorder(appData, oldIndex, newIndex),
                         itemBuilder: (context, index) {
                           final isSelected = (index == appData.selectedLayer);
+                          final layer = appData.gameData
+                              .levels[appData.selectedLevel].layers[index];
+                          String subtitle =
+                              "${layer.depth} - ${layer.tilesSheetFile}";
                           return GestureDetector(
                               key: ValueKey(layers[index]), // Reorder value key
                               onTap: () {
@@ -236,11 +286,7 @@ class LayoutLayersState extends State<LayoutLayers> {
                                           ),
                                           const SizedBox(height: 2),
                                           Text(
-                                            appData
-                                                .gameData
-                                                .levels[appData.selectedLevel]
-                                                .layers[index]
-                                                .tilesSheetFile,
+                                            subtitle,
                                             style: const TextStyle(
                                               fontSize: 12.0,
                                               color: CupertinoColors.systemGrey,
@@ -278,7 +324,7 @@ class LayoutLayersState extends State<LayoutLayers> {
             children: [
               Expanded(
                 child: TitledTextfield(
-                  title: 'X position',
+                  title: 'X position (px)',
                   controller: xController,
                   placeholder: '0',
                   keyboardType: TextInputType.number,
@@ -288,8 +334,18 @@ class LayoutLayersState extends State<LayoutLayers> {
               const SizedBox(width: 8),
               Expanded(
                 child: TitledTextfield(
-                  title: 'Y position',
+                  title: 'Y position (px)',
                   controller: yController,
+                  placeholder: '0',
+                  keyboardType: TextInputType.number,
+                  onChanged: (_) => setState(() {}),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TitledTextfield(
+                  title: 'Depth (z-index)',
+                  controller: depthController,
                   placeholder: '0',
                   keyboardType: TextInputType.number,
                   onChanged: (_) => setState(() {}),
@@ -336,7 +392,7 @@ class LayoutLayersState extends State<LayoutLayers> {
             children: [
               Expanded(
                 child: TitledTextfield(
-                  title: 'Tile width',
+                  title: 'Tile width (px)',
                   controller: tileWidthController,
                   placeholder: '32',
                   keyboardType: TextInputType.number,
@@ -346,9 +402,36 @@ class LayoutLayersState extends State<LayoutLayers> {
               const SizedBox(width: 8),
               Expanded(
                 child: TitledTextfield(
-                  title: 'Tile height',
+                  title: 'Tile height (px)',
                   controller: tileHeightController,
                   placeholder: '32',
+                  keyboardType: TextInputType.number,
+                  onChanged: (_) => setState(() {}),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: TitledTextfield(
+                  title: 'Tilemap width (tiles)',
+                  controller: tilemapWidthController,
+                  placeholder: '32',
+                  keyboardType: TextInputType.number,
+                  onChanged: (_) => setState(() {}),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TitledTextfield(
+                  title: 'Tilemap height (tiles)',
+                  controller: tilemapHeightController,
+                  placeholder: '16',
                   keyboardType: TextInputType.number,
                   onChanged: (_) => setState(() {}),
                 ),

@@ -2,6 +2,7 @@ class GameLayer {
   final String name;
   final int x;
   final int y;
+  final int depth;
   final String tilesSheetFile;
   final int tilesWidth;
   final int tilesHeight;
@@ -11,6 +12,7 @@ class GameLayer {
     required this.name,
     required this.x,
     required this.y,
+    required this.depth,
     required this.tilesSheetFile,
     required this.tilesWidth,
     required this.tilesHeight,
@@ -23,6 +25,7 @@ class GameLayer {
       name: json['name'] as String,
       x: json['x'] as int,
       y: json['y'] as int,
+      depth: json['depth'] as int,
       tilesSheetFile: json['tilesSheetFile'] as String,
       tilesWidth: json['tilesWidth'] as int,
       tilesHeight: json['tilesHeight'] as int,
@@ -38,6 +41,7 @@ class GameLayer {
       'name': name,
       'x': x,
       'y': y,
+      'depth': depth,
       'tilesSheetFile': tilesSheetFile,
       'tilesWidth': tilesWidth,
       'tilesHeight': tilesHeight,
@@ -47,6 +51,6 @@ class GameLayer {
 
   @override
   String toString() {
-    return 'GameLayer(name: $name, x: $x, y: $y, tilesSheetFile: $tilesSheetFile, tilesWidth: $tilesWidth, tilesHeight: $tilesHeight, tileMap: $tileMap)';
+    return 'GameLayer(name: $name, x: $x, y: $y, depth: $depth, tilesSheetFile: $tilesSheetFile, tilesWidth: $tilesWidth, tilesHeight: $tilesHeight, tileMap: $tileMap)';
   }
 }
