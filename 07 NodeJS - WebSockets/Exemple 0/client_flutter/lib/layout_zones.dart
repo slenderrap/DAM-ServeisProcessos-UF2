@@ -135,12 +135,15 @@ class LayoutZonesState extends State<LayoutZones> {
         yController.text.isNotEmpty &&
         widthController.text.isNotEmpty &&
         heightController.text.isNotEmpty;
+
+    final level = appData.gameData.levels[appData.selectedLevel];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
+        Padding(
           padding: EdgeInsets.all(8.0),
-          child: Text('Zones:',
+          child: Text('Editing Zones for level "${level.name}"',
               style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold)),
         ),
         Expanded(
