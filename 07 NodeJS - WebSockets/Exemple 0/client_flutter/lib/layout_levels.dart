@@ -1,8 +1,11 @@
+import 'package:exemple0700/app.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'app_data.dart';
 import 'game_level.dart';
+import 'titled_text_filed.dart';
 
 class LayoutLevels extends StatefulWidget {
   const LayoutLevels({super.key});
@@ -53,7 +56,7 @@ class LayoutLevelsState extends State<LayoutLevels> {
     appData.gameData.levels.add(newLevel);
     appData.selectedLevel = -1;
     _updateForm(appData);
-    appData.notifyListeners();
+    appData.update();
   }
 
   void _updateLevel(AppData appData) {
@@ -65,7 +68,7 @@ class LayoutLevelsState extends State<LayoutLevels> {
         zones: appData.gameData.levels[appData.selectedLevel].zones,
         items: appData.gameData.levels[appData.selectedLevel].items,
       );
-      appData.notifyListeners();
+      appData.update();
     }
   }
 
@@ -74,17 +77,43 @@ class LayoutLevelsState extends State<LayoutLevels> {
       appData.gameData.levels.removeAt(appData.selectedLevel);
       appData.selectedLevel = -1;
       _updateForm(appData);
-      appData.notifyListeners();
+      appData.update();
     }
+  }
+
+  void _selectLevel(AppData appData, int index, bool isSelected) {
+    appData.selectedLevel = isSelected ? -1 : index;
+    _updateForm(appData);
+    appData.update();
   }
 
   void _onReorder(AppData appData, int oldIndex, int newIndex) {
     if (oldIndex < newIndex) {
       newIndex -= 1;
     }
-    final item = appData.gameData.levels.removeAt(oldIndex);
-    appData.gameData.levels.insert(newIndex, item);
-    appData.notifyListeners();
+
+    final levels = appData.gameData.levels;
+    final int selectedIndex = appData.selectedLevel;
+
+    final item = levels.removeAt(oldIndex);
+    levels.insert(newIndex, item);
+
+    if (selectedIndex == oldIndex) {
+      appData.selectedLevel = newIndex;
+    } else if (selectedIndex > oldIndex && selectedIndex <= newIndex) {
+      appData.selectedLevel -= 1;
+    } else if (selectedIndex < oldIndex && selectedIndex >= newIndex) {
+      appData.selectedLevel += 1;
+    } else {
+      appData.selectedLevel = selectedIndex;
+    }
+
+    appData.update();
+
+    if (kDebugMode) {
+      print(
+          "Updated level order: ${appData.gameData.levels.map((level) => level.name).join(', ')}");
+    }
   }
 
   @override
@@ -132,13 +161,9 @@ class LayoutLevelsState extends State<LayoutLevels> {
                         itemBuilder: (context, index) {
                           final isSelected = (index == appData.selectedLevel);
                           return GestureDetector(
-                            key: ValueKey(
-                                levels[index]), // Necessary for reorder
+                            key: ValueKey(levels[index]), // Reorder value key
                             onTap: () {
-                              setState(() {
-                                appData.selectedLevel = isSelected ? -1 : index;
-                                _updateForm(appData);
-                              });
+                              _selectLevel(appData, index, isSelected);
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(
@@ -148,11 +173,6 @@ class LayoutLevelsState extends State<LayoutLevels> {
                                   : CupertinoColors.systemBackground,
                               child: Row(
                                 children: [
-                                  Icon(
-                                    CupertinoIcons.bars,
-                                    color: CupertinoColors.systemGrey,
-                                  ),
-                                  const SizedBox(width: 8),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
@@ -195,18 +215,18 @@ class LayoutLevelsState extends State<LayoutLevels> {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: CupertinoTextField(
+          child: TitledTextfield(
+            title: 'Level name',
             controller: nameController,
-            placeholder: 'Level Name',
             onChanged: (_) => setState(() {}), // Per actualitzar el botó
           ),
         ),
         const SizedBox(height: 8),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: CupertinoTextField(
+          child: TitledTextfield(
+            title: 'Level description',
             controller: descriptionController,
-            placeholder: 'Level Description',
             onChanged: (_) => setState(() {}), // Per actualitzar el botó
           ),
         ),

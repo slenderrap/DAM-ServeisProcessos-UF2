@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
-class LayoutItems extends StatelessWidget {
-  const LayoutItems({super.key});
+class LayoutTilemaps extends StatelessWidget {
+  const LayoutTilemaps({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -1,3 +1,4 @@
+import 'package:exemple0700/titled_text_filed.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'app_data.dart';
@@ -49,19 +50,26 @@ class LayoutGameState extends State<LayoutGame> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Text(
+              'Game settings:',
+              style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
+            ),
+          ),
           Expanded(
             child: CupertinoScrollbar(
               controller: scrollController,
               child: SingleChildScrollView(
                 controller: scrollController,
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 8),
-                    CupertinoTextField(
+                    TitledTextfield(
+                      title: 'Game name',
                       controller: nameController,
-                      placeholder: 'Game Name',
                       onChanged: (value) {
                         setState(() {
                           appData.gameData = GameData(
@@ -72,14 +80,28 @@ class LayoutGameState extends State<LayoutGame> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    Text("File path:",
+                    Text("Project path:",
                         style: TextStyle(
                           fontSize: 16.0,
                         )),
                     Text(
                       appData.filePath.isEmpty
-                          ? "Undefined"
+                          ? "Project path not set"
                           : _shortenFilePath(appData.filePath),
+                      style: TextStyle(
+                        fontSize: 14.0,
+                        color: CupertinoColors.systemGrey,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text("File name:",
+                        style: TextStyle(
+                          fontSize: 16.0,
+                        )),
+                    Text(
+                      appData.fileName.isEmpty
+                          ? "File name not set"
+                          : appData.fileName,
                       style: TextStyle(
                         fontSize: 14.0,
                         color: CupertinoColors.systemGrey,
@@ -110,7 +132,7 @@ class LayoutGameState extends State<LayoutGame> {
                   onPressed: () {
                     appData.saveGame();
                   },
-                  child: appData.filePath == ""
+                  child: appData.fileName == ""
                       ? const Text('Save as')
                       : Text('Save'),
                 ),

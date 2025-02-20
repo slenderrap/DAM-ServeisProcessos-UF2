@@ -14,7 +14,9 @@ import 'game_data.dart';
 class AppData extends ChangeNotifier {
   GameData gameData = GameData(name: "", levels: []);
   String filePath = "";
+  String fileName = "";
   int selectedLevel = -1;
+  int selectedLayer = -1;
 
   void update() {
     notifyListeners();
@@ -28,7 +30,7 @@ class AppData extends ChangeNotifier {
       );
 
       if (result == null || result.files.single.path == null) {
-        return; // No es va seleccionar cap fitxer
+        return;
       }
 
       String tmpPath = result.files.single.path!;
@@ -38,7 +40,8 @@ class AppData extends ChangeNotifier {
         throw Exception("File not found: $tmpPath");
       }
 
-      filePath = tmpPath;
+      filePath = file.parent.path;
+      fileName = file.uri.pathSegments.last;
 
       final content = await file.readAsString();
       final jsonData = jsonDecode(content);
@@ -54,7 +57,7 @@ class AppData extends ChangeNotifier {
 
   Future<void> saveGame() async {
     try {
-      if (filePath == "") {
+      if (fileName == "") {
         String? outputFilePath = await FilePicker.platform.saveFile(
           dialogTitle: 'Choose location to save game file',
           fileName: "${gameData.name.replaceAll(" ", "_")}.json",
@@ -69,31 +72,22 @@ class AppData extends ChangeNotifier {
           return;
         }
 
-        filePath = outputFilePath;
+        final file = File(outputFilePath);
+        filePath = file.parent.path;
+        fileName = file.uri.pathSegments.last;
       }
 
-      if (kDebugMode) {
-        print("Saving at: $filePath");
-      }
-
-      final file = File(filePath);
+      final file = File("$filePath/$fileName");
       final jsonData = jsonEncode(gameData.toJson());
-
-      // Convertim el JSON en format llegible amb 2 espais d'identació
       final prettyJson =
           const JsonEncoder.withIndent('  ').convert(jsonDecode(jsonData));
 
       await file.writeAsString(prettyJson);
 
       if (kDebugMode) {
-        print("Game saved successfully to \"$filePath\"");
+        print("Game saved successfully to \"$filePath/$fileName\"");
       }
 
-      // Opcional: Actualitzar el fileName per a futures guardades
-      gameData = GameData(
-        name: gameData.name,
-        levels: gameData.levels,
-      );
       notifyListeners();
     } catch (e) {
       if (kDebugMode) {
@@ -102,16 +96,18 @@ class AppData extends ChangeNotifier {
     }
   }
 
-  Future<String?> pickSpriteSheetFile() async {
+  Future<String> pickTilesSheetFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
+      initialDirectory: filePath != "" ? filePath : null,
       allowedExtensions: ['png', 'jpg', 'jpeg'],
     );
 
-    if (result != null && result.files.single.path != null) {
-      return result.files.single.path!;
+    if (result == null || result.files.single.path == null) {
+      return "";
+    } else {
+      return result.files.single.path!.replaceAll("$filePath/", "");
     }
-    return null;
   }
 
   String _responseText = "";
@@ -258,7 +254,9 @@ class AppData extends ChangeNotifier {
         throw Exception("Error: ${response.body}");
       }
     } catch (e) {
-      print("Error during API call: $e");
+      if (kDebugMode) {
+        print("Error during API call: $e");
+      }
       setLoading(false);
     }
   }
@@ -289,7 +287,9 @@ class AppData extends ChangeNotifier {
     final parameters = fixedJson['arguments'];
 
     String name = fixedJson['name'];
-    print("Draw $name: $parameters");
+    if (kDebugMode) {
+      print("Draw $name: $parameters");
+    }
 
     switch (name) {
       case 'draw_circle':
@@ -318,7 +318,9 @@ class AppData extends ChangeNotifier {
           final end = Offset(endX, endY);
           addDrawable(Line(start: start, end: end));
         } else {
-          print("Missing line properties: $parameters");
+          if (kDebugMode) {
+            print("Missing line properties: $parameters");
+          }
         }
         break;
 
@@ -335,12 +337,16 @@ class AppData extends ChangeNotifier {
           final bottomRight = Offset(bottomRightX, bottomRightY);
           addDrawable(Rectangle(topLeft: topLeft, bottomRight: bottomRight));
         } else {
-          print("Missing rectangle properties: $parameters");
+          if (kDebugMode) {
+            print("Missing rectangle properties: $parameters");
+          }
         }
         break;
 
       default:
-        print("Unknown function call: ${fixedJson['name']}");
+        if (kDebugMode) {
+          print("Unknown function call: ${fixedJson['name']}");
+        }
     }
   }
 }

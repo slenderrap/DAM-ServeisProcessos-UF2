@@ -3,10 +3,11 @@ import 'package:provider/provider.dart';
 import 'app_data.dart';
 import 'canvas_painter.dart';
 import 'layout_game.dart';
-import 'layout_items.dart';
+import 'layout_sprites.dart';
 import 'layout_layers.dart';
 import 'layout_levels.dart';
 import 'layout_media.dart';
+import 'layout_tilemaps.dart';
 import 'layout_zones.dart';
 
 class Layout extends StatefulWidget {
@@ -24,8 +25,9 @@ class _LayoutState extends State<Layout> {
     'game',
     'levels',
     'layers',
+    'tilemap',
     'zones',
-    'items',
+    'sprites',
     'media'
   ];
 
@@ -63,10 +65,12 @@ class _LayoutState extends State<Layout> {
         return const LayoutLevels();
       case 'layers':
         return const LayoutLayers();
+      case 'tilemap':
+        return const LayoutTilemaps();
       case 'zones':
         return const LayoutZones();
-      case 'items':
-        return const LayoutItems();
+      case 'sprites':
+        return const LayoutSprites();
       case 'media':
         return const LayoutMedia();
       default:
@@ -79,7 +83,12 @@ class _LayoutState extends State<Layout> {
     final appData = Provider.of<AppData>(context);
 
     return CupertinoPageScaffold(
-      navigationBar: null,
+      navigationBar: CupertinoNavigationBar(
+          middle: CupertinoSegmentedControl<String>(
+        onValueChanged: _onTabSelected,
+        groupValue: _selectedSegment,
+        children: _buildSegmentedChildren(),
+      )),
       child: SafeArea(
         child: Stack(
           children: [
@@ -103,19 +112,9 @@ class _LayoutState extends State<Layout> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 16),
-                      CupertinoSegmentedControl<String>(
-                        onValueChanged: _onTabSelected,
-                        groupValue: _selectedSegment,
-                        children: _buildSegmentedChildren(),
-                      ),
-                      const SizedBox(
-                          height: 8), // Espai després del segmented control
+                      // Espai després del segmented control
                       Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: _getSelectedLayout(),
-                        ),
+                        child: _getSelectedLayout(),
                       ),
                     ],
                   ),

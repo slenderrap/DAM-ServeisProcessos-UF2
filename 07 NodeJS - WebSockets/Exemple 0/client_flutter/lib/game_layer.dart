@@ -1,26 +1,32 @@
 class GameLayer {
   final String name;
-  final String spriteSheetFile;
-  final int spriteWidth;
-  final int spriteHeight;
-  final List<List<int>> spriteMatrix;
+  final int x;
+  final int y;
+  final String tilesSheetFile;
+  final int tilesWidth;
+  final int tilesHeight;
+  final List<List<int>> tileMap;
 
   GameLayer({
     required this.name,
-    required this.spriteSheetFile,
-    required this.spriteWidth,
-    required this.spriteHeight,
-    required this.spriteMatrix,
+    required this.x,
+    required this.y,
+    required this.tilesSheetFile,
+    required this.tilesWidth,
+    required this.tilesHeight,
+    required this.tileMap,
   });
 
   // Constructor de fàbrica per crear una instància des d'un Map (JSON)
   factory GameLayer.fromJson(Map<String, dynamic> json) {
     return GameLayer(
       name: json['name'] as String,
-      spriteSheetFile: json['spriteSheetFile'] as String,
-      spriteWidth: json['spriteWidth'] as int,
-      spriteHeight: json['spriteHeight'] as int,
-      spriteMatrix: (json['spriteMatrix'] as List<dynamic>)
+      x: json['x'] as int,
+      y: json['y'] as int,
+      tilesSheetFile: json['tilesSheetFile'] as String,
+      tilesWidth: json['tilesWidth'] as int,
+      tilesHeight: json['tilesHeight'] as int,
+      tileMap: (json['tileMap'] as List<dynamic>)
           .map((row) => List<int>.from(row))
           .toList(),
     );
@@ -30,15 +36,17 @@ class GameLayer {
   Map<String, dynamic> toJson() {
     return {
       'name': name,
-      'spriteSheetFile': spriteSheetFile,
-      'spriteWidth': spriteWidth,
-      'spriteHeight': spriteHeight,
-      'spriteMatrix': spriteMatrix.map((row) => row.toList()).toList(),
+      'x': x,
+      'y': y,
+      'tilesSheetFile': tilesSheetFile,
+      'tilesWidth': tilesWidth,
+      'tilesHeight': tilesHeight,
+      'tileMap': tileMap.map((row) => row.toList()).toList(),
     };
   }
 
   @override
   String toString() {
-    return 'GameLayer(name: $name, spriteSheetFile: $spriteSheetFile, spriteWidth: $spriteWidth, spriteHeight: $spriteHeight, spriteMatrix: $spriteMatrix)';
+    return 'GameLayer(name: $name, x: $x, y: $y, tilesSheetFile: $tilesSheetFile, tilesWidth: $tilesWidth, tilesHeight: $tilesHeight, tileMap: $tileMap)';
   }
 }

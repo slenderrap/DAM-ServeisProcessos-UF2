@@ -35,7 +35,7 @@ void main() async {
     await windowManager.setSize(Size(width, height));
     await windowManager.setMinimumSize(Size(widthMin, heightMin));
 
-    // Calculem la posició centrada
+    // Center the window
     double offsetX = (screenWidth - width) / 2;
     double offsetY = (screenHeight - height) / 2;
     await windowManager.setPosition(Offset(offsetX, offsetY));
