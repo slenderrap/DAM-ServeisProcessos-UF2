@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'app_data.dart';
 import 'canvas_painter.dart';
@@ -81,14 +82,60 @@ class _LayoutState extends State<Layout> {
   @override
   Widget build(BuildContext context) {
     final appData = Provider.of<AppData>(context);
+    final level = appData.selectedLevel != -1
+        ? appData.gameData.levels[appData.selectedLevel].name
+        : "";
+    final layer = appData.selectedLayer != -1
+        ? appData.gameData.levels[appData.selectedLevel]
+            .layers[appData.selectedLayer].name
+        : "";
+    final location = Text.rich(
+      overflow: TextOverflow.ellipsis,
+      TextSpan(
+        children: [
+          if (level != "") ...[
+            TextSpan(
+              text: "Level: ",
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+            TextSpan(
+              text: "$level ",
+              style: TextStyle(fontSize: 14, color: Colors.black),
+            ),
+          ],
+          if (layer != "") ...[
+            TextSpan(
+              text: "Layer: ",
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+            TextSpan(
+              text: "$layer ",
+              style: TextStyle(fontSize: 14, color: Colors.black),
+            )
+          ]
+        ],
+      ),
+    );
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-          middle: CupertinoSegmentedControl<String>(
-        onValueChanged: _onTabSelected,
-        groupValue: _selectedSegment,
-        children: _buildSegmentedChildren(),
-      )),
+        middle: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox(
+                width: 250,
+                child: Align(alignment: Alignment.centerLeft, child: location)),
+            Spacer(),
+            CupertinoSegmentedControl<String>(
+              onValueChanged: _onTabSelected,
+              groupValue: _selectedSegment,
+              children: _buildSegmentedChildren(),
+            ),
+            Spacer(),
+            SizedBox(width: 250, child: Container())
+          ],
+        ),
+      ),
       child: SafeArea(
         child: Stack(
           children: [
