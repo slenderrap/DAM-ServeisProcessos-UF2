@@ -117,8 +117,8 @@ class LayoutLayersState extends State<LayoutLayers> {
       final GameLayer oldLayer = layers[appData.selectedLayer];
 
       // Obtenir les noves dimensions
-      int newWidth = int.tryParse(tilemapWidthController.text) ?? 16;
-      int newHeight = int.tryParse(tilemapHeightController.text) ?? 32;
+      int newWidth = int.tryParse(tilemapWidthController.text) ?? 32;
+      int newHeight = int.tryParse(tilemapHeightController.text) ?? 16;
 
       // Mantenir les dades antigues i ajustar la mida
       List<List<int>> newTileMap = List.generate(newHeight, (y) {
@@ -137,8 +137,8 @@ class LayoutLayersState extends State<LayoutLayers> {
         y: int.tryParse(yController.text) ?? 0,
         depth: int.tryParse(depthController.text) ?? 0,
         tilesSheetFile: tilesSheetFile,
-        tilesWidth: newWidth,
-        tilesHeight: newHeight,
+        tilesWidth: int.tryParse(tileWidthController.text) ?? 0,
+        tilesHeight: int.tryParse(tileHeightController.text) ?? 0,
         tileMap: newTileMap,
       );
 

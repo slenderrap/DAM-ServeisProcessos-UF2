@@ -9,6 +9,7 @@ class AppData extends ChangeNotifier {
   GameData gameData = GameData(name: "", levels: []);
   String filePath = "";
   String fileName = "";
+  String selectedSection = "game";
   int selectedLevel = -1;
   int selectedLayer = -1;
   int selectedZone = -1;

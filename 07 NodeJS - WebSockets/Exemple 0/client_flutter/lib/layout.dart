@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -21,8 +23,8 @@ class Layout extends StatefulWidget {
 }
 
 class _LayoutState extends State<Layout> {
-  late String _selectedSegment;
-  List<String> segments = [
+  ui.Image? _layerImage;
+  List<String> sections = [
     'game',
     'levels',
     'layers',
@@ -35,18 +37,22 @@ class _LayoutState extends State<Layout> {
   @override
   void initState() {
     super.initState();
-    _selectedSegment = 'game';
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final appData = Provider.of<AppData>(context, listen: false);
+      appData.selectedSection = 'game';
+    });
   }
 
-  void _onTabSelected(String value) {
+  void _onTabSelected(AppData appData, String value) {
     setState(() {
-      _selectedSegment = value;
+      appData.selectedSection = value;
     });
   }
 
   Map<String, Widget> _buildSegmentedChildren() {
     return {
-      for (var segment in segments)
+      for (var segment in sections)
         segment: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           child: Text(
@@ -58,8 +64,8 @@ class _LayoutState extends State<Layout> {
     };
   }
 
-  Widget _getSelectedLayout() {
-    switch (_selectedSegment) {
+  Widget _getSelectedLayout(AppData appData) {
+    switch (appData.selectedSection) {
       case 'game':
         return const LayoutGame();
       case 'levels':
@@ -79,6 +85,201 @@ class _LayoutState extends State<Layout> {
     }
   }
 
+  Future<void> _drawCanvasImage(AppData appData) async {
+    ui.Image image;
+    switch (appData.selectedSection) {
+      case 'game':
+        image = await _drawCanvasImageGame(appData);
+      case 'levels':
+        image = await _drawCanvasImageLevels(appData);
+      case 'layers':
+        image = await _drawCanvasImageLayers(appData);
+      case 'tilemap':
+        image = await _drawCanvasImageTilemap(appData);
+      case 'zones':
+        image = await _drawCanvasImageZones(appData);
+      case 'sprites':
+        image = await _drawCanvasImageSprites(appData);
+      case 'media':
+        image = await _drawCanvasImageMedia(appData);
+      default:
+        image = await _drawCanvasImageEmpty(appData);
+    }
+
+    setState(() {
+      _layerImage = image;
+    });
+  }
+
+  Future<ui.Image> _drawCanvasImageGame(AppData appData) async {
+    final recorder = ui.PictureRecorder();
+    final imgCanvas = Canvas(recorder);
+
+    final picture = recorder.endRecording();
+    final image = await picture.toImage(10, 10);
+    return image;
+  }
+
+  Future<ui.Image> _drawCanvasImageLevels(AppData appData) async {
+    final recorder = ui.PictureRecorder();
+    final imgCanvas = Canvas(recorder);
+
+    final picture = recorder.endRecording();
+    final image = await picture.toImage(10, 10);
+    return image;
+  }
+
+  Future<ui.Image> _drawCanvasImageLayers(AppData appData) async {
+    final recorder = ui.PictureRecorder();
+    final imgCanvas = Canvas(recorder);
+
+    int imageWidth = 10;
+    int imageHeight = 10;
+
+    if (appData.selectedLevel != -1) {
+      final level = appData.gameData.levels[appData.selectedLevel];
+      final layers = level.layers;
+      final paintTiles = Paint()
+        ..color = Colors.black
+        ..strokeWidth = 2
+        ..style = PaintingStyle.stroke;
+
+      for (int cntLayer = 0;
+          cntLayer < layers.length;
+          cntLayer = cntLayer + 1) {
+        final layer = layers[cntLayer];
+
+        double x = layer.x.toDouble();
+        double y = layer.y.toDouble();
+        int rows = layer.tileMap.length;
+        int cols = layer.tileMap[0].length;
+        double tileWidth = layer.tilesWidth.toDouble();
+        double tileHeight = layer.tilesHeight.toDouble();
+
+        for (int row = 0; row < rows; row++) {
+          for (int col = 0; col < cols; col++) {
+            double tileX = x + col * tileWidth;
+            double tileY = y + row * tileHeight;
+
+            // Dibuixa el rectangle de cada tile
+            imgCanvas.drawRect(
+              Rect.fromLTWH(tileX, tileY, tileWidth, tileHeight),
+              paintTiles,
+            );
+          }
+        }
+
+        // Actualitza la mida màxima de la imatge
+        double endX = x + cols * tileWidth;
+        double endY = y + rows * tileHeight;
+        if (endX > imageWidth) {
+          imageWidth = endX.toInt();
+        }
+        if (endY > imageHeight) {
+          imageHeight = endY.toInt();
+        }
+      }
+
+      if (appData.selectedLayer != -1) {
+        Paint paintSelected = Paint()
+          ..color = Colors.blue
+          ..strokeWidth = 5
+          ..style = PaintingStyle.stroke;
+        final layer = level.layers[appData.selectedLayer];
+        double x = layer.x.toDouble();
+        double y = layer.y.toDouble();
+        double width = layer.tileMap[0].length * layer.tilesWidth.toDouble();
+        double height = layer.tileMap.length * layer.tilesHeight.toDouble();
+        imgCanvas.drawRect(
+          Rect.fromLTWH(x + 2.5, y + 2.5, width - 5, height - 5),
+          paintSelected,
+        );
+      }
+    }
+
+    final picture = recorder.endRecording();
+    final image = await picture.toImage(imageWidth, imageHeight);
+    return image;
+  }
+
+  Future<ui.Image> _drawCanvasImageTilemap(AppData appData) async {
+    final recorder = ui.PictureRecorder();
+    final imgCanvas = Canvas(recorder);
+
+    int imageWidth = 10;
+    int imageHeight = 10;
+
+    if (appData.selectedLevel != -1 && appData.selectedLayer != -1) {
+      final level = appData.gameData.levels[appData.selectedLevel];
+      final layer = level.layers[appData.selectedLayer];
+
+      final paintTiles = Paint()
+        ..color = Colors.black
+        ..strokeWidth = 2
+        ..style = PaintingStyle.stroke;
+
+      int rows = layer.tileMap.length;
+      int cols = layer.tileMap[0].length;
+      double tileWidth = layer.tilesWidth.toDouble();
+      double tileHeight = layer.tilesHeight.toDouble();
+
+      for (int row = 0; row < rows; row++) {
+        for (int col = 0; col < cols; col++) {
+          double tileX = col * tileWidth;
+          double tileY = row * tileHeight;
+
+          // Dibuixa el rectangle de cada tile
+          imgCanvas.drawRect(
+            Rect.fromLTWH(tileX, tileY, tileWidth, tileHeight),
+            paintTiles,
+          );
+        }
+      }
+
+      // Actualitza la mida màxima de la imatge
+      imageWidth = (cols * tileWidth).toInt();
+      imageHeight = (rows * tileHeight).toInt();
+    }
+
+    final picture = recorder.endRecording();
+    final image = await picture.toImage(imageWidth, imageHeight);
+    return image;
+  }
+
+  Future<ui.Image> _drawCanvasImageZones(AppData appData) async {
+    final recorder = ui.PictureRecorder();
+    final imgCanvas = Canvas(recorder);
+
+    final picture = recorder.endRecording();
+    final image = await picture.toImage(10, 10);
+    return image;
+  }
+
+  Future<ui.Image> _drawCanvasImageSprites(AppData appData) async {
+    final recorder = ui.PictureRecorder();
+    final imgCanvas = Canvas(recorder);
+
+    final picture = recorder.endRecording();
+    final image = await picture.toImage(10, 10);
+    return image;
+  }
+
+  Future<ui.Image> _drawCanvasImageMedia(AppData appData) async {
+    final recorder = ui.PictureRecorder();
+    final imgCanvas = Canvas(recorder);
+
+    final picture = recorder.endRecording();
+    final image = await picture.toImage(10, 10);
+    return image;
+  }
+
+  Future<ui.Image> _drawCanvasImageEmpty(AppData appData) async {
+    final recorder = ui.PictureRecorder();
+    final picture = recorder.endRecording();
+    final image = await picture.toImage(10, 10);
+    return image;
+  }
+
   @override
   Widget build(BuildContext context) {
     final appData = Provider.of<AppData>(context);
@@ -89,6 +290,7 @@ class _LayoutState extends State<Layout> {
         ? appData.gameData.levels[appData.selectedLevel]
             .layers[appData.selectedLayer].name
         : "";
+
     final location = Text.rich(
       overflow: TextOverflow.ellipsis,
       TextSpan(
@@ -117,6 +319,8 @@ class _LayoutState extends State<Layout> {
       ),
     );
 
+    _drawCanvasImage(appData);
+
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         middle: Row(
@@ -127,8 +331,8 @@ class _LayoutState extends State<Layout> {
                 child: Align(alignment: Alignment.centerLeft, child: location)),
             Spacer(),
             CupertinoSegmentedControl<String>(
-              onValueChanged: _onTabSelected,
-              groupValue: _selectedSegment,
+              onValueChanged: (value) => _onTabSelected(appData, value),
+              groupValue: appData.selectedSection,
               children: _buildSegmentedChildren(),
             ),
             Spacer(),
@@ -146,7 +350,9 @@ class _LayoutState extends State<Layout> {
                   child: Container(
                     color: CupertinoColors.systemGrey5,
                     child: CustomPaint(
-                      painter: CanvasPainter(),
+                      painter: _layerImage != null
+                          ? CanvasPainter(_layerImage!)
+                          : null,
                       child: Container(),
                     ),
                   ),
@@ -158,7 +364,7 @@ class _LayoutState extends State<Layout> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Expanded(
-                        child: _getSelectedLayout(),
+                        child: _getSelectedLayout(appData),
                       ),
                     ],
                   ),
