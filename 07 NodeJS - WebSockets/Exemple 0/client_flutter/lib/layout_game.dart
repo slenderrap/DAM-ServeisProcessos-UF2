@@ -123,7 +123,7 @@ class LayoutGameState extends State<LayoutGame> {
                   onPressed: () {
                     appData.loadGame();
                   },
-                  child: const Text('Load .json'),
+                  child: const Text('Load folder'),
                 ),
                 CupertinoButton.filled(
                   sizeStyle: CupertinoButtonSize.small,
@@ -131,9 +131,7 @@ class LayoutGameState extends State<LayoutGame> {
                   onPressed: () {
                     appData.saveGame();
                   },
-                  child: appData.fileName == ""
-                      ? const Text('Save as')
-                      : Text('Save'),
+                  child: Text('Save'),
                 ),
               ],
             ),

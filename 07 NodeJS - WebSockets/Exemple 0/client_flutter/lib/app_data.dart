@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui' as ui;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'game_data.dart';
 
 class AppData extends ChangeNotifier {
+  final GAME_FILE_NAME = "game_data.json";
+
   GameData gameData = GameData(name: "", levels: []);
   String filePath = "";
   String fileName = "";
@@ -21,16 +24,13 @@ class AppData extends ChangeNotifier {
 
   Future<void> loadGame() async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['json'],
-      );
+      String? pickerPath = await FilePicker.platform.getDirectoryPath();
 
-      if (result == null || result.files.single.path == null) {
+      if (pickerPath == null) {
         return;
       }
 
-      String tmpPath = result.files.single.path!;
+      String tmpPath = "$pickerPath/$GAME_FILE_NAME";
       final file = File(tmpPath);
 
       if (!await file.exists()) {
@@ -54,22 +54,10 @@ class AppData extends ChangeNotifier {
 
   Future<void> saveGame() async {
     try {
-      if (fileName == "") {
-        String? outputFilePath = await FilePicker.platform.saveFile(
-          dialogTitle: 'Choose location to save game file',
-          fileName: "${gameData.name.replaceAll(" ", "_")}.json",
-          type: FileType.custom,
-          allowedExtensions: ['json'],
-        );
+      if (filePath == "") {
+        String? pickerPath = await FilePicker.platform.getDirectoryPath();
 
-        if (outputFilePath == null) {
-          if (kDebugMode) {
-            print("File name not selected, can't save.");
-          }
-          return;
-        }
-
-        final file = File(outputFilePath);
+        final file = File("$pickerPath/$GAME_FILE_NAME");
         filePath = file.parent.path;
         fileName = file.uri.pathSegments.last;
       }
@@ -110,6 +98,19 @@ class AppData extends ChangeNotifier {
     } else {
       return result.files.single.path!.replaceAll("$filePath/", "");
     }
+  }
+
+  Future<ui.Image> loadImage(String filePath) async {
+    final File file = File(filePath);
+    if (!await file.exists()) {
+      throw Exception("El fitxer no existeix: $filePath");
+    }
+    final Uint8List bytes = await file.readAsBytes();
+    final Completer<ui.Image> completer = Completer();
+    ui.decodeImageFromList(bytes, (ui.Image img) {
+      completer.complete(img);
+    });
+    return completer.future;
   }
 /*
   String _responseText = "";

@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/cupertino.dart';
@@ -12,6 +15,7 @@ import 'layout_levels.dart';
 import 'layout_media.dart';
 import 'layout_tilemaps.dart';
 import 'layout_zones.dart';
+import 'layout_utils.dart';
 
 class Layout extends StatefulWidget {
   const Layout({super.key, required this.title});
@@ -95,7 +99,7 @@ class _LayoutState extends State<Layout> {
       case 'layers':
         image = await _drawCanvasImageLayers(appData);
       case 'tilemap':
-        image = await _drawCanvasImageTilemap(appData);
+        image = await LayoutUtils.drawCanvasImageTilemap(appData);
       case 'zones':
         image = await _drawCanvasImageZones(appData);
       case 'sprites':
@@ -195,50 +199,6 @@ class _LayoutState extends State<Layout> {
           paintSelected,
         );
       }
-    }
-
-    final picture = recorder.endRecording();
-    final image = await picture.toImage(imageWidth, imageHeight);
-    return image;
-  }
-
-  Future<ui.Image> _drawCanvasImageTilemap(AppData appData) async {
-    final recorder = ui.PictureRecorder();
-    final imgCanvas = Canvas(recorder);
-
-    int imageWidth = 10;
-    int imageHeight = 10;
-
-    if (appData.selectedLevel != -1 && appData.selectedLayer != -1) {
-      final level = appData.gameData.levels[appData.selectedLevel];
-      final layer = level.layers[appData.selectedLayer];
-
-      final paintTiles = Paint()
-        ..color = Colors.black
-        ..strokeWidth = 2
-        ..style = PaintingStyle.stroke;
-
-      int rows = layer.tileMap.length;
-      int cols = layer.tileMap[0].length;
-      double tileWidth = layer.tilesWidth.toDouble();
-      double tileHeight = layer.tilesHeight.toDouble();
-
-      for (int row = 0; row < rows; row++) {
-        for (int col = 0; col < cols; col++) {
-          double tileX = col * tileWidth;
-          double tileY = row * tileHeight;
-
-          // Dibuixa el rectangle de cada tile
-          imgCanvas.drawRect(
-            Rect.fromLTWH(tileX, tileY, tileWidth, tileHeight),
-            paintTiles,
-          );
-        }
-      }
-
-      // Actualitza la mida màxima de la imatge
-      imageWidth = (cols * tileWidth).toInt();
-      imageHeight = (rows * tileHeight).toInt();
     }
 
     final picture = recorder.endRecording();
