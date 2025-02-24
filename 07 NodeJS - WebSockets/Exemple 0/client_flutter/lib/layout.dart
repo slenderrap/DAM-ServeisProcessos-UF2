@@ -99,9 +99,9 @@ class _LayoutState extends State<Layout> {
       case 'tilemap':
         image = await LayoutUtils.drawCanvasImageTilemap(appData);
       case 'zones':
-        image = await LayoutUtils.drawCanvasImageEmpty(appData);
+        image = await LayoutUtils.drawCanvasImageLayers(appData);
       case 'sprites':
-        image = await LayoutUtils.drawCanvasImageEmpty(appData);
+        image = await LayoutUtils.drawCanvasImageLayers(appData);
       case 'media':
         image = await LayoutUtils.drawCanvasImageEmpty(appData);
       default:

@@ -1,3 +1,4 @@
+import 'package:exemple0700/layout_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -152,37 +153,16 @@ class LayoutZonesState extends State<LayoutZones> {
           width: 20,
           height: 20,
           decoration: BoxDecoration(
-            border: Border.all(color: _getColorFromName(colorName), width: 4),
+            border: Border.all(
+                color: LayoutUtils.getColorFromName(colorName), width: 4),
             color: color == colorName
-                ? _getColorFromName(colorName)
+                ? LayoutUtils.getColorFromName(colorName)
                 : Colors.white,
             shape: BoxShape.circle,
           ),
         ),
       );
     }).toList();
-  }
-
-  Color _getColorFromName(String colorName) {
-    switch (colorName) {
-      case "blue":
-        return Colors.blue;
-      case "green":
-        return Colors.green;
-      case "yellow":
-        return Colors.yellow;
-      case "orange":
-        return Colors.orange;
-      case "red":
-        return Colors.red;
-
-      case "purple":
-        return Colors.purple;
-      case "grey":
-        return Colors.grey;
-      default:
-        return Colors.black;
-    }
   }
 
   @override

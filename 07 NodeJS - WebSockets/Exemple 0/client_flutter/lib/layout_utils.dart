@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'app_data.dart';
 
 class LayoutUtils {
-  static Future<ui.Image> generateTilemapWithGrid(
-      AppData appData, int levelIndex, int layerIndex) async {
+  static Future<ui.Image> generateTilemapImage(
+      AppData appData, int levelIndex, int layerIndex, bool drawGrid) async {
     final level = appData.gameData.levels[levelIndex];
     final layer = level.layers[layerIndex];
 
@@ -43,7 +43,7 @@ class LayoutUtils {
           double destX = col * tileWidth;
           double destY = row * tileHeight;
 
-          // 🔹 Dibuixar el tile corresponent
+          // Dibuixar el tile corresponent
           canvas.drawImageRect(
             tilesetImage,
             Rect.fromLTWH(tileX, tileY, tileWidth, tileHeight),
@@ -54,28 +54,33 @@ class LayoutUtils {
       }
     }
 
-    // Dibuixar la quadrícula al damunt dels tiles
-    final gridPaint = Paint()
-      ..color = Colors.black
-      ..strokeWidth = 1
-      ..style = PaintingStyle.stroke;
+    if (drawGrid) {
+      final gridPaint = Paint()
+        ..color = Colors.black
+        ..strokeWidth = 1
+        ..style = PaintingStyle.stroke;
 
-    for (int row = 0; row <= rows; row++) {
-      double y = row * tileHeight;
-      canvas.drawLine(Offset(0, y), Offset(tilemapWidth, y), gridPaint);
-    }
+      for (int row = 0; row <= rows; row++) {
+        double y = row * tileHeight;
+        canvas.drawLine(Offset(0, y), Offset(tilemapWidth, y), gridPaint);
+      }
 
-    for (int col = 0; col <= cols; col++) {
-      double x = col * tileWidth;
-      canvas.drawLine(Offset(x, 0), Offset(x, tilemapHeight), gridPaint);
+      for (int col = 0; col <= cols; col++) {
+        double x = col * tileWidth;
+        canvas.drawLine(Offset(x, 0), Offset(x, tilemapHeight), gridPaint);
+      }
     }
 
     final picture = recorder.endRecording();
     return await picture.toImage(tilemapWidth.toInt(), tilemapHeight.toInt());
   }
 
-  static Future<ui.Image> generateTilesetWithGrid(AppData appData,
-      String tilesetPath, double tileWidth, double tileHeight) async {
+  static Future<ui.Image> generateTilesetImage(
+      AppData appData,
+      String tilesetPath,
+      double tileWidth,
+      double tileHeight,
+      bool drawGrid) async {
     final tilesheetImage = await appData.getImage(tilesetPath);
 
     double imageWidth = tilesheetImage.width.toDouble();
@@ -89,19 +94,21 @@ class LayoutUtils {
 
     canvas.drawImage(tilesheetImage, Offset.zero, Paint());
 
-    final gridPaint = Paint()
-      ..color = Colors.black
-      ..strokeWidth = 1
-      ..style = PaintingStyle.stroke;
+    if (drawGrid) {
+      final gridPaint = Paint()
+        ..color = Colors.black
+        ..strokeWidth = 1
+        ..style = PaintingStyle.stroke;
 
-    for (int row = 0; row <= tilesetRows; row++) {
-      double y = row * tileHeight;
-      canvas.drawLine(Offset(0, y), Offset(imageWidth, y), gridPaint);
-    }
+      for (int row = 0; row <= tilesetRows; row++) {
+        double y = row * tileHeight;
+        canvas.drawLine(Offset(0, y), Offset(imageWidth, y), gridPaint);
+      }
 
-    for (int col = 0; col <= tilesetColumns; col++) {
-      double x = col * tileWidth;
-      canvas.drawLine(Offset(x, 0), Offset(x, imageHeight), gridPaint);
+      for (int col = 0; col <= tilesetColumns; col++) {
+        double x = col * tileWidth;
+        canvas.drawLine(Offset(x, 0), Offset(x, imageHeight), gridPaint);
+      }
     }
 
     final picture = recorder.endRecording();
@@ -137,8 +144,8 @@ class LayoutUtils {
 
     for (var layer in level.layers) {
       // Generar la imatge del tilemap per a aquesta capa
-      final tilemapImage = await generateTilemapWithGrid(
-          appData, appData.selectedLevel, level.layers.indexOf(layer));
+      final tilemapImage = await generateTilemapImage(
+          appData, appData.selectedLevel, level.layers.indexOf(layer), true);
 
       // Posicionar la imatge de la capa a la seva coordenada (x, y)
       imgCanvas.drawImage(tilemapImage,
@@ -153,8 +160,42 @@ class LayoutUtils {
           : (layer.y + tilemapImage.height);
     }
 
-    // Si hi ha una capa seleccionada, dibuixar-ne el contorn en blau
-    if (appData.selectedLayer != -1) {
+    for (int cntZone = 0; cntZone < level.zones.length; cntZone = cntZone + 1) {
+      final zone = level.zones[cntZone];
+      imgCanvas.drawRect(
+          Rect.fromLTWH(zone.x.toDouble(), zone.y.toDouble(),
+              zone.width.toDouble(), zone.height.toDouble()),
+          Paint()..color = getColorFromName(zone.color).withAlpha(100));
+      if (cntZone == appData.selectedZone) {
+        imgCanvas.drawRect(
+          Rect.fromLTWH(
+            zone.x.toDouble(),
+            zone.y.toDouble(),
+            zone.width.toDouble(),
+            zone.height.toDouble(),
+          ),
+          Paint()
+            ..color = getColorFromName(zone.color)
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 2,
+        );
+        imgCanvas.drawRect(
+          Rect.fromLTWH(
+            zone.x.toDouble(),
+            zone.y.toDouble(),
+            zone.width.toDouble(),
+            zone.height.toDouble(),
+          ),
+          Paint()
+            ..color = Colors.white
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 0.5,
+        );
+      }
+    }
+
+    // Draw selected layer border
+    if (appData.selectedLayer != -1 && appData.selectedSection == "layers") {
       final layer = level.layers[appData.selectedLayer];
       final paintSelected = Paint()
         ..color = Colors.blue
@@ -189,8 +230,8 @@ class LayoutUtils {
     final imgCanvas = Canvas(recorder);
 
     // Obtenir imatge del tilemap amb la quadrícula
-    final tilemapImage = await generateTilemapWithGrid(
-        appData, appData.selectedLevel, appData.selectedLayer);
+    final tilemapImage = await generateTilemapImage(
+        appData, appData.selectedLevel, appData.selectedLayer, true);
 
     // Calcular l'escala i la posició del tilemap al canvas
     double availableWidth = tilemapImage.width * 0.95;
@@ -220,11 +261,12 @@ class LayoutUtils {
     );
 
     // Obtenir imatge del tileset amb la quadrícula
-    final tilesetImage = await generateTilesetWithGrid(
+    final tilesetImage = await generateTilesetImage(
         appData,
         layer.tilesSheetFile,
         layer.tilesWidth.toDouble(),
-        layer.tilesHeight.toDouble());
+        layer.tilesHeight.toDouble(),
+        true);
 
     // Calcular la posició i mida escalada del tileset
     double tilesetMaxWidth = tilemapImage.width * 0.5;
@@ -385,5 +427,27 @@ class LayoutUtils {
     int col = tileCoords.dy.toInt();
 
     layer.tileMap[row][col] = -1;
+  }
+
+  static Color getColorFromName(String colorName) {
+    switch (colorName) {
+      case "blue":
+        return Colors.blue;
+      case "green":
+        return Colors.green;
+      case "yellow":
+        return Colors.yellow;
+      case "orange":
+        return Colors.orange;
+      case "red":
+        return Colors.red;
+
+      case "purple":
+        return Colors.purple;
+      case "grey":
+        return Colors.grey;
+      default:
+        return Colors.black;
+    }
   }
 }
