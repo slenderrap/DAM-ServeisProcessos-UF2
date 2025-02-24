@@ -4,19 +4,42 @@ import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'game_data.dart';
 
 class AppData extends ChangeNotifier {
-  final GAME_FILE_NAME = "game_data.json";
+  final gameFileName = "game_data.json";
 
   GameData gameData = GameData(name: "", levels: []);
   String filePath = "";
   String fileName = "";
+
+  Map<String, ui.Image> imagesCache = {};
+
   String selectedSection = "game";
   int selectedLevel = -1;
   int selectedLayer = -1;
   int selectedZone = -1;
   int selectedSprite = -1;
+
+  bool dragging = false;
+  DragUpdateDetails? dragUpdateDetails;
+  DragStartDetails? dragStartDetails;
+  DragEndDetails? dragEndDetails;
+  Offset draggingOffset = Offset.zero;
+
+  // Relació entre la imatge dibuixada i el canvas de dibuix
+  late Offset imageOffset;
+  late double scaleFactor;
+
+  // "tilemap", relació entre el "tilemap" i la imatge dibuixada al canvas
+  late Offset tilemapOffset;
+  late double tilemapScaleFactor;
+
+  // "tilemap", relació entre el "tileset" i la imatge dibuixada al canvas
+  late Offset tilesetOffset;
+  late double tilesetScaleFactor;
+  int draggingTileIndex = -1;
 
   void update() {
     notifyListeners();
@@ -30,7 +53,7 @@ class AppData extends ChangeNotifier {
         return;
       }
 
-      String tmpPath = "$pickerPath/$GAME_FILE_NAME";
+      String tmpPath = "$pickerPath/$gameFileName";
       final file = File(tmpPath);
 
       if (!await file.exists()) {
@@ -57,7 +80,7 @@ class AppData extends ChangeNotifier {
       if (filePath == "") {
         String? pickerPath = await FilePicker.platform.getDirectoryPath();
 
-        final file = File("$pickerPath/$GAME_FILE_NAME");
+        final file = File("$pickerPath/$gameFileName");
         filePath = file.parent.path;
         fileName = file.uri.pathSegments.last;
       }
@@ -100,18 +123,24 @@ class AppData extends ChangeNotifier {
     }
   }
 
-  Future<ui.Image> loadImage(String filePath) async {
-    final File file = File(filePath);
-    if (!await file.exists()) {
-      throw Exception("El fitxer no existeix: $filePath");
+  Future<void> loadImageIntoCache(String imageFileName) async {
+    if (imagesCache.containsKey(imageFileName)) {
+      return;
     }
+
+    final File file = File("$filePath/$imageFileName");
+    if (!await file.exists()) {
+      throw Exception("El fitxer no existeix: $imageFileName");
+    }
+
     final Uint8List bytes = await file.readAsBytes();
     final Completer<ui.Image> completer = Completer();
     ui.decodeImageFromList(bytes, (ui.Image img) {
+      imagesCache[imageFileName] = img;
       completer.complete(img);
     });
-    return completer.future;
   }
+
 /*
   String _responseText = "";
   bool _isLoading = false;

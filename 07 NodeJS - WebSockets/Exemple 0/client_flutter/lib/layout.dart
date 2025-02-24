@@ -93,151 +93,26 @@ class _LayoutState extends State<Layout> {
     ui.Image image;
     switch (appData.selectedSection) {
       case 'game':
-        image = await _drawCanvasImageGame(appData);
+        image = await LayoutUtils.drawCanvasImageEmpty(appData);
       case 'levels':
-        image = await _drawCanvasImageLevels(appData);
+        image = await LayoutUtils.drawCanvasImageEmpty(appData);
       case 'layers':
-        image = await _drawCanvasImageLayers(appData);
+        image = await LayoutUtils.drawCanvasImageLayers(appData);
       case 'tilemap':
         image = await LayoutUtils.drawCanvasImageTilemap(appData);
       case 'zones':
-        image = await _drawCanvasImageZones(appData);
+        image = await LayoutUtils.drawCanvasImageEmpty(appData);
       case 'sprites':
-        image = await _drawCanvasImageSprites(appData);
+        image = await LayoutUtils.drawCanvasImageEmpty(appData);
       case 'media':
-        image = await _drawCanvasImageMedia(appData);
+        image = await LayoutUtils.drawCanvasImageEmpty(appData);
       default:
-        image = await _drawCanvasImageEmpty(appData);
+        image = await LayoutUtils.drawCanvasImageEmpty(appData);
     }
 
     setState(() {
       _layerImage = image;
     });
-  }
-
-  Future<ui.Image> _drawCanvasImageGame(AppData appData) async {
-    final recorder = ui.PictureRecorder();
-    final imgCanvas = Canvas(recorder);
-
-    final picture = recorder.endRecording();
-    final image = await picture.toImage(10, 10);
-    return image;
-  }
-
-  Future<ui.Image> _drawCanvasImageLevels(AppData appData) async {
-    final recorder = ui.PictureRecorder();
-    final imgCanvas = Canvas(recorder);
-
-    final picture = recorder.endRecording();
-    final image = await picture.toImage(10, 10);
-    return image;
-  }
-
-  Future<ui.Image> _drawCanvasImageLayers(AppData appData) async {
-    final recorder = ui.PictureRecorder();
-    final imgCanvas = Canvas(recorder);
-
-    int imageWidth = 10;
-    int imageHeight = 10;
-
-    if (appData.selectedLevel != -1) {
-      final level = appData.gameData.levels[appData.selectedLevel];
-      final layers = level.layers;
-      final paintTiles = Paint()
-        ..color = Colors.black
-        ..strokeWidth = 2
-        ..style = PaintingStyle.stroke;
-
-      for (int cntLayer = 0;
-          cntLayer < layers.length;
-          cntLayer = cntLayer + 1) {
-        final layer = layers[cntLayer];
-
-        double x = layer.x.toDouble();
-        double y = layer.y.toDouble();
-        int rows = layer.tileMap.length;
-        int cols = layer.tileMap[0].length;
-        double tileWidth = layer.tilesWidth.toDouble();
-        double tileHeight = layer.tilesHeight.toDouble();
-
-        for (int row = 0; row < rows; row++) {
-          for (int col = 0; col < cols; col++) {
-            double tileX = x + col * tileWidth;
-            double tileY = y + row * tileHeight;
-
-            // Dibuixa el rectangle de cada tile
-            imgCanvas.drawRect(
-              Rect.fromLTWH(tileX, tileY, tileWidth, tileHeight),
-              paintTiles,
-            );
-          }
-        }
-
-        // Actualitza la mida màxima de la imatge
-        double endX = x + cols * tileWidth;
-        double endY = y + rows * tileHeight;
-        if (endX > imageWidth) {
-          imageWidth = endX.toInt();
-        }
-        if (endY > imageHeight) {
-          imageHeight = endY.toInt();
-        }
-      }
-
-      if (appData.selectedLayer != -1) {
-        Paint paintSelected = Paint()
-          ..color = Colors.blue
-          ..strokeWidth = 5
-          ..style = PaintingStyle.stroke;
-        final layer = level.layers[appData.selectedLayer];
-        double x = layer.x.toDouble();
-        double y = layer.y.toDouble();
-        double width = layer.tileMap[0].length * layer.tilesWidth.toDouble();
-        double height = layer.tileMap.length * layer.tilesHeight.toDouble();
-        imgCanvas.drawRect(
-          Rect.fromLTWH(x + 2.5, y + 2.5, width - 5, height - 5),
-          paintSelected,
-        );
-      }
-    }
-
-    final picture = recorder.endRecording();
-    final image = await picture.toImage(imageWidth, imageHeight);
-    return image;
-  }
-
-  Future<ui.Image> _drawCanvasImageZones(AppData appData) async {
-    final recorder = ui.PictureRecorder();
-    final imgCanvas = Canvas(recorder);
-
-    final picture = recorder.endRecording();
-    final image = await picture.toImage(10, 10);
-    return image;
-  }
-
-  Future<ui.Image> _drawCanvasImageSprites(AppData appData) async {
-    final recorder = ui.PictureRecorder();
-    final imgCanvas = Canvas(recorder);
-
-    final picture = recorder.endRecording();
-    final image = await picture.toImage(10, 10);
-    return image;
-  }
-
-  Future<ui.Image> _drawCanvasImageMedia(AppData appData) async {
-    final recorder = ui.PictureRecorder();
-    final imgCanvas = Canvas(recorder);
-
-    final picture = recorder.endRecording();
-    final image = await picture.toImage(10, 10);
-    return image;
-  }
-
-  Future<ui.Image> _drawCanvasImageEmpty(AppData appData) async {
-    final recorder = ui.PictureRecorder();
-    final picture = recorder.endRecording();
-    final image = await picture.toImage(10, 10);
-    return image;
   }
 
   @override
@@ -295,8 +170,6 @@ class _LayoutState extends State<Layout> {
               groupValue: appData.selectedSection,
               children: _buildSegmentedChildren(),
             ),
-            Spacer(),
-            SizedBox(width: 250, child: Container())
           ],
         ),
       ),
@@ -306,17 +179,47 @@ class _LayoutState extends State<Layout> {
             Row(
               children: [
                 Expanded(
-                  flex: 2,
-                  child: Container(
-                    color: CupertinoColors.systemGrey5,
-                    child: CustomPaint(
-                      painter: _layerImage != null
-                          ? CanvasPainter(_layerImage!)
-                          : null,
-                      child: Container(),
-                    ),
-                  ),
-                ),
+                    flex: 2,
+                    child: Container(
+                        color: CupertinoColors.systemGrey5,
+                        child: GestureDetector(
+                          onPanStart: (details) {
+                            appData.dragging = true;
+                            appData.dragStartDetails = details;
+                            if (appData.selectedSection == "tilemap") {
+                              LayoutUtils.dragTileIndexFromTileset(
+                                  appData, details.localPosition);
+                            }
+                          },
+                          onPanUpdate: (details) {
+                            if (appData.selectedSection == "tilemap" &&
+                                appData.draggingTileIndex != -1) {
+                              appData.draggingOffset += details.delta;
+                            }
+                          },
+                          onPanEnd: (details) {
+                            if (appData.selectedSection == "tilemap" &&
+                                appData.draggingTileIndex != -1) {
+                              LayoutUtils.dropTileIndexFromTileset(
+                                  appData, details.localPosition);
+                            }
+
+                            appData.dragging = false;
+                            appData.draggingTileIndex = -1;
+                          },
+                          onTapUp: (TapUpDetails details) {
+                            if (appData.selectedSection == "tilemap") {
+                              LayoutUtils.removeTileIndexFromTileset(
+                                  appData, details.localPosition);
+                            }
+                          },
+                          child: CustomPaint(
+                            painter: _layerImage != null
+                                ? CanvasPainter(_layerImage!, appData)
+                                : null,
+                            child: Container(),
+                          ),
+                        ))),
                 ConstrainedBox(
                   constraints:
                       const BoxConstraints(maxWidth: 350, minWidth: 350),

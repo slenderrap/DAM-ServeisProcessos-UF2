@@ -7,7 +7,7 @@ class LayoutTilemaps extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Center(
       child: Text(
-        'Layout items',
+        'Tilemap',
         style: TextStyle(fontSize: 16.0),
       ),
     );
