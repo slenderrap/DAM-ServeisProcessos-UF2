@@ -123,22 +123,22 @@ class AppData extends ChangeNotifier {
     }
   }
 
-  Future<void> loadImageIntoCache(String imageFileName) async {
-    if (imagesCache.containsKey(imageFileName)) {
-      return;
+  Future<ui.Image> getImage(String imageFileName) async {
+    if (!imagesCache.containsKey(imageFileName)) {
+      final File file = File("$filePath/$imageFileName");
+      if (!await file.exists()) {
+        throw Exception("El fitxer no existeix: $imageFileName");
+      }
+
+      final Uint8List bytes = await file.readAsBytes();
+      final Completer<ui.Image> completer = Completer();
+      ui.decodeImageFromList(bytes, (ui.Image img) {
+        imagesCache[imageFileName] = img;
+        completer.complete(img);
+      });
     }
 
-    final File file = File("$filePath/$imageFileName");
-    if (!await file.exists()) {
-      throw Exception("El fitxer no existeix: $imageFileName");
-    }
-
-    final Uint8List bytes = await file.readAsBytes();
-    final Completer<ui.Image> completer = Completer();
-    ui.decodeImageFromList(bytes, (ui.Image img) {
-      imagesCache[imageFileName] = img;
-      completer.complete(img);
-    });
+    return imagesCache[imageFileName]!;
   }
 
 /*

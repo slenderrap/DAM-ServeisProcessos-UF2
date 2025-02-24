@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/cupertino.dart';
@@ -183,15 +181,15 @@ class _LayoutState extends State<Layout> {
                     child: Container(
                         color: CupertinoColors.systemGrey5,
                         child: GestureDetector(
-                          onPanStart: (details) {
+                          onPanStart: (details) async {
                             appData.dragging = true;
                             appData.dragStartDetails = details;
                             if (appData.selectedSection == "tilemap") {
-                              LayoutUtils.dragTileIndexFromTileset(
+                              await LayoutUtils.dragTileIndexFromTileset(
                                   appData, details.localPosition);
                             }
                           },
-                          onPanUpdate: (details) {
+                          onPanUpdate: (details) async {
                             if (appData.selectedSection == "tilemap" &&
                                 appData.draggingTileIndex != -1) {
                               appData.draggingOffset += details.delta;

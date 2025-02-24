@@ -21,14 +21,7 @@ class LayoutUtils {
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
 
-    // Verifica si la imatge del tileset està a la caché
-    if (!appData.imagesCache.containsKey(layer.tilesSheetFile)) {
-      while (!appData.imagesCache.containsKey(layer.tilesSheetFile)) {
-        await Future.delayed(Duration(milliseconds: 10));
-      }
-    }
-
-    final ui.Image tilesetImage = appData.imagesCache[layer.tilesSheetFile]!;
+    final ui.Image tilesetImage = await appData.getImage(layer.tilesSheetFile);
 
     // Obtenir el nombre de columnes al tileset
     int tilesetColumns = (tilesetImage.width / tileWidth).floor();
@@ -83,12 +76,7 @@ class LayoutUtils {
 
   static Future<ui.Image> generateTilesetWithGrid(AppData appData,
       String tilesetPath, double tileWidth, double tileHeight) async {
-    while (!appData.imagesCache.containsKey(tilesetPath)) {
-      await Future.delayed(
-          Duration(milliseconds: 10)); // Esperar un petit temps
-    }
-
-    final tilesheetImage = appData.imagesCache[tilesetPath]!;
+    final tilesheetImage = await appData.getImage(tilesetPath);
 
     double imageWidth = tilesheetImage.width.toDouble();
     double imageHeight = tilesheetImage.height.toDouble();
@@ -195,7 +183,7 @@ class LayoutUtils {
     final level = appData.gameData.levels[appData.selectedLevel];
     final layer = level.layers[appData.selectedLayer];
 
-    await appData.loadImageIntoCache(layer.tilesSheetFile);
+    await appData.getImage(layer.tilesSheetFile);
 
     final recorder = ui.PictureRecorder();
     final imgCanvas = Canvas(recorder);
@@ -283,9 +271,9 @@ class LayoutUtils {
     );
   }
 
-  static int tileIndexFromTilesetCoords(
-      Offset coords, AppData appData, GameLayer layer) {
-    final tilesheetImage = appData.imagesCache[layer.tilesSheetFile]!;
+  static Future<int> tileIndexFromTilesetCoords(
+      Offset coords, AppData appData, GameLayer layer) async {
+    final tilesheetImage = await appData.getImage(layer.tilesSheetFile);
 
     double imageWidth = tilesheetImage.width.toDouble();
     double imageHeight = tilesheetImage.height.toDouble();
@@ -308,7 +296,8 @@ class LayoutUtils {
     return row * tilesetColumns + col;
   }
 
-  static void dragTileIndexFromTileset(AppData appData, Offset localPosition) {
+  static Future<void> dragTileIndexFromTileset(
+      AppData appData, Offset localPosition) async {
     if (appData.selectedLevel == -1 || appData.selectedLayer == -1) {
       return;
     }
@@ -329,7 +318,7 @@ class LayoutUtils {
         imageCoords, appData.tilesetOffset, appData.tilesetScaleFactor);
 
     appData.draggingTileIndex =
-        tileIndexFromTilesetCoords(tilesetCoords, appData, layer);
+        await tileIndexFromTilesetCoords(tilesetCoords, appData, layer);
     appData.draggingOffset = localPosition;
   }
 
