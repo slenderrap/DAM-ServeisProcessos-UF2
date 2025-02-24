@@ -1,10 +1,7 @@
-import 'package:exemple0700/layout_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'app_data.dart';
-import 'game_zone.dart';
-import 'titled_text_filed.dart';
 
 class LayoutTilemaps extends StatefulWidget {
   const LayoutTilemaps({super.key});
