@@ -142,16 +142,14 @@ class LayoutUtils {
     int imageWidth = 10;
     int imageHeight = 10;
 
+    // Draw level layers
     for (var layer in level.layers) {
-      // Generar la imatge del tilemap per a aquesta capa
       final tilemapImage = await generateTilemapImage(
           appData, appData.selectedLevel, level.layers.indexOf(layer), true);
 
-      // Posicionar la imatge de la capa a la seva coordenada (x, y)
       imgCanvas.drawImage(tilemapImage,
           Offset(layer.x.toDouble(), layer.y.toDouble()), Paint());
 
-      // Actualitzar la mida total de la imatge
       imageWidth = imageWidth > (layer.x + tilemapImage.width)
           ? imageWidth
           : (layer.x + tilemapImage.width);
@@ -160,6 +158,7 @@ class LayoutUtils {
           : (layer.y + tilemapImage.height);
     }
 
+    // Draw level zones
     for (int cntZone = 0; cntZone < level.zones.length; cntZone = cntZone + 1) {
       final zone = level.zones[cntZone];
       imgCanvas.drawRect(
@@ -195,7 +194,7 @@ class LayoutUtils {
       }
     }
 
-    // Draw selected layer border
+    // Draw selected layer border (if in "layers")
     if (appData.selectedLayer != -1 && appData.selectedSection == "layers") {
       final layer = level.layers[appData.selectedLayer];
       final paintSelected = Paint()
