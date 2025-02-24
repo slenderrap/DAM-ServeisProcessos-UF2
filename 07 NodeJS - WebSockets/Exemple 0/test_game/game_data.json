@@ -141,9 +141,9 @@
         },
         {
           "type": "water 1",
-          "x": 128,
+          "x": 124,
           "y": 160,
-          "width": 112,
+          "width": 116,
           "height": 16,
           "color": "blue"
         }
