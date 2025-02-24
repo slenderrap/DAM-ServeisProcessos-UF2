@@ -200,15 +200,15 @@ class LayoutUtils {
       final layer = level.layers[appData.selectedLayer];
       final paintSelected = Paint()
         ..color = Colors.blue
-        ..strokeWidth = 2
+        ..strokeWidth = 4
         ..style = PaintingStyle.stroke;
 
       imgCanvas.drawRect(
         Rect.fromLTWH(
-            layer.x + 1,
-            layer.y + 1,
-            layer.tileMap[0].length * layer.tilesWidth - 2,
-            layer.tileMap.length * layer.tilesHeight - 2),
+            layer.x + 2,
+            layer.y + 2,
+            layer.tileMap[0].length * layer.tilesWidth - 4,
+            layer.tileMap.length * layer.tilesHeight - 4),
         paintSelected,
       );
     }

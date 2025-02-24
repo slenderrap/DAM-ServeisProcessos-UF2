@@ -278,6 +278,13 @@ class LayoutZonesState extends State<LayoutZones> {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: _buildColorsChildren()),
+        ),
+        const SizedBox(height: 8),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: TitledTextfield(
             title: 'Zone type',
             controller: typeController,
@@ -330,13 +337,6 @@ class LayoutZonesState extends State<LayoutZones> {
                 ),
               ],
             )),
-        const SizedBox(height: 8),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: _buildColorsChildren()),
-        ),
         const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
