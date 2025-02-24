@@ -127,7 +127,7 @@ class AppData extends ChangeNotifier {
     if (!imagesCache.containsKey(imageFileName)) {
       final File file = File("$filePath/$imageFileName");
       if (!await file.exists()) {
-        throw Exception("El fitxer no existeix: $imageFileName");
+        throw Exception("File does not exist: $imageFileName");
       }
 
       final Uint8List bytes = await file.readAsBytes();
