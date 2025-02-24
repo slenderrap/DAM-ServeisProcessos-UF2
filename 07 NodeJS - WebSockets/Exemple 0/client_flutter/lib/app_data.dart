@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'game_data.dart';
 
 class AppData extends ChangeNotifier {
+  int frame = 0;
   final gameFileName = "game_data.json";
 
   GameData gameData = GameData(name: "", levels: []);

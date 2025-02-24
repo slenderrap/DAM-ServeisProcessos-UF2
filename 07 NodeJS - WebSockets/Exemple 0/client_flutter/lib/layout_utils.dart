@@ -161,54 +161,64 @@ class LayoutUtils {
     // Draw level zones
     for (int cntZone = 0; cntZone < level.zones.length; cntZone = cntZone + 1) {
       final zone = level.zones[cntZone];
-      imgCanvas.drawRect(
-          Rect.fromLTWH(zone.x.toDouble(), zone.y.toDouble(),
-              zone.width.toDouble(), zone.height.toDouble()),
+      final zoneX = zone.x.toDouble();
+      final zoneY = zone.y.toDouble();
+      final zoneWidth = zone.width.toDouble();
+      final zoneHeight = zone.height.toDouble();
+      imgCanvas.drawRect(Rect.fromLTWH(zoneX, zoneY, zoneWidth, zoneHeight),
           Paint()..color = getColorFromName(zone.color).withAlpha(100));
       if (appData.selectedSection == "zones" &&
           cntZone == appData.selectedZone) {
-        imgCanvas.drawRect(
-          Rect.fromLTWH(
-            zone.x.toDouble(),
-            zone.y.toDouble(),
-            zone.width.toDouble(),
-            zone.height.toDouble(),
-          ),
-          Paint()
-            ..color = getColorFromName(zone.color)
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 2,
+        drawSelectedRect(
+          imgCanvas,
+          Rect.fromLTWH(zoneX, zoneY, zoneWidth, zoneHeight),
+          getColorFromName(zone.color),
         );
-        imgCanvas.drawRect(
-          Rect.fromLTWH(
-            zone.x.toDouble(),
-            zone.y.toDouble(),
-            zone.width.toDouble(),
-            zone.height.toDouble(),
-          ),
-          Paint()
-            ..color = Colors.white
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 0.5,
-        );
+      }
+    }
+
+    // Draw sprites
+    for (int cntSprite = 0;
+        cntSprite < level.sprites.length;
+        cntSprite = cntSprite + 1) {
+      final sprite = level.sprites[cntSprite];
+      final spriteImage = await appData.getImage(sprite.imageFile);
+      double spriteX = sprite.x.toDouble();
+      final spriteY = sprite.y.toDouble();
+      final spriteWidth = sprite.spriteWidth.toDouble();
+      final spriteHeight = sprite.spriteHeight.toDouble();
+
+      double frames = spriteImage.width / spriteWidth;
+      final spriteFrameX = ((appData.frame % frames) * spriteWidth);
+
+      imgCanvas.drawImageRect(
+        spriteImage,
+        Rect.fromLTWH(spriteFrameX, 0, spriteWidth, spriteHeight),
+        Rect.fromLTWH(spriteX, spriteY, spriteWidth, spriteHeight),
+        Paint(),
+      );
+      if (appData.selectedSection == "sprites" &&
+          cntSprite == appData.selectedSprite) {
+        drawSelectedRect(
+            imgCanvas,
+            Rect.fromLTWH(spriteX, spriteY, spriteWidth, spriteHeight),
+            Colors.blue);
       }
     }
 
     // Draw selected layer border (if in "layers")
     if (appData.selectedLayer != -1 && appData.selectedSection == "layers") {
       final layer = level.layers[appData.selectedLayer];
-      final paintSelected = Paint()
-        ..color = Colors.blue
-        ..strokeWidth = 4
-        ..style = PaintingStyle.stroke;
-
-      imgCanvas.drawRect(
-        Rect.fromLTWH(
-            layer.x + 2,
-            layer.y + 2,
-            layer.tileMap[0].length * layer.tilesWidth - 4,
-            layer.tileMap.length * layer.tilesHeight - 4),
-        paintSelected,
+      final selectedX = (layer.x + 1).toDouble();
+      final selectedY = (layer.y + 1).toDouble();
+      final selectedWidth =
+          (layer.tileMap[0].length * layer.tilesWidth - 2).toDouble();
+      final selectedHeight =
+          (layer.tileMap.length * layer.tilesHeight - 2).toDouble();
+      drawSelectedRect(
+        imgCanvas,
+        Rect.fromLTWH(selectedX, selectedY, selectedWidth, selectedHeight),
+        Colors.blue,
       );
     }
 
@@ -449,5 +459,15 @@ class LayoutUtils {
       default:
         return Colors.black;
     }
+  }
+
+  static drawSelectedRect(Canvas cnv, Rect rect, Color color) {
+    cnv.drawRect(
+      rect,
+      Paint()
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2,
+    );
   }
 }

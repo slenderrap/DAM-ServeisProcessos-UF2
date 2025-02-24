@@ -151,8 +151,8 @@
       "sprites": [
         {
           "type": "pirate_walk",
-          "x": 50,
-          "y": 50,
+          "x": 48,
+          "y": 48,
           "width": 32,
           "height": 32,
           "imageFile": "pirate_walk.png"

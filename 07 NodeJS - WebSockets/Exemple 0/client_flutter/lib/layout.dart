@@ -25,6 +25,7 @@ class Layout extends StatefulWidget {
 }
 
 class _LayoutState extends State<Layout> {
+  Timer? _timer;
   ui.Image? _layerImage;
   List<String> sections = [
     'game',
@@ -43,6 +44,19 @@ class _LayoutState extends State<Layout> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final appData = Provider.of<AppData>(context, listen: false);
       appData.selectedSection = 'game';
+    });
+
+    _startFrameTimer();
+  }
+
+  void _startFrameTimer() {
+    _timer = Timer.periodic(Duration(milliseconds: 100), (timer) {
+      final appData = Provider.of<AppData>(context, listen: false);
+      appData.frame++;
+      if (appData.frame > 4096) {
+        appData.frame = 0;
+      }
+      appData.update();
     });
   }
 
