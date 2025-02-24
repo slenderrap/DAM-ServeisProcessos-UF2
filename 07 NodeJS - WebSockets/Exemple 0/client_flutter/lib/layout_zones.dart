@@ -17,7 +17,19 @@ class LayoutZonesState extends State<LayoutZones> {
   late TextEditingController yController;
   late TextEditingController widthController;
   late TextEditingController heightController;
+  late String color = "blue";
   final ScrollController scrollController = ScrollController();
+
+  List<String> colors = [
+    'blue',
+    'green',
+    'yellow',
+    'orange',
+    'red',
+    'purple',
+    'grey',
+    'black'
+  ];
 
   @override
   void initState() {
@@ -52,24 +64,26 @@ class LayoutZonesState extends State<LayoutZones> {
       yController.text = zone.y.toString();
       widthController.text = zone.width.toString();
       heightController.text = zone.height.toString();
+      color = zone.color;
     } else {
       typeController.clear();
       xController.clear();
       yController.clear();
       widthController.clear();
       heightController.clear();
+      color = "blue";
     }
   }
 
   void _addZone(AppData appData) {
     if (appData.selectedLevel == -1) return;
     final newZone = GameZone(
-      type: typeController.text,
-      x: int.tryParse(xController.text) ?? 0,
-      y: int.tryParse(yController.text) ?? 0,
-      width: int.tryParse(widthController.text) ?? 0,
-      height: int.tryParse(heightController.text) ?? 0,
-    );
+        type: typeController.text,
+        x: int.tryParse(xController.text) ?? 0,
+        y: int.tryParse(yController.text) ?? 0,
+        width: int.tryParse(widthController.text) ?? 0,
+        height: int.tryParse(heightController.text) ?? 0,
+        color: color);
     appData.gameData.levels[appData.selectedLevel].zones.add(newZone);
     appData.selectedZone = -1;
     _updateForm(appData);
@@ -79,13 +93,14 @@ class LayoutZonesState extends State<LayoutZones> {
   void _updateZone(AppData appData) {
     if (appData.selectedZone != -1 && appData.selectedLevel != -1) {
       appData.gameData.levels[appData.selectedLevel]
-          .zones[appData.selectedZone] = GameZone(
-        type: typeController.text,
-        x: int.tryParse(xController.text) ?? 0,
-        y: int.tryParse(yController.text) ?? 0,
-        width: int.tryParse(widthController.text) ?? 0,
-        height: int.tryParse(heightController.text) ?? 0,
-      );
+              .zones[appData.selectedZone] =
+          GameZone(
+              type: typeController.text,
+              x: int.tryParse(xController.text) ?? 0,
+              y: int.tryParse(yController.text) ?? 0,
+              width: int.tryParse(widthController.text) ?? 0,
+              height: int.tryParse(heightController.text) ?? 0,
+              color: color);
       appData.update();
     }
   }
@@ -121,6 +136,53 @@ class LayoutZonesState extends State<LayoutZones> {
       appData.selectedZone += 1;
     }
     appData.update();
+  }
+
+  List<Widget> _buildColorsChildren() {
+    return colors.map((colorName) {
+      return CupertinoButton(
+        padding: EdgeInsets.fromLTRB(4, 2, 4, 2),
+        minSize: 0,
+        onPressed: () {
+          setState(() {
+            color = colorName;
+          });
+        },
+        child: Container(
+          width: 20,
+          height: 20,
+          decoration: BoxDecoration(
+            border: Border.all(color: _getColorFromName(colorName), width: 4),
+            color: color == colorName
+                ? _getColorFromName(colorName)
+                : Colors.white,
+            shape: BoxShape.circle,
+          ),
+        ),
+      );
+    }).toList();
+  }
+
+  Color _getColorFromName(String colorName) {
+    switch (colorName) {
+      case "blue":
+        return Colors.blue;
+      case "green":
+        return Colors.green;
+      case "yellow":
+        return Colors.yellow;
+      case "orange":
+        return Colors.orange;
+      case "red":
+        return Colors.red;
+
+      case "purple":
+        return Colors.purple;
+      case "grey":
+        return Colors.grey;
+      default:
+        return Colors.black;
+    }
   }
 
   @override
@@ -235,50 +297,56 @@ class LayoutZonesState extends State<LayoutZones> {
         ),
         const SizedBox(height: 8),
         Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TitledTextfield(
+                    title: 'X (px)',
+                    controller: xController,
+                    placeholder: '0',
+                    keyboardType: TextInputType.number,
+                    onChanged: (_) => setState(() {}),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TitledTextfield(
+                    title: 'Y (px)',
+                    controller: yController,
+                    placeholder: '0',
+                    keyboardType: TextInputType.number,
+                    onChanged: (_) => setState(() {}),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TitledTextfield(
+                    title: 'Width (px)',
+                    controller: widthController,
+                    placeholder: '0',
+                    keyboardType: TextInputType.number,
+                    onChanged: (_) => setState(() {}),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TitledTextfield(
+                    title: 'Height (px)',
+                    controller: heightController,
+                    placeholder: '0',
+                    keyboardType: TextInputType.number,
+                    onChanged: (_) => setState(() {}),
+                  ),
+                ),
+              ],
+            )),
+        const SizedBox(height: 8),
+        Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Row(
-            children: [
-              Expanded(
-                child: TitledTextfield(
-                  title: 'X (px)',
-                  controller: xController,
-                  placeholder: '0',
-                  keyboardType: TextInputType.number,
-                  onChanged: (_) => setState(() {}),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: TitledTextfield(
-                  title: 'Y (px)',
-                  controller: yController,
-                  placeholder: '0',
-                  keyboardType: TextInputType.number,
-                  onChanged: (_) => setState(() {}),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: TitledTextfield(
-                  title: 'Width (px)',
-                  controller: widthController,
-                  placeholder: '0',
-                  keyboardType: TextInputType.number,
-                  onChanged: (_) => setState(() {}),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: TitledTextfield(
-                  title: 'Height (px)',
-                  controller: heightController,
-                  placeholder: '0',
-                  keyboardType: TextInputType.number,
-                  onChanged: (_) => setState(() {}),
-                ),
-              ),
-            ],
-          ),
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: _buildColorsChildren()),
         ),
         const SizedBox(height: 16),
         Row(
