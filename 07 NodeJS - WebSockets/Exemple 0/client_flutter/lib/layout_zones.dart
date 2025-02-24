@@ -212,8 +212,9 @@ class LayoutZonesState extends State<LayoutZones> {
                           _onReorder(appData, oldIndex, newIndex),
                       itemBuilder: (context, index) {
                         final isSelected = (index == appData.selectedZone);
+                        final zone = zones[index];
                         return GestureDetector(
-                          key: ValueKey(zones[index]),
+                          key: ValueKey(zone),
                           onTap: () => _selectZone(appData, index, isSelected),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
@@ -223,27 +224,35 @@ class LayoutZonesState extends State<LayoutZones> {
                                 : CupertinoColors.systemBackground,
                             child: Row(
                               children: [
+                                Container(
+                                    width: 15,
+                                    height: 15,
+                                    decoration: BoxDecoration(
+                                      color: LayoutUtils.getColorFromName(
+                                          zone.color),
+                                      shape: BoxShape.circle,
+                                    )),
+                                const SizedBox(width: 10),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(zones[index].type,
+                                      Text(zone.type,
                                           style: TextStyle(
                                               fontSize: 14.0,
                                               fontWeight: isSelected
                                                   ? FontWeight.bold
                                                   : FontWeight.normal)),
                                       const SizedBox(height: 2),
-                                      Text(
-                                          'x: ${zones[index].x}, y: ${zones[index].y}',
+                                      Text('x: ${zone.x}, y: ${zone.y}',
                                           style: const TextStyle(
                                               fontSize: 12.0,
                                               color:
                                                   CupertinoColors.systemGrey)),
                                       const SizedBox(height: 2),
                                       Text(
-                                          'width: ${zones[index].width}, height: ${zones[index].height}',
+                                          'width: ${zone.width}, height: ${zone.height}',
                                           style: const TextStyle(
                                               fontSize: 12.0,
                                               color:

@@ -166,7 +166,8 @@ class LayoutUtils {
           Rect.fromLTWH(zone.x.toDouble(), zone.y.toDouble(),
               zone.width.toDouble(), zone.height.toDouble()),
           Paint()..color = getColorFromName(zone.color).withAlpha(100));
-      if (cntZone == appData.selectedZone) {
+      if (appData.selectedSection == "zones" &&
+          cntZone == appData.selectedZone) {
         imgCanvas.drawRect(
           Rect.fromLTWH(
             zone.x.toDouble(),
