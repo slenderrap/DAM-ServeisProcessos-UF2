@@ -131,14 +131,16 @@ class AppData extends ChangeNotifier {
       }
 
       final Uint8List bytes = await file.readAsBytes();
-      final Completer<ui.Image> completer = Completer();
-      ui.decodeImageFromList(bytes, (ui.Image img) {
-        imagesCache[imageFileName] = img;
-        completer.complete(img);
-      });
+      imagesCache[imageFileName] = await decodeImage(bytes);
     }
 
     return imagesCache[imageFileName]!;
+  }
+
+  Future<ui.Image> decodeImage(Uint8List bytes) {
+    final Completer<ui.Image> completer = Completer();
+    ui.decodeImageFromList(bytes, (ui.Image img) => completer.complete(img));
+    return completer.future;
   }
 
 /*
