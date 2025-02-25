@@ -25,6 +25,7 @@ class Layout extends StatefulWidget {
 }
 
 class _LayoutState extends State<Layout> {
+  // ignore: unused_field
   Timer? _timer;
   ui.Image? _layerImage;
   List<String> sections = [
