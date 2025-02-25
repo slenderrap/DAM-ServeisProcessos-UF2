@@ -1,6 +1,6 @@
 'use strict';
 
-const COLORS = ['gray', 'green', 'blue', 'orange', 'red', 'purple', 'black'];
+const COLORS = ['green', 'blue', 'orange', 'red', 'purple'];
 const OBJECT_WIDTH = 0.05;
 const OBJECT_HEIGHT = 0.01;
 const SPEED = 0.2;
