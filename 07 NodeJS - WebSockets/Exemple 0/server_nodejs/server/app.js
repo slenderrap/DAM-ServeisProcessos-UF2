@@ -51,7 +51,7 @@ ws.onMessage = (socket, id, msg) => {
 ws.onClose = (socket, id) => {
     if (debug) console.log("WebSocket client disconnected: " + id);
     game.removeClient(id);
-    ws.broadcast(JSON.stringify({ type: "disconnected", from: "server", id: id }));
+    ws.broadcast(JSON.stringify({ type: "disconnected", from: "server" }));
 };
 
 // **Game Loop**

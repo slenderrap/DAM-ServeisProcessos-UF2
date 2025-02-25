@@ -30,6 +30,8 @@ class AppData extends ChangeNotifier {
     }
   }
 
+  String get socketId => _wsHandler.socketId!;
+
   AppData() {
     _connectToWebSocket();
   }
@@ -67,13 +69,13 @@ class AppData extends ChangeNotifier {
 
         // Buscar el nostre client i assignar el color
         String? clientId = _wsHandler.socketId;
-        if (clientId != null && gameState["clients"] != null) {
-          var clientData = gameState["clients"].firstWhere(
+        if (clientId != null && gameState["clients"] is List) {
+          var clientData = (gameState["clients"] as List).firstWhere(
             (client) => client["id"] == clientId,
-            orElse: () => null,
+            orElse: () => {},
           );
 
-          if (clientData != null) {
+          if (clientData.isNotEmpty) {
             color = clientData["color"] ?? "black";
           }
         }

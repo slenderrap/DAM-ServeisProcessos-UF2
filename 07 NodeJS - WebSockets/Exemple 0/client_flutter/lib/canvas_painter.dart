@@ -46,10 +46,12 @@ class CanvasPainter extends CustomPainter {
 
     // 🔹 Dibuixar text d'ajuda a la cantonada inferior esquerra amb ParagraphBuilder
     final paragraphStyle = ui.ParagraphStyle(textDirection: TextDirection.ltr);
-    final textStyle = ui.TextStyle(color: Colors.black, fontSize: 14);
+    final textStyle =
+        ui.TextStyle(color: _getColorFromString(appData.color), fontSize: 14);
     final paragraphBuilder = ui.ParagraphBuilder(paragraphStyle)
       ..pushStyle(textStyle)
-      ..addText("Press Up, Down, Left or Right keys to move");
+      ..addText(
+          "Press Up, Down, Left or Right keys to move (id: ${appData.socketId})");
 
     final paragraph = paragraphBuilder.build();
     paragraph.layout(ui.ParagraphConstraints(width: size.width));

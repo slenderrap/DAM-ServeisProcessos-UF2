@@ -59,7 +59,10 @@ class WebSocketsHandler {
     try {
       final data = jsonDecode(message);
 
-      if (data is Map<String, dynamic> && data.containsKey("id")) {
+      if (data is Map<String, dynamic> &&
+          data.containsKey("type") &&
+          data["type"] == "welcome" &&
+          data.containsKey("id")) {
         socketId = data["id"];
         if (kDebugMode) {
           print("Client ID assignat pel servidor: $socketId");
