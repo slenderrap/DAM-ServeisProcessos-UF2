@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'app_data.dart';
 
@@ -6,6 +8,7 @@ class CanvasPainter extends CustomPainter {
 
   CanvasPainter(this.appData);
 
+  @override
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint();
@@ -41,12 +44,22 @@ class CanvasPainter extends CustomPainter {
       }
     }
 
+    // 🔹 Dibuixar text d'ajuda a la cantonada inferior esquerra amb ParagraphBuilder
+    final paragraphStyle = ui.ParagraphStyle(textDirection: TextDirection.ltr);
+    final textStyle = ui.TextStyle(color: Colors.black, fontSize: 14);
+    final paragraphBuilder = ui.ParagraphBuilder(paragraphStyle)
+      ..pushStyle(textStyle)
+      ..addText("Press Up, Down, Left or Right keys to move");
+
+    final paragraph = paragraphBuilder.build();
+    paragraph.layout(ui.ParagraphConstraints(width: size.width));
+
+    // Posició a baix a l'esquerra
+    final offset = Offset(10, size.height - paragraph.height - 5);
+    canvas.drawParagraph(paragraph, offset);
+
     // Dibuixar cercle de connexió
-    if (appData.isConnected) {
-      paint.color = Colors.green;
-    } else {
-      paint.color = Colors.red;
-    }
+    paint.color = appData.isConnected ? Colors.green : Colors.red;
     canvas.drawCircle(Offset(size.width - 10, 10), 5, paint);
   }
 
