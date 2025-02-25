@@ -144,6 +144,9 @@ class LayoutUtils {
 
     // Draw level layers
     for (var layer in level.layers) {
+      if (layer.visible == false) {
+        continue;
+      }
       final tilemapImage = await generateTilemapImage(
           appData, appData.selectedLevel, level.layers.indexOf(layer), true);
 

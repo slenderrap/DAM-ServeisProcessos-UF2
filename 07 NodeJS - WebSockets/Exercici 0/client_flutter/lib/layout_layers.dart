@@ -55,6 +55,8 @@ class LayoutLayersState extends State<LayoutLayers> {
     super.dispose();
   }
 
+  bool isVisible = true; // Estat local per al switch
+
   void _updateForm(AppData appData) {
     if (appData.selectedLevel != -1 && appData.selectedLayer != -1) {
       final selectedLayer = appData
@@ -68,6 +70,7 @@ class LayoutLayersState extends State<LayoutLayers> {
       tileHeightController.text = selectedLayer.tilesHeight.toString();
       tilemapWidthController.text = selectedLayer.tileMap[0].length.toString();
       tilemapHeightController.text = selectedLayer.tileMap.length.toString();
+      isVisible = selectedLayer.visible;
     } else {
       nameController.clear();
       xController.clear();
@@ -78,12 +81,8 @@ class LayoutLayersState extends State<LayoutLayers> {
       tileHeightController.clear();
       tilemapWidthController.clear();
       tilemapHeightController.clear();
+      isVisible = true;
     }
-  }
-
-  Future<void> _pickTilesSheet(AppData appData) async {
-    tilesSheetFile = await appData.pickImageFile();
-    appData.update();
   }
 
   void _addLayer(AppData appData) {
@@ -93,16 +92,16 @@ class LayoutLayersState extends State<LayoutLayers> {
     int tileMapHeight = int.tryParse(tilemapHeightController.text) ?? 32;
 
     final newLayer = GameLayer(
-      name: nameController.text,
-      x: int.tryParse(xController.text) ?? 0,
-      y: int.tryParse(yController.text) ?? 0,
-      depth: int.tryParse(depthController.text) ?? 0,
-      tilesSheetFile: tilesSheetFile,
-      tilesWidth: int.tryParse(tileWidthController.text) ?? 32,
-      tilesHeight: int.tryParse(tileHeightController.text) ?? 32,
-      tileMap:
-          List.generate(tileMapHeight, (_) => List.filled(tileMapWidth, -1)),
-    );
+        name: nameController.text,
+        x: int.tryParse(xController.text) ?? 0,
+        y: int.tryParse(yController.text) ?? 0,
+        depth: int.tryParse(depthController.text) ?? 0,
+        tilesSheetFile: tilesSheetFile,
+        tilesWidth: int.tryParse(tileWidthController.text) ?? 32,
+        tilesHeight: int.tryParse(tileHeightController.text) ?? 32,
+        tileMap:
+            List.generate(tileMapHeight, (_) => List.filled(tileMapWidth, -1)),
+        visible: isVisible);
 
     appData.gameData.levels[appData.selectedLevel].layers.add(newLayer);
     appData.selectedLayer = -1;
@@ -116,11 +115,9 @@ class LayoutLayersState extends State<LayoutLayers> {
       final layers = appData.gameData.levels[appData.selectedLevel].layers;
       final GameLayer oldLayer = layers[appData.selectedLayer];
 
-      // Obtenir les noves dimensions
       int newWidth = int.tryParse(tilemapWidthController.text) ?? 32;
       int newHeight = int.tryParse(tilemapHeightController.text) ?? 16;
 
-      // Mantenir les dades antigues i ajustar la mida
       List<List<int>> newTileMap = List.generate(newHeight, (y) {
         return List.generate(newWidth, (x) {
           if (y < oldLayer.tileMap.length && x < oldLayer.tileMap[0].length) {
@@ -130,17 +127,16 @@ class LayoutLayersState extends State<LayoutLayers> {
         });
       });
 
-      // Crear el nou GameLayer amb la mida ajustada
       layers[appData.selectedLayer] = GameLayer(
-        name: nameController.text,
-        x: int.tryParse(xController.text) ?? 0,
-        y: int.tryParse(yController.text) ?? 0,
-        depth: int.tryParse(depthController.text) ?? 0,
-        tilesSheetFile: tilesSheetFile,
-        tilesWidth: int.tryParse(tileWidthController.text) ?? 0,
-        tilesHeight: int.tryParse(tileHeightController.text) ?? 0,
-        tileMap: newTileMap,
-      );
+          name: nameController.text,
+          x: int.tryParse(xController.text) ?? 0,
+          y: int.tryParse(yController.text) ?? 0,
+          depth: int.tryParse(depthController.text) ?? 0,
+          tilesSheetFile: tilesSheetFile,
+          tilesWidth: int.tryParse(tileWidthController.text) ?? 0,
+          tilesHeight: int.tryParse(tileHeightController.text) ?? 0,
+          tileMap: newTileMap,
+          visible: isVisible);
 
       appData.update();
     }
@@ -190,6 +186,11 @@ class LayoutLayersState extends State<LayoutLayers> {
           "Updated layer order: ${appData.gameData.levels[appData.selectedLevel].layers.map((layer) => layer.name).join(', ')}");
       print("Selected layer remains at index: ${appData.selectedLayer}");
     }
+  }
+
+  Future<void> _pickTilesSheet(AppData appData) async {
+    tilesSheetFile = await appData.pickImageFile();
+    appData.update();
   }
 
   @override
@@ -310,13 +311,32 @@ class LayoutLayersState extends State<LayoutLayers> {
             )),
         const SizedBox(height: 8),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: TitledTextfield(
-            title: "Layer name",
-            controller: nameController,
-            onChanged: (_) => setState(() {}),
-          ),
-        ),
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Row(children: [
+              Expanded(
+                  child: TitledTextfield(
+                title: "Layer name",
+                controller: nameController,
+                onChanged: (_) => setState(() {}),
+              )),
+              const SizedBox(width: 8),
+              Column(children: [
+                Text(
+                  'Visible',
+                  style: const TextStyle(fontSize: 14.0),
+                ),
+                Transform.scale(
+                    scale: 0.65,
+                    child: CupertinoSwitch(
+                      value: isVisible,
+                      onChanged: (bool value) {
+                        setState(() {
+                          isVisible = value;
+                        });
+                      },
+                    ))
+              ]),
+            ])),
         const SizedBox(height: 8),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
