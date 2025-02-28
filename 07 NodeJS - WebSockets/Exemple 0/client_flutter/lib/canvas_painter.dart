@@ -14,8 +14,10 @@ class CanvasPainter extends CustomPainter {
     canvas.drawRect(
         Rect.fromLTWH(0, 0, painterSize.width, painterSize.height), paint);
 
+    // Dibuixar l'estat del joc
     var gameState = appData.gameState;
     if (gameState.isNotEmpty) {
+      // Dibuixar els objectes (quadres negres)
       if (gameState["objects"] != null) {
         for (var obj in gameState["objects"]) {
           paint.color = Colors.black;
@@ -29,6 +31,7 @@ class CanvasPainter extends CustomPainter {
         }
       }
 
+      // Dibuixar els jugadors (cercles de colors)
       if (gameState["players"] != null) {
         for (var player in gameState["players"]) {
           paint.color = _getColorFromString(player["color"]);
@@ -59,6 +62,7 @@ class CanvasPainter extends CustomPainter {
         }
       }
 
+      // Escriure el text informatiu i l'identificador d'usuari
       String playerId = appData.playerData["id"];
       Color playerColor = _getColorFromString(appData.playerData["color"]);
       final paragraphStyle =
@@ -72,6 +76,7 @@ class CanvasPainter extends CustomPainter {
       canvas.drawParagraph(
           paragraph, Offset(10, painterSize.height - paragraph.height - 5));
 
+      // Mostrar el cercle de connexió (amunt a la dreta)
       paint.color = appData.isConnected ? Colors.green : Colors.red;
       canvas.drawCircle(Offset(painterSize.width - 10, 10), 5, paint);
     }
@@ -80,20 +85,24 @@ class CanvasPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 
+  // Passar coordenades del servidor a coordenades de l'aplicació
   Offset _serverToPainterCoords(Offset serverCoords, Size painterSize) {
     return Offset(serverCoords.dx * painterSize.width,
         serverCoords.dy * painterSize.height);
   }
 
+  // Passar mida del servidor a coordenades de l'aplicació
   Size _serverToPainterSize(Size serverSize, Size painterSize) {
     return Size(serverSize.width * painterSize.width,
         serverSize.height * painterSize.height);
   }
 
+  // Passar radi del servidor a radi de l'aplicació
   double _serverToPainterRadius(double serverRadius, Size painterSize) {
     return serverRadius * painterSize.width;
   }
 
+  // Agafar la part del dibuix que té la fletxa de direcció a dibuixar
   Offset _getArrowTile(String direction) {
     switch (direction) {
       case "left":
@@ -117,6 +126,7 @@ class CanvasPainter extends CustomPainter {
     }
   }
 
+  // Escollir un color en funció del seu nom
   static Color _getColorFromString(String color) {
     switch (color.toLowerCase()) {
       case "gray":
