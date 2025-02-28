@@ -58,7 +58,6 @@ class WebSocketsHandler {
   void _handleMessage(String message) {
     try {
       final data = jsonDecode(message);
-
       if (data is Map<String, dynamic> &&
           data.containsKey("type") &&
           data["type"] == "welcome" &&

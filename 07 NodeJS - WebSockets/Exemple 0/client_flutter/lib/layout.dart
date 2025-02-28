@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -18,11 +20,14 @@ class _LayoutState extends State<Layout> {
   @override
   void initState() {
     super.initState();
-    _startFrameTimer();
+    // Preload image assets into cache
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final appData = Provider.of<AppData>(context, listen: false);
+      await appData.getImage("images/arrows.png");
+    });
   }
 
-  void _startFrameTimer() {}
-
+  // Tractar què passa quan el jugador apreta una tecla
   void _onKeyEvent(KeyEvent event, AppData appData) {
     String key = event.logicalKey.keyLabel.toLowerCase();
 
@@ -38,7 +43,9 @@ class _LayoutState extends State<Layout> {
       _pressedKeys.remove(key);
     }
 
-    appData.direction = _getDirectionFromKeys();
+    // Enviar la direcció escollida pel jugador al servidor
+    var direction = _getDirectionFromKeys();
+    appData.sendMessage(jsonEncode({"type": "direction", "value": direction}));
   }
 
   String _getDirectionFromKeys() {

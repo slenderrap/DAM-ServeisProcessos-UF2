@@ -1,11 +1,11 @@
 'use strict';
 
 const COLORS = ['green', 'blue', 'orange', 'red', 'purple'];
-const OBJECT_WIDTH = 0.05;
-const OBJECT_HEIGHT = 0.01;
+const OBJECT_WIDTH = 0.075;
+const OBJECT_HEIGHT = 0.025;
 const SPEED = 0.2;
+const INITIAL_RADIUS = 0.05;
 
-// Map de direccions a vectors de moviment (dx, dy)
 const DIRECTIONS = {
     "up":         { dx: 0, dy: -1 },
     "upLeft":     { dx: -1, dy: -1 },
@@ -21,9 +21,9 @@ const DIRECTIONS = {
 class GameLogic {
     constructor() {
         this.objects = [];
-        this.clients = new Map();
+        this.players = new Map();
 
-        // Inicialitzar objectes mòbils amb velocitat inicial 0.1
+        // Rectangles que mou el servidor
         for (let i = 0; i < 10; i++) {
             this.objects.push({
                 x: Math.random() * (1 - OBJECT_WIDTH),
@@ -36,57 +36,51 @@ class GameLogic {
         }
     }
 
+    // Es connecta un client/jugador
     addClient(id) {
         let pos = this.getValidPosition();
         let color = this.getAvailableColor();
 
-        this.clients.set(id, {
+        this.players.set(id, {
             id,
             x: pos.x,
             y: pos.y,
-            speed: SPEED, // Velocitat inicial 0.1
+            speed: SPEED,
             direction: "none",
             color,
-            width: 0.05, // Mida inicial dels jugadors
-            height: 0.05
+            radius: INITIAL_RADIUS
         });
 
-        return this.clients.get(id);
+        return this.players.get(id);
     }
 
+    // Es desconnecta un client/jugador
     removeClient(id) {
-        this.clients.delete(id);
+        this.players.delete(id);
     }
 
+    // Tractar un missatge d'un client/jugador
     handleMessage(id, msg) {
         try {
-            let obj = JSON.parse(msg);
-            if (!obj.type) return;
-
-            const actions = {
-                "move": () => this.updateClientDirection(id, obj.direction)
-            };
-
-            if (actions[obj.type]) {
-                actions[obj.type]();
-            } else {
-                // console.log(`Missatge desconegut de ${id}: ${JSON.stringify(obj)}`);
-            }
-        } catch (error) {
-            // console.error(`Error processant missatge de ${id}:`, error);
-        }
+          let obj = JSON.parse(msg);
+          if (!obj.type) return;
+          switch (obj.type) {
+            case "direction":
+              if (this.players.has(id) && DIRECTIONS[obj.value]) {
+                this.players.get(id).direction = obj.value;
+              }
+              break;
+            default:
+              break;
+          }
+        } catch (error) {}
     }
 
-    updateClientDirection(id, direction) {
-        if (this.clients.has(id) && DIRECTIONS[direction]) {
-            this.clients.get(id).direction = direction;
-        }
-    }
-
+    // Blucle de joc (funció que s'executa contínuament)
     updateGame(fps) {
-        let deltaTime = 1 / fps; // Temps en segons entre frames
+        let deltaTime = 1 / fps;
 
-        // Moure objectes
+        // Actualitzar la posició dels objectes (rectangles negres)
         this.objects.forEach(obj => {
             obj.x += obj.speed * obj.direction * deltaTime;
             if (obj.x <= 0 || obj.x + obj.width >= 1) {
@@ -94,70 +88,78 @@ class GameLogic {
             }
         });
 
-        // Moure clients segons la direcció assignada
-        this.clients.forEach(client => {
+        // Actualitzar la posició dels clients
+        this.players.forEach(client => {
             let moveVector = DIRECTIONS[client.direction];
             client.x = Math.max(0, Math.min(1, client.x + client.speed * moveVector.dx * deltaTime));
             client.y = Math.max(0, Math.min(1, client.y + client.speed * moveVector.dy * deltaTime));
 
-            // Comprovar col·lisions amb objectes
+            // Detectar colisions
             this.objects = this.objects.filter(obj => {
-                if (this.isColliding(client.x, client.y, client.width, client.height, obj.x, obj.y, obj.width, obj.height)) {
-                    // Eliminar objecte i augmentar mida i velocitat del jugador
-                    client.width *= 1.1;  // Augmenta un 10%
-                    client.height *= 1.1;
-                    client.speed *= 1.05; // Augmenta un 5%
-                    return false; // Objecte eliminat
+                if (this.isCircleRectColliding(client.x, client.y, client.radius, obj.x, obj.y, obj.width, obj.height)) {
+                    client.radius *= 1.1;
+                    client.speed *= 1.05;
+                    return false;
                 }
-                return true; // Objecte es manté
+                return true;
             });
         });
     }
 
+    // Obtenir una posició on no hi h ha ni objectes ni jugadors
     getValidPosition() {
         let x, y;
         let isValid = false;
-        
         while (!isValid) {
             x = Math.random() * (1 - OBJECT_WIDTH);
             y = Math.random() * (1 - OBJECT_HEIGHT);
             isValid = true;
 
             this.objects.forEach(obj => {
-                if (this.isColliding(x, y, OBJECT_WIDTH, OBJECT_HEIGHT, obj.x, obj.y, obj.width, obj.height)) {
+                if (this.isCircleRectColliding(x, y, INITIAL_RADIUS, obj.x, obj.y, obj.width, obj.height)) {
                     isValid = false;
                 }
             });
 
-            this.clients.forEach(client => {
-                if (this.isColliding(x, y, OBJECT_WIDTH, OBJECT_HEIGHT, client.x, client.y, client.width, client.height)) {
+            this.players.forEach(client => {
+                if (this.isCircleCircleColliding(x, y, INITIAL_RADIUS, client.x, client.y, client.radius)) {
                     isValid = false;
                 }
             });
         }
-
         return { x, y };
     }
 
+    // Obtenir un color aleatori que no ha estat escollit abans
     getAvailableColor() {
-        let assignedColors = new Set(Array.from(this.clients.values()).map(client => client.color));
+        let assignedColors = new Set(Array.from(this.players.values()).map(client => client.color));
         let availableColors = COLORS.filter(color => !assignedColors.has(color));
-
-        if (availableColors.length > 0) {
-            return availableColors[Math.floor(Math.random() * availableColors.length)];
-        } else {
-            return COLORS[Math.floor(Math.random() * COLORS.length)]; // Si tots estan ocupats, escollir un aleatori
-        }
+        return availableColors.length > 0 
+          ? availableColors[Math.floor(Math.random() * availableColors.length)]
+          : COLORS[Math.floor(Math.random() * COLORS.length)];
     }
 
-    isColliding(x1, y1, w1, h1, x2, y2, w2, h2) {
-        return !(x1 + w1 < x2 || x1 > x2 + w2 || y1 + h1 < y2 || y1 > y2 + h2);
+    // Detectar si un cercle i un rectangle es sobreposen
+    isCircleRectColliding(cx, cy, r, rx, ry, rw, rh) {
+        let closestX = Math.max(rx, Math.min(cx, rx + rw));
+        let closestY = Math.max(ry, Math.min(cy, ry + rh));
+        let dx = cx - closestX;
+        let dy = cy - closestY;
+        return (dx * dx + dy * dy) <= (r * r);
     }
 
+    // Detectar si dos cercles es sobreposen
+    isCircleCircleColliding(x1, y1, r1, x2, y2, r2) {
+        let dx = x1 - x2;
+        let dy = y1 - y2;
+        return (dx * dx + dy * dy) <= ((r1 + r2) * (r1 + r2));
+    }
+
+    // Retorna l'estat del joc (per enviar-lo als clients/jugadors)
     getGameState() {
         return {
             objects: this.objects,
-            clients: Array.from(this.clients.values())
+            players: Array.from(this.players.values())
         };
     }
 }

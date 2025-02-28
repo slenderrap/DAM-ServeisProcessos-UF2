@@ -26,21 +26,7 @@ ws.init(httpServer, port);
 
 ws.onConnection = (socket, id) => {
     if (debug) console.log("WebSocket client connected: " + id);
-
-    let newClient = game.addClient(id);
-
-    socket.send(JSON.stringify({
-        type: "welcome",
-        value: "Welcome to the server",
-        id: id,
-        gameState: game.getGameState()
-    }));
-
-    ws.broadcast(JSON.stringify({
-        type: "newClient",
-        id: id,
-        clientData: newClient
-    }));
+    game.addClient(id);
 };
 
 ws.onMessage = (socket, id, msg) => {
