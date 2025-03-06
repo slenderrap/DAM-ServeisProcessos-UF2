@@ -1,0 +1,23 @@
+{
+  'version': 0,
+  'use-external-names': 'false',
+  'case-sensitive': 'false',
+  'roots': [{
+    'type': 'directory',
+    'name': "/Users/albertpalaciosjimenez/Documents/GitHub/DAM-ServeisProcessos/07 NodeJS - WebSockets/Exercici 0/client_flutter/build/macos/Build/Products/Debug/desktop_window/desktop_window.framework/Modules"
+    'contents': [{
+      'type': 'file',
+      'name': "module.modulemap",
+      'external-contents': "/Users/albertpalaciosjimenez/Documents/GitHub/DAM-ServeisProcessos/07 NodeJS - WebSockets/Exercici 0/client_flutter/build/macos/Build/Intermediates.noindex/Pods.build/Debug/desktop_window.build/unextended-module.modulemap",
+    }]
+    },
+    {
+    'type': 'directory',
+    'name': "/Users/albertpalaciosjimenez/Documents/GitHub/DAM-ServeisProcessos/07 NodeJS - WebSockets/Exercici 0/client_flutter/build/macos/Build/Products/Debug/desktop_window/desktop_window.framework/Headers"
+    'contents': [{
+      'type': 'file',
+      'name': "desktop_window-Swift.h",
+      'external-contents': "/Users/albertpalaciosjimenez/Documents/GitHub/DAM-ServeisProcessos/07 NodeJS - WebSockets/Exercici 0/client_flutter/build/macos/Build/Intermediates.noindex/Pods.build/Debug/desktop_window.build/unextended-interface-header.h",
+    }]
+    }]
+}
