@@ -119,9 +119,27 @@ class AppData extends ChangeNotifier {
 
     if (result == null || result.files.single.path == null) {
       return "";
-    } else {
-      return result.files.single.path!.replaceAll("$filePath/", "");
     }
+
+    String selectedPath = result.files.single.path!;
+    String selectedFileName = selectedPath.split(Platform.pathSeparator).last;
+    String destinationPath = "$filePath/$selectedFileName";
+
+    if (selectedPath != destinationPath) {
+      try {
+        await File(selectedPath).copy(destinationPath);
+        if (kDebugMode) {
+          print("File copied to: $destinationPath");
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print("Error copying file: $e");
+        }
+        return "";
+      }
+    }
+
+    return selectedFileName;
   }
 
   Future<ui.Image> getImage(String imageFileName) async {
