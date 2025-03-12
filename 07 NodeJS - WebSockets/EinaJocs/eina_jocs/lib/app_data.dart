@@ -126,7 +126,7 @@ class AppData extends ChangeNotifier {
 
   Future<ui.Image> getImage(String imageFileName) async {
     if (!imagesCache.containsKey(imageFileName)) {
-      final File file = File("$filePath/$imageFileName");
+      final File file = File(imageFileName);
       if (!await file.exists()) {
         throw Exception("File does not exist: $imageFileName");
       }
