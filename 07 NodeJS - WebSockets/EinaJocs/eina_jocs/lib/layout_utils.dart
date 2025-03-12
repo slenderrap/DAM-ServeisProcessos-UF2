@@ -130,7 +130,8 @@ class LayoutUtils {
     return await picture.toImage(10, 10);
   }
 
-  static Future<ui.Image> drawCanvasImageLayers(AppData appData) async {
+  static Future<ui.Image> drawCanvasImageLayers(
+      AppData appData, bool drawGrid) async {
     if (appData.selectedLevel == -1) {
       return await drawCanvasImageEmpty(appData);
     }
@@ -147,8 +148,8 @@ class LayoutUtils {
       if (layer.visible == false) {
         continue;
       }
-      final tilemapImage = await generateTilemapImage(
-          appData, appData.selectedLevel, level.layers.indexOf(layer), true);
+      final tilemapImage = await generateTilemapImage(appData,
+          appData.selectedLevel, level.layers.indexOf(layer), drawGrid);
 
       imgCanvas.drawImage(tilemapImage,
           Offset(layer.x.toDouble(), layer.y.toDouble()), Paint());

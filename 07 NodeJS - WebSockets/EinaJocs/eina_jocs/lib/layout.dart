@@ -108,15 +108,15 @@ class _LayoutState extends State<Layout> {
       case 'game':
         image = await LayoutUtils.drawCanvasImageEmpty(appData);
       case 'levels':
-        image = await LayoutUtils.drawCanvasImageEmpty(appData);
+        image = await LayoutUtils.drawCanvasImageLayers(appData, false);
       case 'layers':
-        image = await LayoutUtils.drawCanvasImageLayers(appData);
+        image = await LayoutUtils.drawCanvasImageLayers(appData, true);
       case 'tilemap':
         image = await LayoutUtils.drawCanvasImageTilemap(appData);
       case 'zones':
-        image = await LayoutUtils.drawCanvasImageLayers(appData);
+        image = await LayoutUtils.drawCanvasImageLayers(appData, true);
       case 'sprites':
-        image = await LayoutUtils.drawCanvasImageLayers(appData);
+        image = await LayoutUtils.drawCanvasImageLayers(appData, true);
       case 'media':
         image = await LayoutUtils.drawCanvasImageEmpty(appData);
       default:
