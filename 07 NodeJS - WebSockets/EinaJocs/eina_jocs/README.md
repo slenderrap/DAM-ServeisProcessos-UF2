@@ -1,4 +1,4 @@
-# client_flutter
+# eina_jocs
 
 A new Flutter project.
 

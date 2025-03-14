@@ -96,7 +96,8 @@ class AppData extends ChangeNotifier {
       _reconnectAttempts++;
       if (kDebugMode) {
         print(
-            "Intent de reconnexió #$_reconnectAttempts en ${_reconnectDelay.inSeconds} segons...");
+          "Intent de reconnexió #$_reconnectAttempts en ${_reconnectDelay.inSeconds} segons...",
+        );
       }
       Future.delayed(_reconnectDelay, () {
         _connectToWebSocket();
@@ -104,7 +105,8 @@ class AppData extends ChangeNotifier {
     } else {
       if (kDebugMode) {
         print(
-            "No es pot reconnectar al servidor després de $_maxReconnectAttempts intents.");
+          "No es pot reconnectar al servidor després de $_maxReconnectAttempts intents.",
+        );
       }
     }
   }

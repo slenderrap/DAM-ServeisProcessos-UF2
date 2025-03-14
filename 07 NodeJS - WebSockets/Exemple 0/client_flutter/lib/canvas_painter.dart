@@ -12,7 +12,9 @@ class CanvasPainter extends CustomPainter {
     final paint = Paint();
     paint.color = Colors.white;
     canvas.drawRect(
-        Rect.fromLTWH(0, 0, painterSize.width, painterSize.height), paint);
+      Rect.fromLTWH(0, 0, painterSize.width, painterSize.height),
+      paint,
+    );
 
     // Dibuixar l'estat del joc
     var gameState = appData.gameState;
@@ -21,13 +23,19 @@ class CanvasPainter extends CustomPainter {
       if (gameState["objects"] != null) {
         for (var obj in gameState["objects"]) {
           paint.color = Colors.black;
-          Offset pos =
-              _serverToPainterCoords(Offset(obj["x"], obj["y"]), painterSize);
+          Offset pos = _serverToPainterCoords(
+            Offset(obj["x"], obj["y"]),
+            painterSize,
+          );
           Size dims = _serverToPainterSize(
-              Size(obj["width"], obj["height"]), painterSize);
+            Size(obj["width"], obj["height"]),
+            painterSize,
+          );
 
           canvas.drawRect(
-              Rect.fromLTWH(pos.dx, pos.dy, dims.width, dims.height), paint);
+            Rect.fromLTWH(pos.dx, pos.dy, dims.width, dims.height),
+            paint,
+          );
         }
       }
 
@@ -36,7 +44,9 @@ class CanvasPainter extends CustomPainter {
         for (var player in gameState["players"]) {
           paint.color = _getColorFromString(player["color"]);
           Offset pos = _serverToPainterCoords(
-              Offset(player["x"], player["y"]), painterSize);
+            Offset(player["x"], player["y"]),
+            painterSize,
+          );
 
           double radius = _serverToPainterRadius(player["radius"], painterSize);
           canvas.drawCircle(pos, radius, paint);
@@ -48,13 +58,19 @@ class CanvasPainter extends CustomPainter {
             Size tileSize = Size(64, 64);
             double painterScale = (2 * radius) / tileSize.width;
             Size painterSize = Size(
-                tileSize.width * painterScale, tileSize.height * painterScale);
+              tileSize.width * painterScale,
+              tileSize.height * painterScale,
+            );
             double x = pos.dx - (painterSize.width / 2);
             double y = pos.dy - (painterSize.height / 2);
             canvas.drawImageRect(
               tilesetImage,
               Rect.fromLTWH(
-                  tilePos.dx, tilePos.dy, tileSize.width, tileSize.height),
+                tilePos.dx,
+                tilePos.dy,
+                tileSize.width,
+                tileSize.height,
+              ),
               Rect.fromLTWH(x, y, painterSize.width, painterSize.height),
               Paint(),
             );
@@ -65,16 +81,22 @@ class CanvasPainter extends CustomPainter {
       // Escriure el text informatiu i l'identificador d'usuari
       String playerId = appData.playerData["id"];
       Color playerColor = _getColorFromString(appData.playerData["color"]);
-      final paragraphStyle =
-          ui.ParagraphStyle(textDirection: TextDirection.ltr);
+      final paragraphStyle = ui.ParagraphStyle(
+        textDirection: TextDirection.ltr,
+      );
       final textStyle = ui.TextStyle(color: playerColor, fontSize: 14);
-      final paragraphBuilder = ui.ParagraphBuilder(paragraphStyle)
-        ..pushStyle(textStyle)
-        ..addText("Press Up, Down, Left or Right keys to move (id: $playerId)");
+      final paragraphBuilder =
+          ui.ParagraphBuilder(paragraphStyle)
+            ..pushStyle(textStyle)
+            ..addText(
+              "Press Up, Down, Left or Right keys to move (id: $playerId)",
+            );
       final paragraph = paragraphBuilder.build();
       paragraph.layout(ui.ParagraphConstraints(width: painterSize.width));
       canvas.drawParagraph(
-          paragraph, Offset(10, painterSize.height - paragraph.height - 5));
+        paragraph,
+        Offset(10, painterSize.height - paragraph.height - 5),
+      );
 
       // Mostrar el cercle de connexió (amunt a la dreta)
       paint.color = appData.isConnected ? Colors.green : Colors.red;
@@ -87,14 +109,18 @@ class CanvasPainter extends CustomPainter {
 
   // Passar coordenades del servidor a coordenades de l'aplicació
   Offset _serverToPainterCoords(Offset serverCoords, Size painterSize) {
-    return Offset(serverCoords.dx * painterSize.width,
-        serverCoords.dy * painterSize.height);
+    return Offset(
+      serverCoords.dx * painterSize.width,
+      serverCoords.dy * painterSize.height,
+    );
   }
 
   // Passar mida del servidor a coordenades de l'aplicació
   Size _serverToPainterSize(Size serverSize, Size painterSize) {
-    return Size(serverSize.width * painterSize.width,
-        serverSize.height * painterSize.height);
+    return Size(
+      serverSize.width * painterSize.width,
+      serverSize.height * painterSize.height,
+    );
   }
 
   // Passar radi del servidor a radi de l'aplicació

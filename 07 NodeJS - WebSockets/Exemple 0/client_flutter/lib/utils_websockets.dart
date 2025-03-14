@@ -1,13 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
-enum ConnectionStatus {
-  disconnected,
-  disconnecting,
-  connecting,
-  connected,
-}
+enum ConnectionStatus { disconnected, disconnecting, connecting, connected }
 
 class WebSocketsHandler {
   late Function _callback;
@@ -15,7 +10,7 @@ class WebSocketsHandler {
   String port = "8888";
   String? socketId;
 
-  IOWebSocketChannel? _socketClient;
+  WebSocketChannel? _socketClient;
   ConnectionStatus connectionStatus = ConnectionStatus.disconnected;
 
   void connectToServer(
@@ -32,7 +27,7 @@ class WebSocketsHandler {
     connectionStatus = ConnectionStatus.connecting;
 
     try {
-      _socketClient = IOWebSocketChannel.connect("ws://$ip:$port");
+      _socketClient = WebSocketChannel.connect(Uri.parse("ws://$ip:$port"));
       connectionStatus = ConnectionStatus.connected;
 
       _socketClient!.stream.listen(
